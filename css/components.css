@@ -4556,14 +4556,36 @@ Responsive styles:
    ============================================================ */
 
 .main-header {
-    position: relative;
-    z-index: 100;
+    position: sticky;
+    top: 0;
+    z-index: 500;
     width: 100%;
     min-height: var(--nav-height);
     border-bottom: 1px solid var(--border-color);
-    background: rgba(5, 8, 7, 0.92);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+    background: rgba(5, 8, 7, 0.78);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+}
+
+.main-header::after {
+    content: "";
+
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+
+    height: 1px;
+
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(71, 255, 141, 0.55) 50%,
+        transparent 100%
+    );
+
+    opacity: 0.6;
+    pointer-events: none;
 }
 
 .nav-container {
@@ -4571,97 +4593,87 @@ Responsive styles:
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 30px;
+    gap: 24px;
 }
 
 
 /* ============================================================
-   2. BRAND / LOGO
+   2. BRAND / LOGO (plain text wordmark)
    ============================================================ */
 
 .main-header .brand,
 .site-footer .brand {
     display: inline-flex;
     align-items: center;
-    gap: 11px;
     flex-shrink: 0;
     color: var(--text-primary);
     text-decoration: none;
 }
 
-.main-header .brand:hover,
-.site-footer .brand:hover {
-    color: var(--text-primary);
+.main-header .brand:hover .brand-name-accent {
+    text-shadow: 0 0 16px rgba(71, 255, 141, 0.65);
 }
 
-.brand-symbol {
+.brand-wordmark {
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    align-items: baseline;
+    gap: 10px;
 
-    width: 38px;
-    height: 38px;
-
-    flex-shrink: 0;
-
-    color: var(--green);
-    background: rgba(71, 255, 141, 0.06);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-small);
-
-    font-family: var(--font-mono);
-    font-size: 14px;
-    font-weight: 700;
-
-    box-shadow:
-        0 0 18px rgba(71, 255, 141, 0.05);
-}
-
-.brand-text {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 0;
-
-    line-height: 1.05;
+    line-height: 1;
     white-space: nowrap;
 }
 
-.brand-text strong {
-    display: block;
-
-    color: var(--text-primary);
-
+.brand-name {
     font-family: var(--font-mono);
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 800;
-    letter-spacing: 1.2px;
+    letter-spacing: 0.5px;
+    color: var(--text-primary);
 }
 
-.brand-text > span {
-    display: block;
-
-    margin-top: 3px;
-
+.brand-name-accent {
     color: var(--green);
+    transition: text-shadow var(--transition-normal);
+}
 
+.brand-divider {
+    color: var(--text-muted);
+    font-weight: 300;
+    opacity: 0.6;
+}
+
+.brand-tagline {
     font-family: var(--font-mono);
-    font-size: 9px;
+    font-size: 10.5px;
     font-weight: 600;
-    letter-spacing: 2.4px;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
 }
 
 
 /* ============================================================
-   3. MAIN NAVIGATION
+   3. MAIN NAVIGATION (modern pill / segmented style)
    ============================================================ */
 
 .main-nav {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 4px;
+    gap: 12px;
     min-width: 0;
+}
+
+.nav-links-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+
+    padding: 4px;
+
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
 }
 
 .main-nav .nav-link {
@@ -4671,8 +4683,8 @@ Responsive styles:
     align-items: center;
     justify-content: center;
 
-    min-height: 38px;
-    padding: 0 12px;
+    min-height: 34px;
+    padding: 0 16px;
 
     color: var(--text-secondary);
 
@@ -4683,7 +4695,7 @@ Responsive styles:
     letter-spacing: 0.4px;
     white-space: nowrap;
 
-    border-radius: var(--radius-small);
+    border-radius: 999px;
 
     transition:
         color var(--transition-normal),
@@ -4691,55 +4703,54 @@ Responsive styles:
 }
 
 .main-nav .nav-link:hover {
-    color: var(--green);
-    background: rgba(71, 255, 141, 0.045);
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .main-nav .nav-link.active {
-    color: var(--green);
-    background: rgba(71, 255, 141, 0.06);
+    color: var(--bg-primary);
+    background: var(--green);
+    box-shadow: 0 0 16px rgba(71, 255, 141, 0.35);
 }
 
 .main-nav .nav-link.active::after {
-    content: "";
-
-    position: absolute;
-
-    left: 10px;
-    right: 10px;
-    bottom: 4px;
-
-    height: 1px;
-
-    background: var(--green);
-
-    box-shadow:
-        0 0 8px rgba(71, 255, 141, 0.45);
+    display: none;
 }
 
 .main-nav .nav-github {
-    margin-left: 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
 
-    color: var(--bg-primary);
-    background: var(--green);
-    border: 1px solid var(--green);
+    padding: 0 16px;
 
-    font-weight: 800;
+    color: var(--text-primary);
+    background: rgba(71, 255, 141, 0.06);
+    border: 1px solid var(--border-hover);
+
+    font-weight: 700;
+
+    transition:
+        color var(--transition-normal),
+        background var(--transition-normal),
+        border-color var(--transition-normal),
+        transform var(--transition-normal);
 }
 
 .main-nav .nav-github:hover {
     color: var(--bg-primary);
-    background: var(--green-bright);
-    border-color: var(--green-bright);
+    background: var(--green);
+    border-color: var(--green);
+    transform: translateY(-1px);
 }
 
-.main-nav .nav-github::after {
-    display: none;
+.nav-github-icon {
+    flex-shrink: 0;
 }
 
 
 /* ============================================================
-   4. MOBILE MENU BUTTON
+   4. MOBILE MENU BUTTON (animated hamburger -> X)
    ============================================================ */
 
 .mobile-menu-button {
@@ -4760,6 +4771,14 @@ Responsive styles:
 
     border: 1px solid var(--border-color);
     border-radius: var(--radius-small);
+
+    cursor: pointer;
+
+    transition: border-color var(--transition-normal);
+}
+
+.mobile-menu-button:hover {
+    border-color: var(--border-hover);
 }
 
 .mobile-menu-button span {
@@ -4773,6 +4792,18 @@ Responsive styles:
     transition:
         transform var(--transition-normal),
         opacity var(--transition-normal);
+}
+
+.mobile-menu-button.active span:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+}
+
+.mobile-menu-button.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-menu-button.active span:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
 }
 
 
@@ -5137,6 +5168,14 @@ Responsive styles:
         gap: 15px;
     }
 
+    .brand-tagline {
+        display: none;
+    }
+
+    .brand-divider {
+        display: none;
+    }
+
     .main-nav .nav-link {
         padding-left: 8px;
         padding-right: 8px;
@@ -5200,11 +5239,12 @@ Responsive styles:
         flex-direction: column;
         align-items: stretch;
 
-        gap: 4px;
+        gap: 8px;
 
-        padding: 10px;
+        padding: 14px;
 
         background: rgba(5, 8, 7, 0.98);
+        backdrop-filter: blur(20px);
 
         border-bottom: 1px solid var(--border-color);
 
@@ -5216,6 +5256,16 @@ Responsive styles:
         display: flex;
     }
 
+    .nav-links-group {
+        flex-direction: column;
+        align-items: stretch;
+
+        gap: 2px;
+        padding: 6px;
+
+        border-radius: var(--radius-medium);
+    }
+
     .main-header .nav-link {
         min-height: 42px;
 
@@ -5223,17 +5273,17 @@ Responsive styles:
 
         padding: 0 13px;
 
-        font-size: 10px;
+        font-size: 11px;
+
+        border-radius: var(--radius-small);
     }
 
-    .main-header .nav-link.active::after {
-        display: none;
+    .main-header .nav-link.active {
+        box-shadow: none;
     }
 
     .main-header .nav-github {
-        margin-left: 0;
-
-        justify-content: flex-start;
+        justify-content: center;
     }
 
 
@@ -5321,19 +5371,8 @@ Responsive styles:
     }
 
 
-    .brand-symbol {
-        width: 34px;
-        height: 34px;
-        font-size: 12px;
-    }
-
-    .brand-text strong {
-        font-size: 12px;
-    }
-
-    .brand-text > span {
-        font-size: 8px;
-        letter-spacing: 2px;
+    .brand-name {
+        font-size: 13px;
     }
 
 

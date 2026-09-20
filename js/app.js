@@ -352,7 +352,7 @@ function initializeNavigation() {
 
 
     const navLinks =
-        qs(".nav-links");
+        qs(".main-nav");
 
 
     if (
@@ -364,9 +364,50 @@ function initializeNavigation() {
             "click",
             () => {
 
-                navLinks.classList.toggle(
-                    "mobile-open"
+                const isOpen =
+                    navLinks.classList.toggle(
+                        "mobile-open"
+                    );
+
+                menuButton.classList.toggle(
+                    "active",
+                    isOpen
                 );
+
+                menuButton.setAttribute(
+                    "aria-expanded",
+                    isOpen ? "true" : "false"
+                );
+
+            }
+        );
+
+
+        /* Close the mobile menu after a nav link is tapped. */
+        navLinks.addEventListener(
+            "click",
+            (event) => {
+
+                if (
+                    event.target.closest(
+                        ".nav-link"
+                    )
+                ) {
+
+                    navLinks.classList.remove(
+                        "mobile-open"
+                    );
+
+                    menuButton.classList.remove(
+                        "active"
+                    );
+
+                    menuButton.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+                }
 
             }
         );

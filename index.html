@@ -152,25 +152,23 @@
 
         <div class="container nav-container">
 
-            <!-- Logo / brand -->
+            <!-- Logo / brand — plain text wordmark, no icon box -->
             <a
                 class="brand"
                 href="index.html"
                 aria-label="Charlie MJ DevOps Explorer home"
             >
 
-                <span class="brand-symbol">
-                    &gt;_
-                </span>
+                <span class="brand-wordmark">
 
-                <span class="brand-text">
+                    <span class="brand-name">
+                        CHARLIE<span class="brand-name-accent">MJ</span>
+                    </span>
 
-                    <strong>
-                        DEVOPS
-                    </strong>
+                    <span class="brand-divider" aria-hidden="true">/</span>
 
-                    <span>
-                        EXPLORER
+                    <span class="brand-tagline">
+                        DevOps&nbsp;Explorer
                     </span>
 
                 </span>
@@ -181,43 +179,48 @@
             <!-- Desktop navigation -->
             <nav
                 class="main-nav"
+                id="mainNav"
                 aria-label="Main navigation"
             >
 
-                <a
-                    href="#explore"
-                    class="nav-link active"
-                >
-                    Explore
-                </a>
+                <div class="nav-links-group">
 
-                <a
-                    href="#technologies"
-                    class="nav-link"
-                >
-                    Technologies
-                </a>
+                    <a
+                        href="#explore"
+                        class="nav-link active"
+                    >
+                        Explore
+                    </a>
 
-                <a
-                    href="#labs"
-                    class="nav-link"
-                >
-                    Labs
-                </a>
+                    <a
+                        href="#technologies"
+                        class="nav-link"
+                    >
+                        Technologies
+                    </a>
 
-                <a
-                    href="#stack"
-                    class="nav-link"
-                >
-                    Stack Builder
-                </a>
+                    <a
+                        href="#labs"
+                        class="nav-link"
+                    >
+                        Labs
+                    </a>
 
-                <a
-                    href="#architecture"
-                    class="nav-link"
-                >
-                    Architecture
-                </a>
+                    <a
+                        href="#stack"
+                        class="nav-link"
+                    >
+                        Stack Builder
+                    </a>
+
+                    <a
+                        href="#architecture"
+                        class="nav-link"
+                    >
+                        Architecture
+                    </a>
+
+                </div>
 
                 <a
                     href="https://github.com/"
@@ -225,20 +228,23 @@
                     target="_blank"
                     rel="noopener noreferrer"
                 >
-                    GitHub
+                    <svg class="nav-github-icon" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="currentColor">
+                        <path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
+                    </svg>
+                    <span>GitHub</span>
                 </a>
 
             </nav>
 
 
-            <!-- Mobile menu button.
-                 app.js can attach behavior to this button later. -->
+            <!-- Mobile menu button -->
             <button
                 type="button"
                 class="mobile-menu-button"
                 id="mobileMenuButton"
                 aria-label="Open navigation menu"
                 aria-expanded="false"
+                aria-controls="mainNav"
             >
                 <span></span>
                 <span></span>
@@ -2535,18 +2541,16 @@
                     class="brand"
                 >
 
-                    <span class="brand-symbol">
-                        &gt;_
-                    </span>
+                    <span class="brand-wordmark">
 
-                    <span class="brand-text">
+                        <span class="brand-name">
+                            CHARLIE<span class="brand-name-accent">MJ</span>
+                        </span>
 
-                        <strong>
-                            DEVOPS
-                        </strong>
+                        <span class="brand-divider" aria-hidden="true">/</span>
 
-                        <span>
-                            EXPLORER
+                        <span class="brand-tagline">
+                            DevOps&nbsp;Explorer
                         </span>
 
                     </span>
