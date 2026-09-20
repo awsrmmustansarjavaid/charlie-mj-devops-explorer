@@ -4,51 +4,113 @@ CHARLIE MJ DEVOPS EXPLORER
 responsive.css
 ============================================================
 
-Responsive breakpoints:
+Purpose:
+    Responsive overrides for the Charlie MJ DevOps Explorer.
 
-Large desktop:
-    1400px+
+This file contains ONLY responsive rules.
 
-Desktop:
-    1200px
-
-Laptop / tablet:
-    1024px
-
-Tablet:
-    768px
-
-Mobile:
-    600px
-
-Small mobile:
-    480px
-
-This file intentionally contains only responsive overrides.
-Base component styling lives in:
-
+Base styling is defined in:
     css/style.css
     css/components.css
+
+Responsive breakpoints:
+
+    Large Desktop:
+        1400px+
+
+    Desktop / Laptop:
+        1200px
+
+    Tablet / Small Laptop:
+        1024px
+
+    Tablet / Mobile:
+        768px
+
+    Mobile:
+        600px
+
+    Small Mobile:
+        480px
+
+Important homepage components:
+
+    Statistics:
+        .stats-section
+        .stats-grid
+        .stat-item
+
+    DevOps Delivery Pipeline:
+        .stack-section
+        .pipeline
+        .pipeline-item
+        .pipeline-arrow
+
+    Learning Approach:
+        .architecture-section
+        .architecture-grid
+        .architecture-card
+
+Important compatibility note:
+
+    This file intentionally keeps responsive rules for the
+    older components:
+
+        .stats-strip
+        .stack-builder
+        .stack-pipeline
+        .architecture-flow
+        .flow-card
+
+    These may still be used by other pages/components.
+
+    The homepage uses the newer classes listed above.
+
 ============================================================
 */
 
 
 /* ==========================================================
    1. LARGE DESKTOP
+   ==========================================================
+
+   Applies to screens 1400px and wider.
+
+   Goal:
+       Take advantage of larger desktop screens by allowing
+       wider grids and a larger hero heading.
    ========================================================== */
 
 @media (min-width: 1400px) {
 
+    /* ------------------------------------------------------
+       Hero
+       ------------------------------------------------------ */
+
     .hero-title {
-        font-size: 84px;
+
+        font-size:
+            84px;
     }
 
+
+    /* ------------------------------------------------------
+       Repository Grid
+       ------------------------------------------------------ */
+
     .repository-grid {
+
         grid-template-columns:
             repeat(3, minmax(0, 1fr));
     }
 
+
+    /* ------------------------------------------------------
+       Technology Grid
+       ------------------------------------------------------ */
+
     .technology-grid {
+
         grid-template-columns:
             repeat(5, minmax(0, 1fr));
     }
@@ -58,6 +120,13 @@ Base component styling lives in:
 
 /* ==========================================================
    2. DESKTOP / LAPTOP
+   ==========================================================
+
+   Applies below 1200px.
+
+   Goal:
+       Reduce navigation spacing and gradually reduce the
+       number of columns in larger content grids.
    ========================================================== */
 
 @media (max-width: 1200px) {
@@ -67,14 +136,22 @@ Base component styling lives in:
        ------------------------------------------------------ */
 
     .nav-link {
-        padding-left: 8px;
-        padding-right: 8px;
+
+        padding-left:
+            8px;
+
+        padding-right:
+            8px;
     }
 
 
     .nav-link::after {
-        left: 8px;
-        right: 8px;
+
+        left:
+            8px;
+
+        right:
+            8px;
     }
 
 
@@ -101,7 +178,7 @@ Base component styling lives in:
 
 
     /* ------------------------------------------------------
-       Cloud Providers
+       Cloud Provider Grid
        ------------------------------------------------------ */
 
     .cloud-provider-grid {
@@ -127,6 +204,33 @@ Base component styling lives in:
 
 /* ==========================================================
    3. TABLET / SMALL LAPTOP
+   ==========================================================
+
+   Applies below 1024px.
+
+   Major changes:
+
+       - Smaller container width
+       - Reduced navigation spacing
+       - Smaller hero
+       - Two-column filters
+       - Two-column repositories
+       - Two-column homepage statistics
+       - Two-column homepage pipeline
+       - Single-column learning approach
+       - Two-column categories
+       - Two-column cloud providers
+       - Two-column footer
+
+   NOTE:
+
+       The homepage uses:
+           .stats-grid
+           .pipeline
+           .architecture-grid
+
+       Older components continue using their original
+       selectors and are preserved below.
    ========================================================== */
 
 @media (max-width: 1024px) {
@@ -146,7 +250,7 @@ Base component styling lives in:
 
 
     /* ------------------------------------------------------
-       Navbar
+       Navbar Container
        ------------------------------------------------------ */
 
     .navbar-container {
@@ -158,7 +262,8 @@ Base component styling lives in:
 
     .nav-links {
 
-        gap: 1px;
+        gap:
+            1px;
     }
 
 
@@ -167,7 +272,8 @@ Base component styling lives in:
         padding:
             0 7px;
 
-        font-size: 10px;
+        font-size:
+            10px;
     }
 
 
@@ -184,7 +290,8 @@ Base component styling lives in:
 
     .hero {
 
-        min-height: 600px;
+        min-height:
+            600px;
 
         padding:
             85px 0
@@ -207,27 +314,37 @@ Base component styling lives in:
 
 
     .tech-node.node-1 {
-        left: 4%;
+
+        left:
+            4%;
     }
 
 
     .tech-node.node-2 {
-        right: 4%;
+
+        right:
+            4%;
     }
 
 
     .tech-node.node-3 {
-        left: 5%;
+
+        left:
+            5%;
     }
 
 
     .tech-node.node-4 {
-        right: 5%;
+
+        right:
+            5%;
     }
 
 
     .hero-visual {
-        max-width: 360px;
+
+        max-width:
+            360px;
     }
 
 
@@ -243,7 +360,9 @@ Base component styling lives in:
 
 
     .search-panel {
-        padding: 16px;
+
+        padding:
+            16px;
     }
 
 
@@ -258,30 +377,100 @@ Base component styling lives in:
     }
 
 
-    /* ------------------------------------------------------
-       Stats
-       ------------------------------------------------------ */
+    /* ======================================================
+       HOMEPAGE: STATISTICS
+       ======================================================
 
-    .stats-strip {
+       Desktop:
+           4 columns
 
-        width:
-            calc(100% - 32px);
+       Tablet:
+           2 columns
+
+       Mobile:
+           1 column
+
+       IMPORTANT:
+
+           The homepage uses .stats-grid.
+
+           .stats-strip is an older component and is
+           intentionally handled separately later.
+       ====================================================== */
+
+    .stats-grid {
 
         grid-template-columns:
-            repeat(2, 1fr);
+            repeat(2, minmax(0, 1fr));
     }
 
 
-    .stat-item:nth-child(2) {
+    .stats-grid .stat-item:nth-child(2) {
 
-        border-right: none;
+        border-right:
+            none;
     }
 
 
-    .stat-item:nth-child(-n+2) {
+    .stats-grid .stat-item:nth-child(-n+2) {
 
         border-bottom:
             1px solid var(--border-color);
+    }
+
+
+    /* ======================================================
+       HOMEPAGE: DEVOPS DELIVERY PIPELINE
+       ======================================================
+
+       Desktop:
+           7 horizontal items with arrows.
+
+       Tablet:
+           2-column grid.
+
+       Arrows are hidden because the horizontal pipeline
+       no longer fits comfortably on tablet screens.
+       ====================================================== */
+
+    .pipeline {
+
+        display:
+            grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap:
+            12px;
+    }
+
+
+    .pipeline-arrow {
+
+        display:
+            none;
+    }
+
+
+    /* ======================================================
+       HOMEPAGE: LEARNING APPROACH
+       ======================================================
+
+       Desktop:
+           3 columns.
+
+       Tablet:
+           1 column.
+
+       This prevents the three learning cards from becoming
+       too narrow on smaller screens.
+       ====================================================== */
+
+    .architecture-grid {
+
+        grid-template-columns:
+            1fr;
     }
 
 
@@ -297,7 +486,11 @@ Base component styling lives in:
 
 
     /* ------------------------------------------------------
-       Stack Builder
+       OLD STACK BUILDER
+       ------------------------------------------------------
+
+       Preserved for compatibility with existing pages that
+       use .stack-builder.
        ------------------------------------------------------ */
 
     .stack-builder {
@@ -308,7 +501,11 @@ Base component styling lives in:
 
 
     /* ------------------------------------------------------
-       Architecture
+       OLD ARCHITECTURE COMPONENT
+       ------------------------------------------------------
+
+       Preserved for compatibility with existing pages that
+       use .architecture-flow and .flow-card.
        ------------------------------------------------------ */
 
     .architecture-flow {
@@ -320,15 +517,20 @@ Base component styling lives in:
 
     .flow-card:not(:last-child)::after {
 
-        content: "↓";
+        content:
+            "↓";
 
-        right: auto;
+        right:
+            auto;
 
-        left: 50%;
+        left:
+            50%;
 
-        top: auto;
+        top:
+            auto;
 
-        bottom: -18px;
+        bottom:
+            -18px;
 
         transform:
             translateX(-50%);
@@ -359,7 +561,7 @@ Base component styling lives in:
 
 
     /* ------------------------------------------------------
-       Cloud Providers
+       Cloud Provider Grid
        ------------------------------------------------------ */
 
     .cloud-provider-grid {
@@ -385,7 +587,8 @@ Base component styling lives in:
         grid-column:
             1 / -1;
 
-        max-width: 600px;
+        max-width:
+            600px;
     }
 
 }
@@ -393,12 +596,30 @@ Base component styling lives in:
 
 /* ==========================================================
    4. TABLET
+   ==========================================================
+
+   Applies below 768px.
+
+   Major changes:
+
+       - Mobile navigation
+       - Smaller hero
+       - Search becomes vertical
+       - Homepage statistics become one column
+       - Homepage pipeline becomes one column
+       - Learning cards become one column
+       - Repository grid becomes one column
+       - Smaller technology cards
+       - Single-column categories
+       - Single-column footer
+
+   Older component responsive rules are preserved.
    ========================================================== */
 
 @media (max-width: 768px) {
 
     /* ------------------------------------------------------
-       Global
+       Global Container
        ------------------------------------------------------ */
 
     .container {
@@ -414,17 +635,21 @@ Base component styling lives in:
 
     .system-bar {
 
-        min-height: 30px;
+        min-height:
+            30px;
 
         padding:
             0 14px;
 
-        font-size: 8px;
+        font-size:
+            8px;
     }
 
 
     .system-version {
-        display: none;
+
+        display:
+            none;
     }
 
 
@@ -434,7 +659,8 @@ Base component styling lives in:
 
     .navbar {
 
-        height: 62px;
+        height:
+            62px;
     }
 
 
@@ -447,20 +673,29 @@ Base component styling lives in:
 
     .nav-links {
 
-        position: absolute;
+        position:
+            absolute;
 
-        top: 62px;
+        top:
+            62px;
 
-        left: 0;
-        right: 0;
+        left:
+            0;
 
-        display: none;
+        right:
+            0;
 
-        flex-direction: column;
+        display:
+            none;
 
-        align-items: stretch;
+        flex-direction:
+            column;
 
-        padding: 10px;
+        align-items:
+            stretch;
+
+        padding:
+            10px;
 
         border-bottom:
             1px solid var(--border-color);
@@ -474,36 +709,46 @@ Base component styling lives in:
 
 
     .nav-links.mobile-open {
-        display: flex;
+
+        display:
+            flex;
     }
 
 
     .nav-link {
 
-        min-height: 42px;
+        min-height:
+            42px;
 
         padding:
             0 13px;
 
-        justify-content: flex-start;
+        justify-content:
+            flex-start;
 
-        font-size: 10px;
+        font-size:
+            10px;
     }
 
 
     .nav-link::after {
-        display: none;
+
+        display:
+            none;
     }
 
 
     .nav-actions {
-        margin-left: auto;
+
+        margin-left:
+            auto;
     }
 
 
     .nav-github {
 
-        min-height: 35px;
+        min-height:
+            35px;
 
         padding:
             0 9px;
@@ -512,7 +757,8 @@ Base component styling lives in:
 
     .mobile-menu-button {
 
-        display: flex;
+        display:
+            flex;
     }
 
 
@@ -521,19 +767,26 @@ Base component styling lives in:
        ------------------------------------------------------ */
 
     .brand-subtitle {
-        display: none;
+
+        display:
+            none;
     }
 
 
     .brand-mark {
 
-        width: 34px;
-        height: 34px;
+        width:
+            34px;
+
+        height:
+            34px;
     }
 
 
     .brand-name {
-        font-size: 12px;
+
+        font-size:
+            12px;
     }
 
 
@@ -574,14 +827,19 @@ Base component styling lives in:
 
 
     .hero-visual {
-        max-width: 280px;
-        margin: 22px auto 4px;
+
+        max-width:
+            280px;
+
+        margin:
+            22px auto 4px;
     }
 
 
     .tech-node {
 
-        display: none;
+        display:
+            none;
     }
 
 
@@ -658,8 +916,51 @@ Base component styling lives in:
     }
 
 
+    /* ======================================================
+       HOMEPAGE: STATISTICS
+       ======================================================
+
+       Statistics become a single vertical column.
+
+       The last item removes its bottom border so the
+       statistics section ends cleanly.
+       ====================================================== */
+
+    .stats-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .stats-grid .stat-item {
+
+        min-height:
+            85px;
+
+        padding:
+            18px;
+
+        border-right:
+            none;
+
+        border-bottom:
+            1px solid var(--border-color);
+    }
+
+
+    .stats-grid .stat-item:last-child {
+
+        border-bottom:
+            none;
+    }
+
+
     /* ------------------------------------------------------
-       Stats
+       OLD STATISTICS STRIP
+       ------------------------------------------------------
+
+       Preserved for older pages/components.
        ------------------------------------------------------ */
 
     .stats-strip {
@@ -683,8 +984,81 @@ Base component styling lives in:
 
 
     .stat-value {
+
         font-size:
             17px;
+    }
+
+
+    /* ======================================================
+       HOMEPAGE: FEATURE SECTIONS
+       ====================================================== */
+
+    .stack-section,
+    .architecture-section {
+
+        padding:
+            70px 0;
+    }
+
+
+    /* ======================================================
+       HOMEPAGE: DEVOPS DELIVERY PIPELINE
+       ======================================================
+
+       The pipeline becomes a vertical list.
+
+       Arrows are already hidden at 1024px, so each pipeline
+       item can occupy the complete available width.
+       ====================================================== */
+
+    .pipeline {
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            10px;
+
+        margin-top:
+            30px;
+    }
+
+
+    .pipeline-item {
+
+        min-height:
+            90px;
+
+        padding:
+            18px;
+    }
+
+
+    /* ======================================================
+       HOMEPAGE: LEARNING APPROACH
+       ====================================================== */
+
+    .architecture-grid {
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            12px;
+
+        margin-top:
+            30px;
+    }
+
+
+    .architecture-card {
+
+        min-height:
+            210px;
+
+        padding:
+            20px;
     }
 
 
@@ -765,6 +1139,7 @@ Base component styling lives in:
 
 
     .technology-name {
+
         font-size:
             12px;
     }
@@ -792,9 +1167,14 @@ Base component styling lives in:
     }
 
 
-    /* ------------------------------------------------------
-       Stack
-       ------------------------------------------------------ */
+    /* ======================================================
+       OLD STACK BUILDER
+       ======================================================
+
+       These rules are for the older Stack Builder component.
+       They are intentionally kept separate from the new
+       homepage .pipeline component.
+       ====================================================== */
 
     .stack-builder {
 
@@ -964,6 +1344,13 @@ Base component styling lives in:
 
 /* ==========================================================
    5. MOBILE
+   ==========================================================
+
+   Applies below 600px.
+
+   Goal:
+       Optimize typography, navigation, search, cards and
+       content spacing for phones.
    ========================================================== */
 
 @media (max-width: 600px) {
@@ -1134,8 +1521,59 @@ Base component styling lives in:
     }
 
 
+    /* ======================================================
+       HOMEPAGE: STATISTICS
+       ======================================================
+
+       Keep one statistic per row.
+
+       !important is intentionally avoided here because the
+       homepage .stats-grid already controls its own borders.
+       ====================================================== */
+
+    .stats-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .stats-grid .stat-item {
+
+        min-height:
+            78px;
+
+        padding:
+            16px;
+    }
+
+
+    .stats-grid .stat-item strong {
+
+        font-size:
+            20px;
+    }
+
+
+    .stats-grid .stat-item {
+
+        border-right:
+            none;
+    }
+
+
+    .stats-grid .stat-item:not(:last-child) {
+
+        border-bottom:
+            1px solid var(--border-color);
+    }
+
+
     /* ------------------------------------------------------
-       Stats
+       OLD STATISTICS STRIP
+       ------------------------------------------------------
+
+       Preserved for older pages.
        ------------------------------------------------------ */
 
     .stats-strip {
@@ -1145,7 +1583,7 @@ Base component styling lives in:
     }
 
 
-    .stat-item {
+    .stats-strip .stat-item {
 
         border-right:
             none !important;
@@ -1155,10 +1593,76 @@ Base component styling lives in:
     }
 
 
-    .stat-item:last-child {
+    .stats-strip .stat-item:last-child {
 
         border-bottom:
             none;
+    }
+
+
+    /* ======================================================
+       HOMEPAGE: FEATURE SECTIONS
+       ====================================================== */
+
+    .stack-section,
+    .architecture-section {
+
+        padding:
+            55px 0;
+    }
+
+
+    /* ------------------------------------------------------
+       Homepage Pipeline
+       ------------------------------------------------------ */
+
+    .pipeline {
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            10px;
+
+        margin-top:
+            28px;
+    }
+
+
+    .pipeline-item {
+
+        min-height:
+            85px;
+
+        padding:
+            16px;
+    }
+
+
+    /* ------------------------------------------------------
+       Homepage Learning Approach
+       ------------------------------------------------------ */
+
+    .architecture-grid {
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            10px;
+
+        margin-top:
+            28px;
+    }
+
+
+    .architecture-card {
+
+        min-height:
+            200px;
+
+        padding:
+            18px;
     }
 
 
@@ -1227,7 +1731,10 @@ Base component styling lives in:
 
 
     /* ------------------------------------------------------
-       Architecture
+       OLD Architecture Component
+       ------------------------------------------------------
+
+       Preserved for pages using .flow-card.
        ------------------------------------------------------ */
 
     .flow-card {
@@ -1317,9 +1824,20 @@ Base component styling lives in:
 
 /* ==========================================================
    6. SMALL MOBILE
+   ==========================================================
+
+   Applies below 480px.
+
+   Goal:
+       Provide additional spacing and typography reductions
+       for very small phone screens.
    ========================================================== */
 
 @media (max-width: 480px) {
+
+    /* ------------------------------------------------------
+       Container
+       ------------------------------------------------------ */
 
     .container {
 
@@ -1335,6 +1853,10 @@ Base component styling lives in:
     }
 
 
+    /* ------------------------------------------------------
+       System Bar
+       ------------------------------------------------------ */
+
     .system-bar {
 
         padding:
@@ -1344,6 +1866,10 @@ Base component styling lives in:
             7px;
     }
 
+
+    /* ------------------------------------------------------
+       Brand
+       ------------------------------------------------------ */
 
     .brand-name {
 
@@ -1360,6 +1886,10 @@ Base component styling lives in:
             nowrap;
     }
 
+
+    /* ------------------------------------------------------
+       Hero
+       ------------------------------------------------------ */
 
     .hero {
 
@@ -1378,6 +1908,10 @@ Base component styling lives in:
     }
 
 
+    /* ------------------------------------------------------
+       Search
+       ------------------------------------------------------ */
+
     .search-area {
 
         width:
@@ -1385,12 +1919,103 @@ Base component styling lives in:
     }
 
 
+    /* ------------------------------------------------------
+       OLD Statistics Strip
+       ------------------------------------------------------
+
+       Preserved for older pages/components.
+       ------------------------------------------------------ */
+
     .stats-strip {
 
         width:
             calc(100% - 22px);
     }
 
+
+    /* ======================================================
+       HOMEPAGE: STATISTICS
+       ====================================================== */
+
+    .stats-grid .stat-item {
+
+        min-height:
+            74px;
+
+        padding:
+            15px;
+    }
+
+
+    .stats-grid .stat-item strong {
+
+        font-size:
+            19px;
+    }
+
+
+    /* ======================================================
+       HOMEPAGE: PIPELINE
+       ====================================================== */
+
+    .pipeline {
+
+        gap:
+            8px;
+    }
+
+
+    .pipeline-item {
+
+        min-height:
+            82px;
+
+        padding:
+            15px;
+    }
+
+
+    /* ======================================================
+       HOMEPAGE: LEARNING APPROACH
+       ====================================================== */
+
+    .architecture-grid {
+
+        gap:
+            9px;
+    }
+
+
+    .architecture-card {
+
+        min-height:
+            190px;
+
+        padding:
+            17px;
+    }
+
+
+    .architecture-icon {
+
+        margin-top:
+            18px;
+    }
+
+
+    .architecture-card h3 {
+
+        margin-top:
+            16px;
+
+        font-size:
+            18px;
+    }
+
+
+    /* ------------------------------------------------------
+       Repository
+       ------------------------------------------------------ */
 
     .repo-card {
 
@@ -1413,12 +2038,20 @@ Base component styling lives in:
     }
 
 
+    /* ------------------------------------------------------
+       Technology
+       ------------------------------------------------------ */
+
     .technology-card {
 
         padding:
             14px;
     }
 
+
+    /* ------------------------------------------------------
+       Page Header
+       ------------------------------------------------------ */
 
     .page-title {
 
@@ -1437,6 +2070,10 @@ Base component styling lives in:
     }
 
 
+    /* ------------------------------------------------------
+       Detail Panel
+       ------------------------------------------------------ */
+
     .detail-panel {
 
         padding:
@@ -1444,12 +2081,20 @@ Base component styling lives in:
     }
 
 
+    /* ------------------------------------------------------
+       Resource
+       ------------------------------------------------------ */
+
     .resource-main {
 
         padding:
             18px;
     }
 
+
+    /* ------------------------------------------------------
+       Footer
+       ------------------------------------------------------ */
 
     .footer {
 
@@ -1462,6 +2107,15 @@ Base component styling lives in:
 
 /* ==========================================================
    7. REDUCED MOTION
+   ==========================================================
+
+   Accessibility:
+
+       Users who enable reduced motion in their operating
+       system receive minimal animation and transition
+       effects.
+
+   This applies globally at every screen size.
    ========================================================== */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1488,9 +2142,23 @@ Base component styling lives in:
 
 /* ==========================================================
    8. LANDSCAPE MOBILE
+   ==========================================================
+
+   Applies when:
+
+       - Device height is 500px or less
+       - Device is in landscape orientation
+
+   Goal:
+       Prevent the hero section from consuming too much
+       vertical space on landscape phones.
    ========================================================== */
 
 @media (max-height: 500px) and (orientation: landscape) {
+
+    /* ------------------------------------------------------
+       Hero
+       ------------------------------------------------------ */
 
     .hero {
 
@@ -1523,3 +2191,340 @@ Base component styling lives in:
     }
 
 }
+
+
+/* ==========================================================
+   9. HOMEPAGE FEATURE SECTIONS
+   ==========================================================
+
+   This section provides the responsive behavior for the
+   NEW homepage components.
+
+   Homepage HTML:
+
+       Statistics:
+           .stats-section
+           .stats-grid
+           .stat-item
+
+       DevOps Delivery Pipeline:
+           .stack-section
+           .pipeline
+           .pipeline-item
+           .pipeline-arrow
+
+       Learning Approach:
+           .architecture-section
+           .architecture-grid
+           .architecture-card
+
+   These rules are kept together at the end of the file so
+   they are easy to find and maintain.
+
+   IMPORTANT:
+
+       Do NOT rename these classes to:
+
+           .stats-strip
+           .stack-pipeline
+           .architecture-flow
+           .flow-card
+
+       Those are older components and are intentionally
+       preserved separately above.
+   ========================================================== */
+
+
+/* ----------------------------------------------------------
+   9.1 TABLET / SMALL LAPTOP
+   ---------------------------------------------------------- */
+
+@media (max-width: 1024px) {
+
+    /* ------------------------------------------------------
+       Homepage Statistics
+
+       Desktop:
+           4 columns
+
+       Tablet:
+           2 columns
+       ------------------------------------------------------ */
+
+    .stats-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    .stats-grid .stat-item:nth-child(2) {
+
+        border-right:
+            none;
+    }
+
+
+    .stats-grid .stat-item:nth-child(-n+2) {
+
+        border-bottom:
+            1px solid var(--border-color);
+    }
+
+
+    /* ------------------------------------------------------
+       Homepage Pipeline
+
+       Desktop:
+           Horizontal flow.
+
+       Tablet:
+           Two-column grid.
+
+       Arrows are hidden because the grid layout no longer
+       follows one continuous horizontal direction.
+       ------------------------------------------------------ */
+
+    .pipeline {
+
+        display:
+            grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap:
+            12px;
+    }
+
+
+    .pipeline-arrow {
+
+        display:
+            none;
+    }
+
+
+    /* ------------------------------------------------------
+       Homepage Learning Approach
+
+       Desktop:
+           Three cards.
+
+       Tablet:
+           One card per row.
+       ------------------------------------------------------ */
+
+    .architecture-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+}
+
+
+/* ----------------------------------------------------------
+   9.2 TABLET / MOBILE
+   ---------------------------------------------------------- */
+
+@media (max-width: 768px) {
+
+    /* ------------------------------------------------------
+       Homepage Section Spacing
+       ------------------------------------------------------ */
+
+    .stack-section,
+    .architecture-section {
+
+        padding:
+            70px 0;
+    }
+
+
+    /* ------------------------------------------------------
+       Homepage Statistics
+
+       One statistic per row.
+       ------------------------------------------------------ */
+
+    .stats-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .stats-grid .stat-item {
+
+        min-height:
+            85px;
+
+        padding:
+            18px;
+
+        border-right:
+            none;
+
+        border-bottom:
+            1px solid var(--border-color);
+    }
+
+
+    .stats-grid .stat-item:last-child {
+
+        border-bottom:
+            none;
+    }
+
+
+    /* ------------------------------------------------------
+       Homepage Pipeline
+
+       One pipeline item per row.
+       ------------------------------------------------------ */
+
+    .pipeline {
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            10px;
+
+        margin-top:
+            30px;
+    }
+
+
+    .pipeline-item {
+
+        min-height:
+            90px;
+
+        padding:
+            18px;
+    }
+
+
+    /* ------------------------------------------------------
+       Homepage Learning Approach
+       ------------------------------------------------------ */
+
+    .architecture-grid {
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            12px;
+
+        margin-top:
+            30px;
+    }
+
+
+    .architecture-card {
+
+        min-height:
+            210px;
+
+        padding:
+            20px;
+    }
+
+}
+
+
+/* ----------------------------------------------------------
+   9.3 SMALL MOBILE
+   ---------------------------------------------------------- */
+
+@media (max-width: 480px) {
+
+    /* ------------------------------------------------------
+       Homepage Section Spacing
+       ------------------------------------------------------ */
+
+    .stack-section,
+    .architecture-section {
+
+        padding:
+            55px 0;
+    }
+
+
+    /* ------------------------------------------------------
+       Homepage Statistics
+       ------------------------------------------------------ */
+
+    .stats-grid .stat-item strong {
+
+        font-size:
+            20px;
+    }
+
+
+    /* ------------------------------------------------------
+       Homepage Pipeline
+       ------------------------------------------------------ */
+
+    .pipeline-item {
+
+        min-height:
+            85px;
+
+        padding:
+            16px;
+    }
+
+
+    /* ------------------------------------------------------
+       Homepage Learning Approach
+       ------------------------------------------------------ */
+
+    .architecture-card {
+
+        min-height:
+            200px;
+
+        padding:
+            18px;
+    }
+
+}
+
+
+
+
+/*
+============================================================
+END OF responsive.css
+============================================================
+
+Homepage responsive classes now correctly match index.html:
+
+    .stats-grid
+        ↓
+    Responsive statistics
+
+    .pipeline
+        ↓
+    Responsive DevOps delivery pipeline
+
+    .architecture-grid
+        ↓
+    Responsive learning approach
+
+Existing legacy component classes remain supported:
+
+    .stats-strip
+    .stack-builder
+    .stack-pipeline
+    .architecture-flow
+    .flow-card
+
+No HTML class renaming is required.
+
+============================================================
+*/
