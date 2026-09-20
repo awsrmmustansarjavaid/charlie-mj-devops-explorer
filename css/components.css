@@ -1268,78 +1268,6 @@ Responsive styles:
 
 
 /* ==========================================================
-   10. STATS STRIP
-   ========================================================== */
-
-.stats-section {
-
-    width: min(
-        calc(100% - 40px),
-        var(--container-width)
-    );
-
-    margin:
-        70px auto
-        0;
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(4, 1fr);
-
-    border-top:
-        1px solid var(--border-color);
-
-    border-bottom:
-        1px solid var(--border-color);
-}
-
-
-.stat-item {
-
-    min-height: 105px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    justify-content: center;
-
-    padding: 20px 25px;
-
-    border-right:
-        1px solid var(--border-color);
-}
-
-
-.stat-item:last-child {
-    border-right: none;
-}
-
-
-.stat-value {
-
-    color: var(--green);
-
-    font-family: var(--font-mono);
-
-    font-size: 21px;
-
-    font-weight: 700;
-}
-
-
-.stat-label {
-
-    margin-top: 5px;
-
-    color: var(--text-muted);
-
-    font-size: 11px;
-}
-
-
-/* ==========================================================
    11. REPOSITORY SECTION
    ========================================================== */
 
@@ -4189,52 +4117,114 @@ Responsive styles:
 .stats-section {
     position: relative;
     width: 100%;
-    padding: 0;
+    padding: 70px 0;
     background:
         linear-gradient(
             180deg,
             rgba(71, 255, 141, 0.018),
             rgba(5, 8, 7, 0.35)
         );
-    border-top: 1px solid rgba(71, 255, 141, 0.08);
-    border-bottom: 1px solid rgba(71, 255, 141, 0.08);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
 }
 
 .stats-grid .stat-item {
-    min-height: 115px;
+    position: relative;
+
+    min-height: 130px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 22px 28px;
-    border-right: 1px solid var(--border-color);
-    background: rgba(5, 8, 7, 0.22);
+
+    padding: 26px 28px;
+
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-large);
+
+    overflow: hidden;
+
+    transition:
+        transform var(--transition-normal),
+        border-color var(--transition-normal),
+        background var(--transition-normal);
 }
 
-.stats-grid .stat-item:last-child {
-    border-right: none;
+.stats-grid .stat-item::before {
+    content: "";
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+
+    height: 2px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--green),
+        transparent
+    );
+
+    opacity: 0;
+
+    transition: opacity var(--transition-normal);
+}
+
+.stats-grid .stat-item:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-hover);
+    background: var(--bg-card-hover);
+}
+
+.stats-grid .stat-item:hover::before {
+    opacity: 0.8;
 }
 
 .stats-grid .stat-item strong {
     color: var(--green);
     font-family: var(--font-mono);
-    font-size: 23px;
+    font-size: 28px;
     font-weight: 700;
     line-height: 1;
     text-shadow:
-        0 0 20px rgba(71, 255, 141, 0.08);
+        0 0 24px rgba(71, 255, 141, 0.18);
 }
 
 .stats-grid .stat-item span {
-    margin-top: 8px;
+    margin-top: 10px;
     color: var(--text-muted);
-    font-size: 10px;
+    font-size: 11px;
+    letter-spacing: 0.3px;
     line-height: 1.5;
 }
+
+
+/* ----------------------------------------------------------
+   Search Results / Resource sections — vertical rhythm
+   (these had no section-level padding at all, which is why
+   they crowded directly against the stats strip)
+   ---------------------------------------------------------- */
+
+.results-section,
+.resources-section,
+.technologies-section,
+.categories-section {
+    position: relative;
+    padding: 90px 0;
+}
+
+.results-section + .stats-section {
+    border-top: none;
+}
+
 
 
 /* ----------------------------------------------------------

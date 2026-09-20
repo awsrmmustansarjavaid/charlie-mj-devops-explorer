@@ -405,20 +405,6 @@ Important compatibility note:
     }
 
 
-    .stats-grid .stat-item:nth-child(2) {
-
-        border-right:
-            none;
-    }
-
-
-    .stats-grid .stat-item:nth-child(-n+2) {
-
-        border-bottom:
-            1px solid var(--border-color);
-    }
-
-
     /* ======================================================
        HOMEPAGE: DEVOPS DELIVERY PIPELINE
        ======================================================
@@ -930,6 +916,9 @@ Important compatibility note:
 
         grid-template-columns:
             1fr;
+
+        gap:
+            12px;
     }
 
 
@@ -940,19 +929,6 @@ Important compatibility note:
 
         padding:
             18px;
-
-        border-right:
-            none;
-
-        border-bottom:
-            1px solid var(--border-color);
-    }
-
-
-    .stats-grid .stat-item:last-child {
-
-        border-bottom:
-            none;
     }
 
 
@@ -1552,20 +1528,6 @@ Important compatibility note:
 
         font-size:
             20px;
-    }
-
-
-    .stats-grid .stat-item {
-
-        border-right:
-            none;
-    }
-
-
-    .stats-grid .stat-item:not(:last-child) {
-
-        border-bottom:
-            1px solid var(--border-color);
     }
 
 
@@ -2255,20 +2217,8 @@ Important compatibility note:
 
         grid-template-columns:
             repeat(2, minmax(0, 1fr));
-    }
 
-
-    .stats-grid .stat-item:nth-child(2) {
-
-        border-right:
-            none;
-    }
-
-
-    .stats-grid .stat-item:nth-child(-n+2) {
-
-        border-bottom:
-            1px solid var(--border-color);
+        gap: 14px;
     }
 
 
@@ -2335,7 +2285,12 @@ Important compatibility note:
        ------------------------------------------------------ */
 
     .stack-section,
-    .architecture-section {
+    .architecture-section,
+    .results-section,
+    .resources-section,
+    .technologies-section,
+    .categories-section,
+    .stats-section {
 
         padding:
             70px 0;
@@ -2352,6 +2307,9 @@ Important compatibility note:
 
         grid-template-columns:
             1fr;
+
+        gap:
+            12px;
     }
 
 
@@ -2362,19 +2320,6 @@ Important compatibility note:
 
         padding:
             18px;
-
-        border-right:
-            none;
-
-        border-bottom:
-            1px solid var(--border-color);
-    }
-
-
-    .stats-grid .stat-item:last-child {
-
-        border-bottom:
-            none;
     }
 
 
@@ -2447,7 +2392,12 @@ Important compatibility note:
        ------------------------------------------------------ */
 
     .stack-section,
-    .architecture-section {
+    .architecture-section,
+    .results-section,
+    .resources-section,
+    .technologies-section,
+    .categories-section,
+    .stats-section {
 
         padding:
             55px 0;
