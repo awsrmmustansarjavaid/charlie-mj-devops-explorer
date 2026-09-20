@@ -226,6 +226,11 @@ Base component styling lives in:
     }
 
 
+    .hero-visual {
+        max-width: 360px;
+    }
+
+
     /* ------------------------------------------------------
        Search
        ------------------------------------------------------ */
@@ -565,6 +570,12 @@ Base component styling lives in:
 
         font-size:
             13px;
+    }
+
+
+    .hero-visual {
+        max-width: 280px;
+        margin: 22px auto 4px;
     }
 
 
