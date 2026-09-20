@@ -1,0 +1,997 @@
+[
+    {
+        "id": "linux",
+        "name": "Linux",
+        "slug": "linux",
+        "category": "Operating Systems",
+        "subcategory": "Server Operating Systems",
+        "icon": "LNX",
+        "skillLevel": "Beginner",
+        "description": "Linux is one of the most important operating systems for DevOps engineering. It is widely used for servers, cloud infrastructure, containers, Kubernetes nodes and automation.",
+        "shortDescription": "Server operating system and foundation for DevOps.",
+        "aliases": [
+            "linux os",
+            "linux administration",
+            "gnu linux"
+        ],
+        "keywords": [
+            "linux",
+            "ubuntu",
+            "debian",
+            "redhat",
+            "rhel",
+            "centos",
+            "server",
+            "shell",
+            "system administration"
+        ],
+        "relatedTechnologies": [
+            "bash",
+            "docker",
+            "kubernetes",
+            "ansible"
+        ]
+    },
+
+    {
+        "id": "git",
+        "name": "Git",
+        "slug": "git",
+        "category": "Version Control",
+        "subcategory": "Source Code Management",
+        "icon": "GIT",
+        "skillLevel": "Beginner",
+        "description": "Git is a distributed version control system used to track source code changes, collaborate with teams and manage software development history.",
+        "shortDescription": "Distributed version control system.",
+        "aliases": [
+            "git scm",
+            "source control"
+        ],
+        "keywords": [
+            "git",
+            "commit",
+            "branch",
+            "merge",
+            "rebase",
+            "pull",
+            "push",
+            "clone",
+            "repository"
+        ],
+        "relatedTechnologies": [
+            "github",
+            "gitlab",
+            "jenkins",
+            "github-actions"
+        ]
+    },
+
+    {
+        "id": "github",
+        "name": "GitHub",
+        "slug": "github",
+        "category": "DevOps Platforms",
+        "subcategory": "Code Collaboration",
+        "icon": "GH",
+        "skillLevel": "Beginner",
+        "description": "GitHub is a platform for source code hosting, collaboration, pull requests, issue tracking, GitHub Actions and software development workflows.",
+        "shortDescription": "Code hosting, collaboration and automation platform.",
+        "aliases": [
+            "github.com",
+            "gh"
+        ],
+        "keywords": [
+            "github",
+            "repository",
+            "pull request",
+            "actions",
+            "issues",
+            "code review",
+            "git"
+        ],
+        "relatedTechnologies": [
+            "git",
+            "github-actions",
+            "jenkins",
+            "argo-cd"
+        ]
+    },
+
+    {
+        "id": "github-actions",
+        "name": "GitHub Actions",
+        "slug": "github-actions",
+        "category": "CI/CD",
+        "subcategory": "Continuous Integration and Delivery",
+        "icon": "GHA",
+        "skillLevel": "Intermediate",
+        "description": "GitHub Actions is a CI/CD and automation platform integrated into GitHub repositories. It can build, test, scan and deploy applications.",
+        "shortDescription": "GitHub-native CI/CD and automation platform.",
+        "aliases": [
+            "gha",
+            "github action",
+            "gh actions"
+        ],
+        "keywords": [
+            "github actions",
+            "workflow",
+            "workflow yaml",
+            "runner",
+            "pipeline",
+            "ci",
+            "cd",
+            "automation"
+        ],
+        "relatedTechnologies": [
+            "github",
+            "docker",
+            "kubernetes",
+            "terraform"
+        ]
+    },
+
+    {
+        "id": "docker",
+        "name": "Docker",
+        "slug": "docker",
+        "category": "Containers",
+        "subcategory": "Containerization",
+        "icon": "DOC",
+        "skillLevel": "Beginner",
+        "description": "Docker is a container platform used to package applications and their dependencies into portable container images.",
+        "shortDescription": "Container platform for packaging and running applications.",
+        "aliases": [
+            "docker engine",
+            "docker containers"
+        ],
+        "keywords": [
+            "docker",
+            "container",
+            "containerization",
+            "dockerfile",
+            "image",
+            "registry",
+            "docker compose",
+            "docker hub"
+        ],
+        "relatedTechnologies": [
+            "kubernetes",
+            "containerd",
+            "trivy",
+            "amazon-ecr"
+        ]
+    },
+
+    {
+        "id": "containerd",
+        "name": "containerd",
+        "slug": "containerd",
+        "category": "Containers",
+        "subcategory": "Container Runtime",
+        "icon": "CTR",
+        "skillLevel": "Intermediate",
+        "description": "containerd is an industry-standard container runtime used by Kubernetes and other container platforms to manage container lifecycle operations.",
+        "shortDescription": "Container runtime used by Kubernetes and container platforms.",
+        "aliases": [
+            "container runtime"
+        ],
+        "keywords": [
+            "containerd",
+            "runtime",
+            "containers",
+            "kubernetes",
+            "oci"
+        ],
+        "relatedTechnologies": [
+            "docker",
+            "kubernetes",
+            "cri-o"
+        ]
+    },
+
+    {
+        "id": "kubernetes",
+        "name": "Kubernetes",
+        "slug": "kubernetes",
+        "category": "Container Orchestration",
+        "subcategory": "Cloud Native",
+        "icon": "K8S",
+        "skillLevel": "Intermediate",
+        "description": "Kubernetes is an open-source platform for deploying, scaling and managing containerized applications across clusters of machines.",
+        "shortDescription": "Container orchestration platform.",
+        "aliases": [
+            "k8s",
+            "kubernatives",
+            "kube"
+        ],
+        "keywords": [
+            "kubernetes",
+            "k8s",
+            "cluster",
+            "node",
+            "pod",
+            "deployment",
+            "service",
+            "ingress",
+            "configmap",
+            "secret",
+            "namespace",
+            "statefulset",
+            "daemonset"
+        ],
+        "relatedTechnologies": [
+            "docker",
+            "helm",
+            "argocd",
+            "prometheus",
+            "amazon-eks",
+            "terraform"
+        ]
+    },
+
+    {
+        "id": "amazon-eks",
+        "name": "Amazon EKS",
+        "slug": "amazon-eks",
+        "category": "Cloud",
+        "subcategory": "Managed Kubernetes",
+        "icon": "EKS",
+        "skillLevel": "Advanced",
+        "description": "Amazon Elastic Kubernetes Service is AWS's managed Kubernetes service for running Kubernetes clusters in AWS.",
+        "shortDescription": "AWS managed Kubernetes service.",
+        "aliases": [
+            "eks",
+            "aws eks",
+            "amazon elastic kubernetes service"
+        ],
+        "keywords": [
+            "eks",
+            "aws",
+            "kubernetes",
+            "cluster",
+            "managed kubernetes",
+            "aws eks"
+        ],
+        "relatedTechnologies": [
+            "kubernetes",
+            "aws",
+            "terraform",
+            "amazon-ecr",
+            "aws-load-balancer-controller"
+        ]
+    },
+
+    {
+        "id": "aws",
+        "name": "AWS",
+        "slug": "aws",
+        "category": "Cloud",
+        "subcategory": "Cloud Provider",
+        "icon": "AWS",
+        "skillLevel": "Intermediate",
+        "description": "Amazon Web Services is a major cloud platform providing compute, networking, storage, databases, containers, Kubernetes, security and many other infrastructure services.",
+        "shortDescription": "Cloud platform with infrastructure and managed services.",
+        "aliases": [
+            "amazon web services",
+            "amazon aws",
+            "aws cloud"
+        ],
+        "keywords": [
+            "aws",
+            "cloud",
+            "ec2",
+            "s3",
+            "vpc",
+            "iam",
+            "rds",
+            "eks",
+            "ecr",
+            "lambda",
+            "cloudformation"
+        ],
+        "relatedTechnologies": [
+            "amazon-eks",
+            "amazon-ecr",
+            "terraform",
+            "cloudformation"
+        ]
+    },
+
+    {
+        "id": "amazon-ecr",
+        "name": "Amazon ECR",
+        "slug": "amazon-ecr",
+        "category": "Cloud",
+        "subcategory": "Container Registry",
+        "icon": "ECR",
+        "skillLevel": "Intermediate",
+        "description": "Amazon Elastic Container Registry is an AWS managed container image registry used to store, manage and deploy Docker and OCI container images.",
+        "shortDescription": "AWS managed container image registry.",
+        "aliases": [
+            "ecr",
+            "amazon elastic container registry"
+        ],
+        "keywords": [
+            "ecr",
+            "container registry",
+            "docker registry",
+            "container image",
+            "aws"
+        ],
+        "relatedTechnologies": [
+            "aws",
+            "docker",
+            "kubernetes",
+            "amazon-eks",
+            "trivy"
+        ]
+    },
+
+    {
+        "id": "terraform",
+        "name": "Terraform",
+        "slug": "terraform",
+        "category": "Infrastructure as Code",
+        "subcategory": "Infrastructure Provisioning",
+        "icon": "TF",
+        "skillLevel": "Intermediate",
+        "description": "Terraform is an Infrastructure as Code tool used to define, provision and manage infrastructure using declarative configuration files.",
+        "shortDescription": "Infrastructure as Code provisioning tool.",
+        "aliases": [
+            "tf",
+            "terraform iac",
+            "hashicorp terraform"
+        ],
+        "keywords": [
+            "terraform",
+            "iac",
+            "infrastructure as code",
+            "hcl",
+            "provider",
+            "resource",
+            "module",
+            "state"
+        ],
+        "relatedTechnologies": [
+            "aws",
+            "kubernetes",
+            "ansible",
+            "cloudformation"
+        ]
+    },
+
+    {
+        "id": "cloudformation",
+        "name": "AWS CloudFormation",
+        "slug": "cloudformation",
+        "category": "Infrastructure as Code",
+        "subcategory": "AWS Infrastructure",
+        "icon": "CFN",
+        "skillLevel": "Intermediate",
+        "description": "AWS CloudFormation is an Infrastructure as Code service that allows AWS resources to be defined and managed using templates.",
+        "shortDescription": "AWS-native Infrastructure as Code service.",
+        "aliases": [
+            "cfn",
+            "aws cfn",
+            "cloudformation"
+        ],
+        "keywords": [
+            "cloudformation",
+            "aws",
+            "iac",
+            "yaml",
+            "json",
+            "stack",
+            "nested stack"
+        ],
+        "relatedTechnologies": [
+            "aws",
+            "terraform",
+            "github-actions",
+            "jenkins"
+        ]
+    },
+
+    {
+        "id": "jenkins",
+        "name": "Jenkins",
+        "slug": "jenkins",
+        "category": "CI/CD",
+        "subcategory": "Continuous Integration and Delivery",
+        "icon": "JNK",
+        "skillLevel": "Intermediate",
+        "description": "Jenkins is an open-source automation server commonly used to build CI/CD pipelines for testing, packaging and deploying applications.",
+        "shortDescription": "Automation server for CI/CD pipelines.",
+        "aliases": [
+            "jenkins ci",
+            "jenkins cicd"
+        ],
+        "keywords": [
+            "jenkins",
+            "pipeline",
+            "jenkinsfile",
+            "ci",
+            "cd",
+            "continuous integration",
+            "continuous delivery",
+            "groovy"
+        ],
+        "relatedTechnologies": [
+            "git",
+            "github",
+            "docker",
+            "kubernetes",
+            "sonarqube",
+            "trivy"
+        ]
+    },
+
+    {
+        "id": "ansible",
+        "name": "Ansible",
+        "slug": "ansible",
+        "category": "Automation",
+        "subcategory": "Configuration Management",
+        "icon": "ANS",
+        "skillLevel": "Intermediate",
+        "description": "Ansible is an automation platform used for configuration management, server provisioning, application deployment and operational automation.",
+        "shortDescription": "Agentless infrastructure and configuration automation.",
+        "aliases": [
+            "ansible automation",
+            "ansible core"
+        ],
+        "keywords": [
+            "ansible",
+            "playbook",
+            "inventory",
+            "role",
+            "yaml",
+            "configuration management",
+            "automation"
+        ],
+        "relatedTechnologies": [
+            "linux",
+            "python",
+            "terraform",
+            "jenkins",
+            "aws"
+        ]
+    },
+
+    {
+        "id": "helm",
+        "name": "Helm",
+        "slug": "helm",
+        "category": "Kubernetes",
+        "subcategory": "Package Management",
+        "icon": "HLM",
+        "skillLevel": "Intermediate",
+        "description": "Helm is a package manager for Kubernetes that helps package, configure and deploy applications using reusable charts.",
+        "shortDescription": "Package manager for Kubernetes applications.",
+        "aliases": [
+            "helm charts",
+            "kubernetes helm"
+        ],
+        "keywords": [
+            "helm",
+            "chart",
+            "kubernetes",
+            "values",
+            "templates",
+            "release"
+        ],
+        "relatedTechnologies": [
+            "kubernetes",
+            "argocd",
+            "gitops"
+        ]
+    },
+
+    {
+        "id": "argo-cd",
+        "name": "Argo CD",
+        "slug": "argo-cd",
+        "category": "GitOps",
+        "subcategory": "Continuous Delivery",
+        "icon": "ARGO",
+        "skillLevel": "Intermediate",
+        "description": "Argo CD is a declarative GitOps continuous delivery tool designed for Kubernetes applications.",
+        "shortDescription": "GitOps continuous delivery for Kubernetes.",
+        "aliases": [
+            "argocd",
+            "argo cd",
+            "argo-cd"
+        ],
+        "keywords": [
+            "argocd",
+            "argo cd",
+            "gitops",
+            "kubernetes",
+            "continuous delivery",
+            "declarative deployment"
+        ],
+        "relatedTechnologies": [
+            "kubernetes",
+            "git",
+            "github",
+            "helm",
+            "gitops"
+        ]
+    },
+
+    {
+        "id": "flux",
+        "name": "Flux",
+        "slug": "flux",
+        "category": "GitOps",
+        "subcategory": "Continuous Delivery",
+        "icon": "FLX",
+        "skillLevel": "Intermediate",
+        "description": "Flux is a GitOps toolkit for keeping Kubernetes clusters synchronized with configuration stored in Git repositories.",
+        "shortDescription": "GitOps toolkit for Kubernetes.",
+        "aliases": [
+            "fluxcd",
+            "flux cd",
+            "fluxcd"
+        ],
+        "keywords": [
+            "flux",
+            "fluxcd",
+            "gitops",
+            "kubernetes",
+            "continuous delivery"
+        ],
+        "relatedTechnologies": [
+            "kubernetes",
+            "git",
+            "github",
+            "helm"
+        ]
+    },
+
+    {
+        "id": "prometheus",
+        "name": "Prometheus",
+        "slug": "prometheus",
+        "category": "Observability",
+        "subcategory": "Monitoring",
+        "icon": "PROM",
+        "skillLevel": "Intermediate",
+        "description": "Prometheus is an open-source monitoring and alerting system designed for collecting and querying time-series metrics.",
+        "shortDescription": "Metrics monitoring and alerting system.",
+        "aliases": [
+            "prometheus monitoring"
+        ],
+        "keywords": [
+            "prometheus",
+            "metrics",
+            "monitoring",
+            "alerting",
+            "promql",
+            "kubernetes"
+        ],
+        "relatedTechnologies": [
+            "grafana",
+            "kubernetes",
+            "alertmanager",
+            "opentelemetry"
+        ]
+    },
+
+    {
+        "id": "grafana",
+        "name": "Grafana",
+        "slug": "grafana",
+        "category": "Observability",
+        "subcategory": "Visualization",
+        "icon": "GRAF",
+        "skillLevel": "Intermediate",
+        "description": "Grafana is an observability and visualization platform used to create dashboards for metrics, logs and traces.",
+        "shortDescription": "Observability dashboards and visualization platform.",
+        "aliases": [
+            "grafana dashboards"
+        ],
+        "keywords": [
+            "grafana",
+            "dashboard",
+            "visualization",
+            "monitoring",
+            "metrics",
+            "logs",
+            "traces"
+        ],
+        "relatedTechnologies": [
+            "prometheus",
+            "loki",
+            "opentelemetry",
+            "kubernetes"
+        ]
+    },
+
+    {
+        "id": "trivy",
+        "name": "Trivy",
+        "slug": "trivy",
+        "category": "DevSecOps",
+        "subcategory": "Security Scanning",
+        "icon": "TRY",
+        "skillLevel": "Intermediate",
+        "description": "Trivy is a security scanner used to identify vulnerabilities and configuration problems in container images, filesystems, repositories and infrastructure configurations.",
+        "shortDescription": "Vulnerability and security scanner.",
+        "aliases": [
+            "trivy scanner"
+        ],
+        "keywords": [
+            "trivy",
+            "security",
+            "vulnerability",
+            "container scanning",
+            "docker scanning",
+            "iac scanning",
+            "sbom"
+        ],
+        "relatedTechnologies": [
+            "docker",
+            "kubernetes",
+            "jenkins",
+            "github-actions",
+            "terraform"
+        ]
+    },
+
+    {
+        "id": "sonarqube",
+        "name": "SonarQube",
+        "slug": "sonarqube",
+        "category": "DevSecOps",
+        "subcategory": "Code Quality",
+        "icon": "SONAR",
+        "skillLevel": "Intermediate",
+        "description": "SonarQube is a code quality and security analysis platform used to identify bugs, vulnerabilities, code smells and maintainability issues.",
+        "shortDescription": "Static code quality and security analysis.",
+        "aliases": [
+            "sonar",
+            "sonarqube scanner"
+        ],
+        "keywords": [
+            "sonarqube",
+            "sonar",
+            "code quality",
+            "static analysis",
+            "sast",
+            "security"
+        ],
+        "relatedTechnologies": [
+            "jenkins",
+            "github-actions",
+            "java",
+            "python",
+            "docker"
+        ]
+    },
+
+    {
+        "id": "owasp-dependency-check",
+        "name": "OWASP Dependency-Check",
+        "slug": "owasp-dependency-check",
+        "category": "DevSecOps",
+        "subcategory": "Dependency Security",
+        "icon": "OWASP",
+        "skillLevel": "Intermediate",
+        "description": "OWASP Dependency-Check identifies known vulnerabilities in project dependencies and libraries.",
+        "shortDescription": "Dependency vulnerability analysis tool.",
+        "aliases": [
+            "dependency check",
+            "owasp dependency check"
+        ],
+        "keywords": [
+            "owasp",
+            "dependency check",
+            "dependency scanning",
+            "vulnerability",
+            "security",
+            "sast"
+        ],
+        "relatedTechnologies": [
+            "jenkins",
+            "sonarqube",
+            "trivy"
+        ]
+    },
+
+    {
+        "id": "python",
+        "name": "Python",
+        "slug": "python",
+        "category": "Programming & Scripting",
+        "subcategory": "Programming Language",
+        "icon": "PY",
+        "skillLevel": "Beginner",
+        "description": "Python is widely used in DevOps for automation, scripting, cloud APIs, infrastructure tooling, testing and platform engineering.",
+        "shortDescription": "Programming language widely used for automation.",
+        "aliases": [
+            "python3",
+            "python programming"
+        ],
+        "keywords": [
+            "python",
+            "python3",
+            "automation",
+            "scripting",
+            "boto3",
+            "api",
+            "devops"
+        ],
+        "relatedTechnologies": [
+            "ansible",
+            "aws",
+            "docker",
+            "kubernetes"
+        ]
+    },
+
+    {
+        "id": "bash",
+        "name": "Bash",
+        "slug": "bash",
+        "category": "Programming & Scripting",
+        "subcategory": "Shell Scripting",
+        "icon": "SH",
+        "skillLevel": "Beginner",
+        "description": "Bash is a Unix shell and scripting language commonly used for Linux administration, automation and DevOps workflows.",
+        "shortDescription": "Shell scripting and Linux automation.",
+        "aliases": [
+            "shell",
+            "bash scripting",
+            "shell scripting"
+        ],
+        "keywords": [
+            "bash",
+            "shell",
+            "sh",
+            "linux",
+            "script",
+            "automation",
+            "cli"
+        ],
+        "relatedTechnologies": [
+            "linux",
+            "docker",
+            "jenkins",
+            "github-actions"
+        ]
+    },
+
+    {
+        "id": "go",
+        "name": "Go",
+        "slug": "go",
+        "category": "Programming & Scripting",
+        "subcategory": "Programming Language",
+        "icon": "GO",
+        "skillLevel": "Intermediate",
+        "description": "Go is a compiled programming language heavily used in cloud-native infrastructure and DevOps tooling.",
+        "shortDescription": "Programming language widely used for cloud-native tools.",
+        "aliases": [
+            "golang",
+            "go lang"
+        ],
+        "keywords": [
+            "go",
+            "golang",
+            "cloud native",
+            "kubernetes",
+            "cli",
+            "microservices"
+        ],
+        "relatedTechnologies": [
+            "kubernetes",
+            "docker",
+            "terraform",
+            "prometheus"
+        ]
+    },
+
+    {
+        "id": "javascript",
+        "name": "JavaScript",
+        "slug": "javascript",
+        "category": "Programming & Scripting",
+        "subcategory": "Programming Language",
+        "icon": "JS",
+        "skillLevel": "Beginner",
+        "description": "JavaScript is widely used for web applications, automation tooling, APIs and developer platforms.",
+        "shortDescription": "Programming language for web and automation tooling.",
+        "aliases": [
+            "js",
+            "javascript"
+        ],
+        "keywords": [
+            "javascript",
+            "js",
+            "node",
+            "nodejs",
+            "npm",
+            "web"
+        ],
+        "relatedTechnologies": [
+            "nodejs",
+            "github-actions",
+            "docker",
+            "kubernetes"
+        ]
+    },
+
+    {
+        "id": "nodejs",
+        "name": "Node.js",
+        "slug": "nodejs",
+        "category": "Programming & Scripting",
+        "subcategory": "Runtime",
+        "icon": "NODE",
+        "skillLevel": "Beginner",
+        "description": "Node.js is a JavaScript runtime commonly used for APIs, web applications, automation tools and backend services.",
+        "shortDescription": "JavaScript runtime for backend and tooling.",
+        "aliases": [
+            "node",
+            "node js"
+        ],
+        "keywords": [
+            "node",
+            "nodejs",
+            "javascript",
+            "npm",
+            "backend",
+            "api"
+        ],
+        "relatedTechnologies": [
+            "javascript",
+            "docker",
+            "kubernetes",
+            "github-actions"
+        ]
+    },
+
+    {
+        "id": "java",
+        "name": "Java",
+        "slug": "java",
+        "category": "Programming & Scripting",
+        "subcategory": "Programming Language",
+        "icon": "JAVA",
+        "skillLevel": "Intermediate",
+        "description": "Java is widely used for enterprise applications, microservices and backend systems commonly deployed through DevOps pipelines.",
+        "shortDescription": "Enterprise programming language used in many DevOps workloads.",
+        "aliases": [
+            "java programming"
+        ],
+        "keywords": [
+            "java",
+            "spring",
+            "maven",
+            "gradle",
+            "microservices",
+            "backend"
+        ],
+        "relatedTechnologies": [
+            "jenkins",
+            "docker",
+            "kubernetes",
+            "sonarqube"
+        ]
+    },
+
+    {
+        "id": "nginx",
+        "name": "Nginx",
+        "slug": "nginx",
+        "category": "Networking",
+        "subcategory": "Web Server and Reverse Proxy",
+        "icon": "NGX",
+        "skillLevel": "Intermediate",
+        "description": "Nginx is a high-performance web server, reverse proxy and load balancing technology frequently used in DevOps architectures.",
+        "shortDescription": "Web server, reverse proxy and load balancer.",
+        "aliases": [
+            "nginx server"
+        ],
+        "keywords": [
+            "nginx",
+            "web server",
+            "reverse proxy",
+            "load balancer",
+            "http",
+            "https"
+        ],
+        "relatedTechnologies": [
+            "linux",
+            "docker",
+            "kubernetes",
+            "aws"
+        ]
+    },
+
+    {
+        "id": "redis",
+        "name": "Redis",
+        "slug": "redis",
+        "category": "Databases",
+        "subcategory": "In-Memory Data Store",
+        "icon": "REDIS",
+        "skillLevel": "Intermediate",
+        "description": "Redis is an in-memory data store commonly used for caching, sessions, queues and high-performance application workloads.",
+        "shortDescription": "In-memory database and caching system.",
+        "aliases": [
+            "redis cache"
+        ],
+        "keywords": [
+            "redis",
+            "cache",
+            "database",
+            "session",
+            "queue",
+            "in-memory"
+        ],
+        "relatedTechnologies": [
+            "docker",
+            "kubernetes",
+            "aws"
+        ]
+    },
+
+    {
+        "id": "postgresql",
+        "name": "PostgreSQL",
+        "slug": "postgresql",
+        "category": "Databases",
+        "subcategory": "Relational Database",
+        "icon": "PG",
+        "skillLevel": "Intermediate",
+        "description": "PostgreSQL is an open-source relational database commonly used by applications deployed through DevOps pipelines and cloud infrastructure.",
+        "shortDescription": "Open-source relational database.",
+        "aliases": [
+            "postgres",
+            "postgres db"
+        ],
+        "keywords": [
+            "postgresql",
+            "postgres",
+            "sql",
+            "database",
+            "rds"
+        ],
+        "relatedTechnologies": [
+            "aws",
+            "docker",
+            "kubernetes"
+        ]
+    },
+
+    {
+        "id": "opentelemetry",
+        "name": "OpenTelemetry",
+        "slug": "opentelemetry",
+        "category": "Observability",
+        "subcategory": "Telemetry",
+        "icon": "OTEL",
+        "skillLevel": "Advanced",
+        "description": "OpenTelemetry is an open-source observability framework for collecting and exporting traces, metrics and logs.",
+        "shortDescription": "Open standard for application telemetry.",
+        "aliases": [
+            "otel",
+            "open telemetry"
+        ],
+        "keywords": [
+            "opentelemetry",
+            "otel",
+            "tracing",
+            "metrics",
+            "logs",
+            "observability"
+        ],
+        "relatedTechnologies": [
+            "prometheus",
+            "grafana",
+            "kubernetes"
+        ]
+    }
+]

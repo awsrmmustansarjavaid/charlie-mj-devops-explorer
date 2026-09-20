@@ -1,0 +1,327 @@
+# ==========================================================
+# DevOps Explorer - Git Ignore
+# ==========================================================
+# This file tells Git which files/folders should NOT be committed.
+#
+# IMPORTANT:
+# - The docs/ folder IS intentionally committed.
+# - Markdown documentation (*.md) IS intentionally committed.
+# - README.md is also committed.
+# ==========================================================
+
+
+# ==========================================================
+# 1. Operating System Files
+# ==========================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux temporary files
+*~
+.#*
+
+
+
+# ==========================================================
+# 2. Editor / IDE Files
+# ==========================================================
+# Visual Studio Code
+.vscode/
+
+# Uncomment the following if you want to keep
+# selected VS Code settings in Git:
+#
+# !.vscode/extensions.json
+# !.vscode/settings.json
+
+# JetBrains IDEs
+.idea/
+*.iml
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+*.swp
+*.swo
+
+# Emacs
+*~
+\#*\#
+
+
+# ==========================================================
+# 3. Node.js / JavaScript Dependencies
+# ==========================================================
+# If you later add npm/package.json to this project,
+# dependencies should NOT be committed.
+
+node_modules/
+
+# npm logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Package manager cache
+.npm/
+.yarn/
+.pnpm-store/
+
+
+# ==========================================================
+# 4. Build / Distribution Files
+# ==========================================================
+# Ignore generated build output.
+# These folders can be recreated by build tools.
+
+dist/
+build/
+out/
+
+# Temporary compiled/cache output
+.cache/
+.parcel-cache/
+.vite/
+.next/
+.nuxt/
+
+
+# ==========================================================
+# 5. Environment / Secrets
+# ==========================================================
+# NEVER commit environment files containing API keys,
+# passwords, tokens, or other secrets.
+
+.env
+.env.*
+*.env
+
+# IMPORTANT:
+# Keep example environment files if you create them.
+#
+# Example:
+# .env.example
+#
+# !.env.example
+
+
+# ==========================================================
+# 6. Logs
+# ==========================================================
+*.log
+logs/
+
+
+# ==========================================================
+# 7. Temporary Files
+# ==========================================================
+*.tmp
+*.temp
+*.bak
+*.backup
+
+tmp/
+temp/
+
+
+# ==========================================================
+# 8. OS / Application Cache
+# ==========================================================
+.cache/
+coverage/
+.nyc_output/
+
+
+# ==========================================================
+# 9. Local Development Files
+# ==========================================================
+# Local server files
+.server/
+.local/
+
+# Local configuration that should remain private
+config.local.*
+settings.local.*
+
+
+# ==========================================================
+# 10. Python Files
+# ==========================================================
+# Useful if Python is later used for scripts/tools.
+
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python test/cache
+.pytest_cache/
+.mypy_cache/
+
+
+# ==========================================================
+# 11. Terraform
+# ==========================================================
+# If Terraform is added later.
+
+.terraform/
+.terraform.lock.hcl
+
+# Terraform state can contain sensitive information.
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+
+# Terraform variable files may contain secrets.
+*.tfvars
+*.tfvars.json
+
+
+# ==========================================================
+# 12. AWS / CloudFormation Local Files
+# ==========================================================
+# Ignore local AWS credentials.
+.aws/
+
+# AWS SAM local build
+.aws-sam/
+
+# Local CloudFormation temporary output
+.cfn/
+
+
+# ==========================================================
+# 13. Docker Local Files
+# ==========================================================
+# Docker volumes / local development data
+.docker/
+
+# Local Docker environment files
+docker-compose.override.yml
+
+
+# ==========================================================
+# 14. Kubernetes Local Files
+# ==========================================================
+# Local Kubernetes configuration.
+#
+# IMPORTANT:
+# Do NOT commit your personal kubeconfig because it may
+# contain cluster credentials.
+
+.kube/
+kubeconfig
+kubeconfig.*
+
+
+# ==========================================================
+# 15. Generated Images / Temporary Assets
+# ==========================================================
+# Ignore temporary generated image files if you create them
+# during development.
+
+*.psd
+*.ai
+*.xcf
+
+# NOTE:
+# Do NOT ignore assets/images/devops-engineer.png
+# because this project uses it as a real project asset.
+
+
+# ==========================================================
+# 16. Documentation
+# ==========================================================
+# IMPORTANT:
+# DO NOT add:
+#
+# docs/
+# *.md
+#
+# to this .gitignore.
+#
+# Your documentation folder is intentionally tracked.
+#
+# Example structure:
+#
+# docs/
+# ├── devops-roadmap.md
+# ├── kubernetes.md
+# ├── docker.md
+# ├── terraform.md
+# ├── aws.md
+# ├── jenkins.md
+# └── github-actions.md
+#
+# All of these files WILL be committed to Git.
+
+
+# ==========================================================
+# 17. Local Notes / Private Documentation
+# ==========================================================
+# If you ever need private documentation that should NOT
+# be committed, use a separate naming convention.
+#
+# Example:
+#
+# docs/private/
+#
+# Uncomment this only if you decide to use it:
+#
+# docs/private/
+
+
+# ==========================================================
+# 18. Generated Data
+# ==========================================================
+# Ignore temporary/generated JSON data.
+
+*.generated.json
+*.tmp.json
+
+# IMPORTANT:
+# DO NOT ignore your real project data:
+#
+# data/devops-technologies.json
+# data/devops-categories.json
+#
+# These are project source files and should be committed.
+
+
+# ==========================================================
+# 19. Local Test Files
+# ==========================================================
+test-output/
+screenshots/
+playwright-report/
+test-results/
+
+
+# ==========================================================
+# 20. Backup / Archive Files
+# ==========================================================
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+
+# ==========================================================
+# END
+# ==========================================================

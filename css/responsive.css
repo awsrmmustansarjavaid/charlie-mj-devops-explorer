@@ -1,0 +1,1514 @@
+/*
+============================================================
+CHARLIE MJ DEVOPS EXPLORER
+responsive.css
+============================================================
+
+Responsive breakpoints:
+
+Large desktop:
+    1400px+
+
+Desktop:
+    1200px
+
+Laptop / tablet:
+    1024px
+
+Tablet:
+    768px
+
+Mobile:
+    600px
+
+Small mobile:
+    480px
+
+This file intentionally contains only responsive overrides.
+Base component styling lives in:
+
+    css/style.css
+    css/components.css
+============================================================
+*/
+
+
+/* ==========================================================
+   1. LARGE DESKTOP
+   ========================================================== */
+
+@media (min-width: 1400px) {
+
+    .hero-title {
+        font-size: 84px;
+    }
+
+    .repository-grid {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+    .technology-grid {
+        grid-template-columns:
+            repeat(5, minmax(0, 1fr));
+    }
+
+}
+
+
+/* ==========================================================
+   2. DESKTOP / LAPTOP
+   ========================================================== */
+
+@media (max-width: 1200px) {
+
+    /* ------------------------------------------------------
+       Navigation
+       ------------------------------------------------------ */
+
+    .nav-link {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+
+    .nav-link::after {
+        left: 8px;
+        right: 8px;
+    }
+
+
+    /* ------------------------------------------------------
+       Technology Grid
+       ------------------------------------------------------ */
+
+    .technology-grid {
+
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+
+    /* ------------------------------------------------------
+       Creator Grid
+       ------------------------------------------------------ */
+
+    .creator-grid {
+
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+
+    /* ------------------------------------------------------
+       Cloud Providers
+       ------------------------------------------------------ */
+
+    .cloud-provider-grid {
+
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+
+    /* ------------------------------------------------------
+       Footer
+       ------------------------------------------------------ */
+
+    .footer-grid {
+
+        grid-template-columns:
+            1.5fr
+            repeat(2, 1fr);
+    }
+
+}
+
+
+/* ==========================================================
+   3. TABLET / SMALL LAPTOP
+   ========================================================== */
+
+@media (max-width: 1024px) {
+
+    /* ------------------------------------------------------
+       Container
+       ------------------------------------------------------ */
+
+    .container {
+
+        width:
+            min(
+                calc(100% - 32px),
+                var(--container-width)
+            );
+    }
+
+
+    /* ------------------------------------------------------
+       Navbar
+       ------------------------------------------------------ */
+
+    .navbar-container {
+
+        width:
+            calc(100% - 32px);
+    }
+
+
+    .nav-links {
+
+        gap: 1px;
+    }
+
+
+    .nav-link {
+
+        padding:
+            0 7px;
+
+        font-size: 10px;
+    }
+
+
+    .nav-github {
+
+        padding:
+            0 10px;
+    }
+
+
+    /* ------------------------------------------------------
+       Hero
+       ------------------------------------------------------ */
+
+    .hero {
+
+        min-height: 600px;
+
+        padding:
+            85px 0
+            75px;
+    }
+
+
+    .hero-title {
+
+        font-size:
+            clamp(
+                48px,
+                8vw,
+                70px
+            );
+
+        letter-spacing:
+            -3px;
+    }
+
+
+    .tech-node.node-1 {
+        left: 4%;
+    }
+
+
+    .tech-node.node-2 {
+        right: 4%;
+    }
+
+
+    .tech-node.node-3 {
+        left: 5%;
+    }
+
+
+    .tech-node.node-4 {
+        right: 5%;
+    }
+
+
+    /* ------------------------------------------------------
+       Search
+       ------------------------------------------------------ */
+
+    .search-area {
+
+        width:
+            calc(100% - 32px);
+    }
+
+
+    .search-panel {
+        padding: 16px;
+    }
+
+
+    /* ------------------------------------------------------
+       Filters
+       ------------------------------------------------------ */
+
+    .filters {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    /* ------------------------------------------------------
+       Stats
+       ------------------------------------------------------ */
+
+    .stats-strip {
+
+        width:
+            calc(100% - 32px);
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    .stat-item:nth-child(2) {
+
+        border-right: none;
+    }
+
+
+    .stat-item:nth-child(-n+2) {
+
+        border-bottom:
+            1px solid var(--border-color);
+    }
+
+
+    /* ------------------------------------------------------
+       Repository Cards
+       ------------------------------------------------------ */
+
+    .repository-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    /* ------------------------------------------------------
+       Stack Builder
+       ------------------------------------------------------ */
+
+    .stack-builder {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    /* ------------------------------------------------------
+       Architecture
+       ------------------------------------------------------ */
+
+    .architecture-flow {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .flow-card:not(:last-child)::after {
+
+        content: "↓";
+
+        right: auto;
+
+        left: 50%;
+
+        top: auto;
+
+        bottom: -18px;
+
+        transform:
+            translateX(-50%);
+    }
+
+
+    /* ------------------------------------------------------
+       Category Grid
+       ------------------------------------------------------ */
+
+    .category-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    /* ------------------------------------------------------
+       Detail Grid
+       ------------------------------------------------------ */
+
+    .technology-detail-grid,
+    .resource-detail {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    /* ------------------------------------------------------
+       Cloud Providers
+       ------------------------------------------------------ */
+
+    .cloud-provider-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    /* ------------------------------------------------------
+       Footer
+       ------------------------------------------------------ */
+
+    .footer-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    .footer-brand {
+
+        grid-column:
+            1 / -1;
+
+        max-width: 600px;
+    }
+
+}
+
+
+/* ==========================================================
+   4. TABLET
+   ========================================================== */
+
+@media (max-width: 768px) {
+
+    /* ------------------------------------------------------
+       Global
+       ------------------------------------------------------ */
+
+    .container {
+
+        width:
+            calc(100% - 28px);
+    }
+
+
+    /* ------------------------------------------------------
+       System Bar
+       ------------------------------------------------------ */
+
+    .system-bar {
+
+        min-height: 30px;
+
+        padding:
+            0 14px;
+
+        font-size: 8px;
+    }
+
+
+    .system-version {
+        display: none;
+    }
+
+
+    /* ------------------------------------------------------
+       Navbar
+       ------------------------------------------------------ */
+
+    .navbar {
+
+        height: 62px;
+    }
+
+
+    .navbar-container {
+
+        width:
+            calc(100% - 28px);
+    }
+
+
+    .nav-links {
+
+        position: absolute;
+
+        top: 62px;
+
+        left: 0;
+        right: 0;
+
+        display: none;
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+        padding: 10px;
+
+        border-bottom:
+            1px solid var(--border-color);
+
+        background:
+            rgba(5, 8, 7, 0.97);
+
+        backdrop-filter:
+            blur(20px);
+    }
+
+
+    .nav-links.mobile-open {
+        display: flex;
+    }
+
+
+    .nav-link {
+
+        min-height: 42px;
+
+        padding:
+            0 13px;
+
+        justify-content: flex-start;
+
+        font-size: 10px;
+    }
+
+
+    .nav-link::after {
+        display: none;
+    }
+
+
+    .nav-actions {
+        margin-left: auto;
+    }
+
+
+    .nav-github {
+
+        min-height: 35px;
+
+        padding:
+            0 9px;
+    }
+
+
+    .mobile-menu-button {
+
+        display: flex;
+    }
+
+
+    /* ------------------------------------------------------
+       Brand
+       ------------------------------------------------------ */
+
+    .brand-subtitle {
+        display: none;
+    }
+
+
+    .brand-mark {
+
+        width: 34px;
+        height: 34px;
+    }
+
+
+    .brand-name {
+        font-size: 12px;
+    }
+
+
+    /* ------------------------------------------------------
+       Hero
+       ------------------------------------------------------ */
+
+    .hero {
+
+        min-height:
+            560px;
+
+        padding:
+            70px 0
+            55px;
+    }
+
+
+    .hero-title {
+
+        font-size:
+            clamp(
+                42px,
+                11vw,
+                62px
+            );
+
+        letter-spacing:
+            -2.5px;
+    }
+
+
+    .hero-description {
+
+        font-size:
+            13px;
+    }
+
+
+    .tech-node {
+
+        display: none;
+    }
+
+
+    /* ------------------------------------------------------
+       Search
+       ------------------------------------------------------ */
+
+    .search-area {
+
+        width:
+            calc(100% - 28px);
+
+        margin-top:
+            -20px;
+    }
+
+
+    .search-box {
+
+        flex-direction:
+            column;
+    }
+
+
+    .search-input {
+
+        height:
+            50px;
+    }
+
+
+    .search-button {
+
+        width:
+            100%;
+
+        min-height:
+            46px;
+    }
+
+
+    .search-types {
+
+        padding-bottom:
+            5px;
+    }
+
+
+    .quick-searches {
+
+        align-items:
+            flex-start;
+    }
+
+
+    .quick-search-label {
+
+        width:
+            100%;
+
+        margin-bottom:
+            3px;
+    }
+
+
+    /* ------------------------------------------------------
+       Filters
+       ------------------------------------------------------ */
+
+    .filters {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    /* ------------------------------------------------------
+       Stats
+       ------------------------------------------------------ */
+
+    .stats-strip {
+
+        width:
+            calc(100% - 28px);
+
+        margin-top:
+            45px;
+    }
+
+
+    .stat-item {
+
+        min-height:
+            90px;
+
+        padding:
+            16px;
+    }
+
+
+    .stat-value {
+        font-size:
+            17px;
+    }
+
+
+    /* ------------------------------------------------------
+       Sections
+       ------------------------------------------------------ */
+
+    .section {
+
+        padding:
+            65px 0;
+    }
+
+
+    .section-header {
+
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+
+        gap:
+            10px;
+    }
+
+
+    .section-title {
+
+        font-size:
+            30px;
+    }
+
+
+    /* ------------------------------------------------------
+       Repository Grid
+       ------------------------------------------------------ */
+
+    .repository-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .repo-card {
+
+        min-height:
+            275px;
+
+        padding:
+            18px;
+    }
+
+
+    /* ------------------------------------------------------
+       Technology Grid
+       ------------------------------------------------------ */
+
+    .technology-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap:
+            9px;
+    }
+
+
+    .technology-card {
+
+        min-height:
+            115px;
+
+        padding:
+            15px;
+    }
+
+
+    .technology-name {
+        font-size:
+            12px;
+    }
+
+
+    /* ------------------------------------------------------
+       Category Grid
+       ------------------------------------------------------ */
+
+    .category-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    /* ------------------------------------------------------
+       Creator Grid
+       ------------------------------------------------------ */
+
+    .creator-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    /* ------------------------------------------------------
+       Stack
+       ------------------------------------------------------ */
+
+    .stack-builder {
+
+        padding:
+            17px;
+    }
+
+
+    .stack-pipeline {
+
+        align-items:
+            stretch;
+
+        flex-direction:
+            column;
+    }
+
+
+    .stack-node {
+
+        width:
+            100%;
+    }
+
+
+    .stack-arrow {
+
+        text-align:
+            center;
+
+        transform:
+            rotate(90deg);
+    }
+
+
+    /* ------------------------------------------------------
+       Tool List
+       ------------------------------------------------------ */
+
+    .tool-list {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    /* ------------------------------------------------------
+       Learning Path
+       ------------------------------------------------------ */
+
+    .learning-step {
+
+        grid-template-columns:
+            50px 1fr;
+
+        gap:
+            15px;
+    }
+
+
+    .learning-step-number {
+
+        width:
+            48px;
+
+        height:
+            48px;
+
+        font-size:
+            9px;
+    }
+
+
+    .learning-step:not(:last-child)::before {
+
+        left:
+            24px;
+
+        top:
+            48px;
+    }
+
+
+    .learning-step-title {
+
+        font-size:
+            17px;
+    }
+
+
+    /* ------------------------------------------------------
+       Page Header
+       ------------------------------------------------------ */
+
+    .page-header {
+
+        padding:
+            55px 0
+            40px;
+    }
+
+
+    .page-title {
+
+        font-size:
+            clamp(
+                38px,
+                10vw,
+                52px
+            );
+
+        letter-spacing:
+            -2px;
+    }
+
+
+    /* ------------------------------------------------------
+       Resource Meta
+       ------------------------------------------------------ */
+
+    .resource-meta {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    /* ------------------------------------------------------
+       Footer
+       ------------------------------------------------------ */
+
+    .footer {
+
+        margin-top:
+            65px;
+    }
+
+
+    .footer-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .footer-brand {
+
+        grid-column:
+            auto;
+    }
+
+
+    .footer-bottom {
+
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+
+        gap:
+            8px;
+    }
+
+}
+
+
+/* ==========================================================
+   5. MOBILE
+   ========================================================== */
+
+@media (max-width: 600px) {
+
+    /* ------------------------------------------------------
+       Body
+       ------------------------------------------------------ */
+
+    body {
+
+        font-size:
+            14px;
+    }
+
+
+    /* ------------------------------------------------------
+       Brand
+       ------------------------------------------------------ */
+
+    .brand-name {
+
+        font-size:
+            11px;
+    }
+
+
+    .brand-mark {
+
+        width:
+            32px;
+
+        height:
+            32px;
+
+        font-size:
+            12px;
+    }
+
+
+    /* ------------------------------------------------------
+       Navbar
+       ------------------------------------------------------ */
+
+    .nav-actions {
+
+        gap:
+            5px;
+    }
+
+
+    .nav-github {
+
+        font-size:
+            0;
+
+        width:
+            35px;
+
+        padding:
+            0;
+
+        justify-content:
+            center;
+    }
+
+
+    .nav-github::before {
+
+        content:
+            "↗";
+
+        font-size:
+            13px;
+    }
+
+
+    /* ------------------------------------------------------
+       Hero
+       ------------------------------------------------------ */
+
+    .hero {
+
+        min-height:
+            520px;
+
+        padding:
+            60px 0
+            50px;
+    }
+
+
+    .hero-terminal {
+
+        font-size:
+            8px;
+    }
+
+
+    .hero-title {
+
+        font-size:
+            clamp(
+                38px,
+                12vw,
+                52px
+            );
+
+        letter-spacing:
+            -2px;
+    }
+
+
+    .hero-description {
+
+        margin-top:
+            20px;
+
+        font-size:
+            12px;
+
+        line-height:
+            1.7;
+    }
+
+
+    /* ------------------------------------------------------
+       Search
+       ------------------------------------------------------ */
+
+    .search-panel {
+
+        padding:
+            12px;
+    }
+
+
+    .search-input {
+
+        padding-left:
+            38px;
+
+        font-size:
+            11px;
+    }
+
+
+    .search-icon {
+
+        left:
+            12px;
+    }
+
+
+    .search-type {
+
+        padding:
+            0 9px;
+
+        font-size:
+            8px;
+    }
+
+
+    .quick-search {
+
+        font-size:
+            8px;
+    }
+
+
+    /* ------------------------------------------------------
+       Stats
+       ------------------------------------------------------ */
+
+    .stats-strip {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .stat-item {
+
+        border-right:
+            none !important;
+
+        border-bottom:
+            1px solid var(--border-color);
+    }
+
+
+    .stat-item:last-child {
+
+        border-bottom:
+            none;
+    }
+
+
+    /* ------------------------------------------------------
+       Repository
+       ------------------------------------------------------ */
+
+    .repo-footer {
+
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+    }
+
+
+    .repo-actions {
+
+        width:
+            100%;
+    }
+
+
+    .repo-action {
+
+        flex:
+            1;
+    }
+
+
+    .repo-stats {
+
+        gap:
+            9px;
+    }
+
+
+    /* ------------------------------------------------------
+       Technology
+       ------------------------------------------------------ */
+
+    .technology-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .technology-card {
+
+        min-height:
+            105px;
+    }
+
+
+    /* ------------------------------------------------------
+       Creator
+       ------------------------------------------------------ */
+
+    .creator-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    /* ------------------------------------------------------
+       Architecture
+       ------------------------------------------------------ */
+
+    .flow-card {
+
+        min-height:
+            200px;
+
+        padding:
+            19px;
+    }
+
+
+    /* ------------------------------------------------------
+       Section
+       ------------------------------------------------------ */
+
+    .section {
+
+        padding:
+            55px 0;
+    }
+
+
+    .section-title {
+
+        font-size:
+            27px;
+    }
+
+
+    .section-description {
+
+        font-size:
+            11px;
+    }
+
+
+    /* ------------------------------------------------------
+       Saved Toolbar
+       ------------------------------------------------------ */
+
+    .saved-toolbar {
+
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+    }
+
+
+    /* ------------------------------------------------------
+       Results Toolbar
+       ------------------------------------------------------ */
+
+    .results-toolbar {
+
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+
+        gap:
+            6px;
+    }
+
+
+    /* ------------------------------------------------------
+       Notification
+       ------------------------------------------------------ */
+
+    .notification-container {
+
+        right:
+            12px;
+
+        bottom:
+            12px;
+
+        width:
+            calc(100% - 24px);
+    }
+
+}
+
+
+/* ==========================================================
+   6. SMALL MOBILE
+   ========================================================== */
+
+@media (max-width: 480px) {
+
+    .container {
+
+        width:
+            calc(100% - 22px);
+    }
+
+
+    .navbar-container {
+
+        width:
+            calc(100% - 22px);
+    }
+
+
+    .system-bar {
+
+        padding:
+            0 10px;
+
+        font-size:
+            7px;
+    }
+
+
+    .brand-name {
+
+        max-width:
+            130px;
+
+        overflow:
+            hidden;
+
+        text-overflow:
+            ellipsis;
+
+        white-space:
+            nowrap;
+    }
+
+
+    .hero {
+
+        min-height:
+            500px;
+    }
+
+
+    .hero-title {
+
+        font-size:
+            37px;
+
+        letter-spacing:
+            -1.8px;
+    }
+
+
+    .search-area {
+
+        width:
+            calc(100% - 22px);
+    }
+
+
+    .stats-strip {
+
+        width:
+            calc(100% - 22px);
+    }
+
+
+    .repo-card {
+
+        padding:
+            15px;
+    }
+
+
+    .repo-name {
+
+        font-size:
+            13px;
+    }
+
+
+    .repo-description {
+
+        font-size:
+            11px;
+    }
+
+
+    .technology-card {
+
+        padding:
+            14px;
+    }
+
+
+    .page-title {
+
+        font-size:
+            35px;
+    }
+
+
+    .technology-detail-title {
+
+        font-size:
+            38px;
+
+        letter-spacing:
+            -1.5px;
+    }
+
+
+    .detail-panel {
+
+        padding:
+            18px;
+    }
+
+
+    .resource-main {
+
+        padding:
+            18px;
+    }
+
+
+    .footer {
+
+        padding-top:
+            35px;
+    }
+
+}
+
+
+/* ==========================================================
+   7. REDUCED MOTION
+   ========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+
+        scroll-behavior:
+            auto !important;
+
+        animation-duration:
+            0.01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
+        transition-duration:
+            0.01ms !important;
+    }
+
+}
+
+
+/* ==========================================================
+   8. LANDSCAPE MOBILE
+   ========================================================== */
+
+@media (max-height: 500px) and (orientation: landscape) {
+
+    .hero {
+
+        min-height:
+            auto;
+
+        padding:
+            60px 0;
+    }
+
+
+    .hero-title {
+
+        font-size:
+            42px;
+    }
+
+
+    .hero-description {
+
+        margin-top:
+            15px;
+    }
+
+
+    .tech-node {
+
+        display:
+            none;
+    }
+
+}
