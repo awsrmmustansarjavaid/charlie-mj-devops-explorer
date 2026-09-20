@@ -12,11 +12,7 @@ Instead of manually searching GitHub again and again for Kubernetes, Docker, AWS
 
 ## Live Website
 
-👉 **Live Demo:** [Add your GitHub Pages URL here]
-
-```text
-https://YOUR-GITHUB-USERNAME.github.io/YOUR-REPOSITORY-NAME/
-```
+👉 **Live Demo:** [Click here for the live website](https://awsrmmustansarjavaid.github.io/charlie-mj-devops-explorer/)
 
 > Replace the URL above with the actual GitHub Pages URL after deploying the project.
 
