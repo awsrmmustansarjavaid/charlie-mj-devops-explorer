@@ -1,5 +1,7 @@
 # Charlie-MJ DevOPS Explorer
 
+![Charlie-MJ DevOPS Explorer](./assets/images/devops-engineer.png)
+
 > **A DevOps-focused GitHub Explorer for discovering labs, projects, tutorials, notes, technologies, learning resources, and DevOps creators.**
 
 Charlie-MJ DevOPS Explorer is a web-based DevOps resource discovery platform designed to make it easier to find useful **GitHub repositories, DevOps projects, hands-on labs, tutorials, study notes, CI/CD projects, GitOps resources, and technology-specific learning material**.
