@@ -4,7 +4,15 @@
 
 > **A modern GitHub-powered DevOps discovery engine for finding projects, labs, tutorials, notes, technologies, scripts, infrastructure-as-code examples, CI/CD pipelines, GitOps resources, security tooling, observability projects, and practical engineering repositories.**
 
-**Live Demo:** https://awsrmmustansarjavaid.github.io/charlie-mj-devops-explorer/
+---
+
+# 🚀 Live Demo
+
+## Live Website
+
+👉 **Live Demo:** [Click here for the live website](https://awsrmmustansarjavaid.github.io/charlie-mj-devops-explorer/)
+
+> Replace the URL above with the actual GitHub Pages URL after deploying the project.
 
 ---
 
