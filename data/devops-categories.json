@@ -1,666 +1,541 @@
 [
-    {
-        "id": "operating-systems",
-        "name": "Operating Systems",
-        "slug": "operating-systems",
-        "icon": "OS",
-        "description": "Operating systems and server environments that form the foundation of DevOps infrastructure.",
-        "skillLevel": "Beginner",
-        "technologyCount": 8,
-        "technologies": [
-            "linux",
-            "ubuntu",
-            "debian",
-            "redhat",
-            "rhel",
-            "windows-server",
-            "alpine-linux",
-            "amazon-linux"
-        ],
-        "learningTopics": [
-            "Linux commands",
-            "File systems",
-            "Processes",
-            "Users and permissions",
-            "Networking",
-            "Package management",
-            "System services",
-            "SSH"
-        ]
-    },
-
-    {
-        "id": "version-control",
-        "name": "Version Control",
-        "slug": "version-control",
-        "icon": "GIT",
-        "description": "Tools and practices for managing source code, branches, commits, collaboration and software history.",
-        "skillLevel": "Beginner",
-        "technologyCount": 6,
-        "technologies": [
-            "git",
-            "github",
-            "gitlab",
-            "bitbucket",
-            "gitea",
-            "github-actions"
-        ],
-        "learningTopics": [
-            "Repositories",
-            "Commits",
-            "Branches",
-            "Merge",
-            "Rebase",
-            "Pull requests",
-            "Code review",
-            "Git workflows"
-        ]
-    },
-
-    {
-        "id": "containers",
-        "name": "Containers",
-        "slug": "containers",
-        "icon": "CTR",
-        "description": "Container technologies used to package, distribute and run applications consistently across environments.",
-        "skillLevel": "Beginner",
-        "technologyCount": 10,
-        "technologies": [
-            "docker",
-            "containerd",
-            "cri-o",
-            "podman",
-            "docker-compose",
-            "buildah",
-            "skopeo",
-            "amazon-ecr",
-            "docker-hub",
-            "quay"
-        ],
-        "learningTopics": [
-            "Container concepts",
-            "Dockerfiles",
-            "Container images",
-            "Image registries",
-            "Volumes",
-            "Networks",
-            "Docker Compose",
-            "Container security"
-        ]
-    },
-
-    {
-        "id": "container-orchestration",
-        "name": "Container Orchestration",
-        "slug": "container-orchestration",
-        "icon": "K8S",
-        "description": "Platforms for deploying, scaling, networking and managing containerized workloads across clusters.",
-        "skillLevel": "Intermediate",
-        "technologyCount": 8,
-        "technologies": [
-            "kubernetes",
-            "amazon-eks",
-            "google-gke",
-            "azure-aks",
-            "docker-swarm",
-            "openshift",
-            "nomad",
-            "rancher"
-        ],
-        "learningTopics": [
-            "Clusters",
-            "Nodes",
-            "Pods",
-            "Deployments",
-            "Services",
-            "Ingress",
-            "ConfigMaps",
-            "Secrets",
-            "Namespaces",
-            "Scaling"
-        ]
-    },
-
-    {
-        "id": "cloud",
-        "name": "Cloud Computing",
-        "slug": "cloud",
-        "icon": "CLOUD",
-        "description": "Cloud platforms and services used to build scalable infrastructure, applications and DevOps environments.",
-        "skillLevel": "Intermediate",
-        "technologyCount": 20,
-        "technologies": [
-            "aws",
-            "azure",
-            "google-cloud",
-            "oracle-cloud",
-            "digitalocean",
-            "cloudflare",
-            "amazon-ec2",
-            "amazon-s3",
-            "amazon-eks",
-            "amazon-ecr"
-        ],
-        "learningTopics": [
-            "Compute",
-            "Storage",
-            "Networking",
-            "Identity and Access Management",
-            "Databases",
-            "Containers",
-            "Serverless",
-            "Load balancing",
-            "Cloud security",
-            "Cost management"
-        ]
-    },
-
-    {
-        "id": "infrastructure-as-code",
-        "name": "Infrastructure as Code",
-        "slug": "infrastructure-as-code",
-        "icon": "IAC",
-        "description": "Technologies used to define and manage infrastructure through machine-readable configuration rather than manual provisioning.",
-        "skillLevel": "Intermediate",
-        "technologyCount": 10,
-        "technologies": [
-            "terraform",
-            "cloudformation",
-            "pulumi",
-            "opentofu",
-            "crossplane",
-            "ansible",
-            "packer",
-            "cdk",
-            "bicep",
-            "arm-templates"
-        ],
-        "learningTopics": [
-            "Declarative infrastructure",
-            "Providers",
-            "Resources",
-            "Modules",
-            "State",
-            "Variables",
-            "Outputs",
-            "Infrastructure automation",
-            "Drift detection"
-        ]
-    },
-
-    {
-        "id": "cicd",
-        "name": "CI/CD",
-        "slug": "cicd",
-        "icon": "CI/CD",
-        "description": "Continuous Integration and Continuous Delivery tools used to automate building, testing, packaging and deploying applications.",
-        "skillLevel": "Intermediate",
-        "technologyCount": 15,
-        "technologies": [
-            "jenkins",
-            "github-actions",
-            "gitlab-ci",
-            "azure-devops",
-            "circleci",
-            "travis-ci",
-            "buildkite",
-            "teamcity",
-            "bamboo",
-            "tekton"
-        ],
-        "learningTopics": [
-            "Pipeline design",
-            "Build automation",
-            "Testing",
-            "Artifacts",
-            "Deployment",
-            "Pipeline security",
-            "Webhooks",
-            "Runners",
-            "Deployment strategies"
-        ]
-    },
-
-    {
-        "id": "gitops",
-        "name": "GitOps",
-        "slug": "gitops",
-        "icon": "GOPS",
-        "description": "A deployment approach where Git repositories act as the source of truth for declarative infrastructure and application configuration.",
-        "skillLevel": "Intermediate",
-        "technologyCount": 8,
-        "technologies": [
-            "argo-cd",
-            "flux",
-            "github-actions",
-            "gitlab",
-            "helm",
-            "kustomize",
-            "kubernetes",
-            "crossplane"
-        ],
-        "learningTopics": [
-            "Git as source of truth",
-            "Declarative configuration",
-            "Continuous delivery",
-            "Application synchronization",
-            "Drift detection",
-            "Rollback",
-            "Kubernetes GitOps",
-            "Environment management"
-        ]
-    },
-
-    {
-        "id": "configuration-management",
-        "name": "Configuration Management",
-        "slug": "configuration-management",
-        "icon": "CFG",
-        "description": "Tools used to configure servers, install software, manage system settings and automate operational tasks.",
-        "skillLevel": "Intermediate",
-        "technologyCount": 8,
-        "technologies": [
-            "ansible",
-            "puppet",
-            "chef",
-            "saltstack",
-            "cfengine",
-            "powershell-dsc",
-            "bash",
-            "python"
-        ],
-        "learningTopics": [
-            "Configuration automation",
-            "Inventory",
-            "Playbooks",
-            "Roles",
-            "Idempotency",
-            "Secrets",
-            "Server provisioning",
-            "Application deployment"
-        ]
-    },
-
-    {
-        "id": "devsecops",
-        "name": "DevSecOps",
-        "slug": "devsecops",
-        "icon": "SEC",
-        "description": "Security practices and tools integrated throughout the software development and DevOps lifecycle.",
-        "skillLevel": "Intermediate",
-        "technologyCount": 15,
-        "technologies": [
-            "trivy",
-            "sonarqube",
-            "owasp-dependency-check",
-            "snyk",
-            "semgrep",
-            "checkov",
-            "tfsec",
-            "grype",
-            "cosign",
-            "vault"
-        ],
-        "learningTopics": [
-            "SAST",
-            "DAST",
-            "Dependency scanning",
-            "Container scanning",
-            "IaC scanning",
-            "Secrets management",
-            "SBOM",
-            "Image signing",
-            "Security gates"
-        ]
-    },
-
-    {
-        "id": "observability",
-        "name": "Observability",
-        "slug": "observability",
-        "icon": "OBS",
-        "description": "Monitoring, logging, tracing and visualization technologies used to understand application and infrastructure health.",
-        "skillLevel": "Intermediate",
-        "technologyCount": 15,
-        "technologies": [
-            "prometheus",
-            "grafana",
-            "opentelemetry",
-            "loki",
-            "jaeger",
-            "elasticsearch",
-            "logstash",
-            "kibana",
-            "alertmanager",
-            "datadog"
-        ],
-        "learningTopics": [
-            "Metrics",
-            "Logs",
-            "Traces",
-            "Dashboards",
-            "Alerting",
-            "SLI",
-            "SLO",
-            "Error budgets",
-            "Distributed tracing"
-        ]
-    },
-
-    {
-        "id": "monitoring",
-        "name": "Monitoring",
-        "slug": "monitoring",
-        "icon": "MON",
-        "description": "Technologies used to monitor infrastructure, applications, services and system performance.",
-        "skillLevel": "Intermediate",
-        "technologyCount": 10,
-        "technologies": [
-            "prometheus",
-            "grafana",
-            "zabbix",
-            "nagios",
-            "datadog",
-            "new-relic",
-            "cloudwatch",
-            "alertmanager",
-            "uptime-kuma",
-            "icinga"
-        ],
-        "learningTopics": [
-            "Infrastructure monitoring",
-            "Application monitoring",
-            "Metrics",
-            "Alerts",
-            "Health checks",
-            "Dashboards",
-            "Availability",
-            "Performance"
-        ]
-    },
-
-    {
-        "id": "networking",
-        "name": "Networking",
-        "slug": "networking",
-        "icon": "NET",
-        "description": "Networking concepts and technologies required for reliable communication between applications, containers, servers and cloud infrastructure.",
-        "skillLevel": "Intermediate",
-        "technologyCount": 15,
-        "technologies": [
-            "nginx",
-            "haproxy",
-            "traefik",
-            "envoy",
-            "dns",
-            "tcp-ip",
-            "http",
-            "https",
-            "load-balancing",
-            "vpn"
-        ],
-        "learningTopics": [
-            "TCP/IP",
-            "DNS",
-            "HTTP",
-            "HTTPS",
-            "Ports",
-            "Routing",
-            "Load balancing",
-            "Reverse proxy",
-            "Firewalls",
-            "VPN"
-        ]
-    },
-
-    {
-        "id": "databases",
-        "name": "Databases",
-        "slug": "databases",
-        "icon": "DB",
-        "description": "Relational, NoSQL and in-memory databases commonly deployed and managed by DevOps teams.",
-        "skillLevel": "Intermediate",
-        "technologyCount": 15,
-        "technologies": [
-            "postgresql",
-            "mysql",
-            "mariadb",
-            "mongodb",
-            "redis",
-            "cassandra",
-            "elasticsearch",
-            "dynamodb",
-            "amazon-rds",
-            "amazon-aurora"
-        ],
-        "learningTopics": [
-            "SQL",
-            "NoSQL",
-            "Database deployment",
-            "Backups",
-            "Replication",
-            "High availability",
-            "Scaling",
-            "Database monitoring"
-        ]
-    },
-
-    {
-        "id": "scripting",
-        "name": "Scripting & Programming",
-        "slug": "scripting",
-        "icon": "CODE",
-        "description": "Programming and scripting languages used to automate DevOps tasks, build tools, create APIs and develop cloud-native applications.",
-        "skillLevel": "Beginner",
-        "technologyCount": 12,
-        "technologies": [
-            "bash",
-            "python",
-            "go",
-            "javascript",
-            "typescript",
-            "java",
-            "powershell",
-            "ruby",
-            "php",
-            "rust"
-        ],
-        "learningTopics": [
-            "Shell scripting",
-            "Automation",
-            "API development",
-            "CLI tools",
-            "Infrastructure automation",
-            "Cloud SDKs",
-            "Testing"
-        ]
-    },
-
-    {
-        "id": "kubernetes-ecosystem",
-        "name": "Kubernetes Ecosystem",
-        "slug": "kubernetes-ecosystem",
-        "icon": "K8S+",
-        "description": "Tools that extend Kubernetes with package management, networking, security, observability, deployment and infrastructure capabilities.",
-        "skillLevel": "Advanced",
-        "technologyCount": 20,
-        "technologies": [
-            "kubernetes",
-            "helm",
-            "kustomize",
-            "argo-cd",
-            "flux",
-            "prometheus",
-            "grafana",
-            "istio",
-            "cert-manager",
-            "ingress-nginx"
-        ],
-        "learningTopics": [
-            "Helm",
-            "Kustomize",
-            "Ingress",
-            "Service mesh",
-            "Operators",
-            "CRDs",
-            "GitOps",
-            "Monitoring",
-            "Security",
-            "Networking"
-        ]
-    },
-
-    {
-        "id": "cloud-native",
-        "name": "Cloud Native",
-        "slug": "cloud-native",
-        "icon": "CN",
-        "description": "Modern application architecture based around containers, orchestration, microservices, automation and scalable cloud infrastructure.",
-        "skillLevel": "Advanced",
-        "technologyCount": 20,
-        "technologies": [
-            "kubernetes",
-            "docker",
-            "helm",
-            "prometheus",
-            "grafana",
-            "opentelemetry",
-            "istio",
-            "argo-cd",
-            "terraform",
-            "containerd"
-        ],
-        "learningTopics": [
-            "Microservices",
-            "Containers",
-            "Kubernetes",
-            "Service mesh",
-            "Observability",
-            "GitOps",
-            "Automation",
-            "Scalability"
-        ]
-    },
-
-    {
-        "id": "secrets-management",
-        "name": "Secrets Management",
-        "slug": "secrets-management",
-        "icon": "SEC",
-        "description": "Technologies used to securely store, distribute and manage passwords, API keys, certificates and other sensitive configuration.",
-        "skillLevel": "Intermediate",
-        "technologyCount": 8,
-        "technologies": [
-            "hashicorp-vault",
-            "aws-secrets-manager",
-            "aws-ssm-parameter-store",
-            "azure-key-vault",
-            "google-secret-manager",
-            "kubernetes-secrets",
-            "sops",
-            "external-secrets"
-        ],
-        "learningTopics": [
-            "Secret storage",
-            "Secret rotation",
-            "API keys",
-            "Passwords",
-            "Certificates",
-            "Encryption",
-            "Kubernetes secrets",
-            "Cloud secrets"
-        ]
-    },
-
-    {
-        "id": "artifact-management",
-        "name": "Artifact Management",
-        "slug": "artifact-management",
-        "icon": "PKG",
-        "description": "Repositories and systems used to store application packages, binaries, container images and build artifacts.",
-        "skillLevel": "Intermediate",
-        "technologyCount": 10,
-        "technologies": [
-            "amazon-ecr",
-            "docker-hub",
-            "jfrog-artifactory",
-            "sonatype-nexus",
-            "github-packages",
-            "gitlab-registry",
-            "harbor",
-            "quay"
-        ],
-        "learningTopics": [
-            "Container registries",
-            "Package repositories",
-            "Versioning",
-            "Artifact retention",
-            "Image promotion",
-            "Artifact security"
-        ]
-    },
-
-    {
-        "id": "microservices",
-        "name": "Microservices",
-        "slug": "microservices",
-        "icon": "MS",
-        "description": "Application architecture where software is divided into independently deployable services that communicate through APIs or messaging systems.",
-        "skillLevel": "Intermediate",
-        "technologyCount": 15,
-        "technologies": [
-            "docker",
-            "kubernetes",
-            "nginx",
-            "redis",
-            "postgresql",
-            "kafka",
-            "rabbitmq",
-            "grpc",
-            "rest-api",
-            "istio"
-        ],
-        "learningTopics": [
-            "Service boundaries",
-            "APIs",
-            "REST",
-            "gRPC",
-            "Service discovery",
-            "Load balancing",
-            "Messaging",
-            "Distributed systems",
-            "Observability"
-        ]
-    },
-
-    {
-        "id": "automation",
-        "name": "Automation",
-        "slug": "automation",
-        "icon": "AUTO",
-        "description": "Tools and practices used to automate repetitive infrastructure, application deployment, testing and operational tasks.",
-        "skillLevel": "Intermediate",
-        "technologyCount": 15,
-        "technologies": [
-            "ansible",
-            "terraform",
-            "jenkins",
-            "github-actions",
-            "python",
-            "bash",
-            "powershell",
-            "packer",
-            "make",
-            "taskfile"
-        ],
-        "learningTopics": [
-            "Infrastructure automation",
-            "Deployment automation",
-            "Configuration management",
-            "Testing automation",
-            "Scheduled tasks",
-            "Event-driven automation",
-            "Scripting"
-        ]
-    }
+  {
+    "id": "operating-systems",
+    "name": "Operating Systems",
+    "slug": "operating-systems",
+    "icon": "OPE",
+    "description": "Server operating systems and environments used to run infrastructure and workloads.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 6,
+    "technologies": [
+      "linux",
+      "ubuntu",
+      "redhat-enterprise-linux",
+      "alpine-linux",
+      "amazon-linux",
+      "windows-server"
+    ],
+    "learningTopics": [
+      "Operating Systems fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "version-control",
+    "name": "Version Control",
+    "slug": "version-control",
+    "icon": "VER",
+    "description": "Source control, collaboration and repository platforms.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 5,
+    "technologies": [
+      "git",
+      "github",
+      "gitlab",
+      "bitbucket",
+      "gitea"
+    ],
+    "learningTopics": [
+      "Version Control fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "developer-tools",
+    "name": "Developer Tools",
+    "slug": "developer-tools",
+    "icon": "DEV",
+    "description": "DevOps technologies and practices.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 1,
+    "technologies": [
+      "github-cli"
+    ],
+    "learningTopics": [
+      "Developer Tools fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "containers",
+    "name": "Containers",
+    "slug": "containers",
+    "icon": "CON",
+    "description": "Container engines, image builders and multi-container tooling.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 7,
+    "technologies": [
+      "docker",
+      "podman",
+      "containerd",
+      "cri-o",
+      "docker-compose",
+      "buildkit",
+      "buildah"
+    ],
+    "learningTopics": [
+      "Containers fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "container-orchestration",
+    "name": "Container Orchestration",
+    "slug": "container-orchestration",
+    "icon": "CON",
+    "description": "Systems for scheduling and operating application workloads.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 2,
+    "technologies": [
+      "kubernetes",
+      "nomad"
+    ],
+    "learningTopics": [
+      "Container Orchestration fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "cloud-computing",
+    "name": "Cloud Computing",
+    "slug": "cloud-computing",
+    "icon": "CLO",
+    "description": "Public cloud and edge platforms used for infrastructure and applications.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 11,
+    "technologies": [
+      "amazon-eks",
+      "azure-aks",
+      "google-gke",
+      "aws",
+      "microsoft-azure",
+      "google-cloud",
+      "oracle-cloud",
+      "digitalocean",
+      "ibm-cloud",
+      "alibaba-cloud",
+      "cloudflare"
+    ],
+    "learningTopics": [
+      "Cloud Computing fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "kubernetes-ecosystem",
+    "name": "Kubernetes Ecosystem",
+    "slug": "kubernetes-ecosystem",
+    "icon": "KUB",
+    "description": "Kubernetes packaging, management and workflow tools.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 15,
+    "technologies": [
+      "helm",
+      "kustomize",
+      "rancher",
+      "openshift",
+      "kubectl",
+      "k9s",
+      "kind",
+      "minikube",
+      "eksctl",
+      "cilium",
+      "calico",
+      "keda",
+      "velero",
+      "external-dns",
+      "cert-manager"
+    ],
+    "learningTopics": [
+      "Kubernetes Ecosystem fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "infrastructure-as-code",
+    "name": "Infrastructure as Code",
+    "slug": "infrastructure-as-code",
+    "icon": "INF",
+    "description": "Languages and tools for declarative infrastructure and configuration.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 12,
+    "technologies": [
+      "terraform",
+      "opentofu",
+      "aws-cloudformation",
+      "aws-cdk",
+      "pulumi",
+      "crossplane",
+      "packer",
+      "vagrant",
+      "hcl",
+      "yaml",
+      "json",
+      "cue"
+    ],
+    "learningTopics": [
+      "Infrastructure as Code fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "ci-cd",
+    "name": "CI/CD",
+    "slug": "ci-cd",
+    "icon": "CI/",
+    "description": "Continuous integration, delivery, testing and pipeline automation.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 9,
+    "technologies": [
+      "jenkins",
+      "github-actions",
+      "gitlab-ci",
+      "circleci",
+      "travis-ci",
+      "azure-devops",
+      "tekton",
+      "argo-workflows",
+      "jenkins-x"
+    ],
+    "learningTopics": [
+      "CI/CD fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "gitops",
+    "name": "GitOps",
+    "slug": "gitops",
+    "icon": "GIT",
+    "description": "Git-driven continuous delivery and configuration automation.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 4,
+    "technologies": [
+      "argo-cd",
+      "flux",
+      "argocd-image-updater",
+      "argocd"
+    ],
+    "learningTopics": [
+      "GitOps fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "configuration-management",
+    "name": "Configuration Management",
+    "slug": "configuration-management",
+    "icon": "CON",
+    "description": "Tools for repeatable server and application configuration.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 4,
+    "technologies": [
+      "ansible",
+      "chef",
+      "puppet",
+      "saltstack"
+    ],
+    "learningTopics": [
+      "Configuration Management fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "devsecops",
+    "name": "DevSecOps",
+    "slug": "devsecops",
+    "icon": "DEV",
+    "description": "Security scanning, code analysis, policy and supply-chain security.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 12,
+    "technologies": [
+      "trivy",
+      "sonarqube",
+      "owasp-dependency-check",
+      "snyk",
+      "semgrep",
+      "checkov",
+      "gitleaks",
+      "tekton-chains",
+      "cosign",
+      "syft",
+      "grype",
+      "falco"
+    ],
+    "learningTopics": [
+      "DevSecOps fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "secrets-management",
+    "name": "Secrets Management",
+    "slug": "secrets-management",
+    "icon": "SEC",
+    "description": "Secure storage, synchronization and delivery of credentials and secrets.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 2,
+    "technologies": [
+      "vault",
+      "external-secrets"
+    ],
+    "learningTopics": [
+      "Secrets Management fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "observability",
+    "name": "Observability",
+    "slug": "observability",
+    "icon": "OBS",
+    "description": "Metrics, logs, traces and telemetry systems.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 8,
+    "technologies": [
+      "prometheus",
+      "grafana",
+      "opentelemetry",
+      "loki",
+      "promtail",
+      "jaeger",
+      "elastic-stack",
+      "fluent-bit"
+    ],
+    "learningTopics": [
+      "Observability fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "monitoring",
+    "name": "Monitoring",
+    "slug": "monitoring",
+    "icon": "MON",
+    "description": "Infrastructure and application monitoring platforms.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 2,
+    "technologies": [
+      "datadog",
+      "new-relic"
+    ],
+    "learningTopics": [
+      "Monitoring fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "networking",
+    "name": "Networking",
+    "slug": "networking",
+    "icon": "NET",
+    "description": "Proxies, DNS, ingress and load-balancing technologies.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 5,
+    "technologies": [
+      "nginx",
+      "haproxy",
+      "traefik",
+      "envoy",
+      "coredns"
+    ],
+    "learningTopics": [
+      "Networking fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "service-mesh",
+    "name": "Service Mesh",
+    "slug": "service-mesh",
+    "icon": "SER",
+    "description": "Application networking, traffic management and service-to-service security.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 3,
+    "technologies": [
+      "istio",
+      "linkerd",
+      "consul"
+    ],
+    "learningTopics": [
+      "Service Mesh fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "databases",
+    "name": "Databases",
+    "slug": "databases",
+    "icon": "DAT",
+    "description": "Relational, document, cache and managed database technologies.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 5,
+    "technologies": [
+      "redis",
+      "postgresql",
+      "mysql",
+      "mongodb",
+      "amazon-rds"
+    ],
+    "learningTopics": [
+      "Databases fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "artifact-management",
+    "name": "Artifact Management",
+    "slug": "artifact-management",
+    "icon": "ART",
+    "description": "Container registries and software artifact repositories.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 5,
+    "technologies": [
+      "amazon-ecr",
+      "docker-hub",
+      "harbor",
+      "jfrog-artifactory",
+      "nexus-repository"
+    ],
+    "learningTopics": [
+      "Artifact Management fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "scripting-programming",
+    "name": "Scripting & Programming",
+    "slug": "scripting-programming",
+    "icon": "SCR",
+    "description": "Languages used for automation, tooling, services and operations.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 10,
+    "technologies": [
+      "bash",
+      "powershell",
+      "python",
+      "go",
+      "ruby",
+      "javascript",
+      "typescript",
+      "java",
+      "csharp",
+      "rust"
+    ],
+    "learningTopics": [
+      "Scripting & Programming fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "automation",
+    "name": "Automation",
+    "slug": "automation",
+    "icon": "AUT",
+    "description": "CLI, build and data-processing tools used to automate repetitive work.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 8,
+    "technologies": [
+      "make",
+      "jq",
+      "yq",
+      "curl",
+      "wget",
+      "aws-cli",
+      "azure-cli",
+      "gcloud-cli"
+    ],
+    "learningTopics": [
+      "Automation fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "project-management",
+    "name": "Project Management",
+    "slug": "project-management",
+    "icon": "PRO",
+    "description": "Issue tracking, documentation and engineering collaboration.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 3,
+    "technologies": [
+      "jira",
+      "confluence",
+      "mkdocs"
+    ],
+    "learningTopics": [
+      "Project Management fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  },
+  {
+    "id": "cloud-native",
+    "name": "Cloud Native",
+    "slug": "cloud-native",
+    "icon": "CLO",
+    "description": "Cloud-native application platforms and ecosystem technologies.",
+    "skillLevel": "Intermediate",
+    "technologyCount": 9,
+    "technologies": [
+      "cncf",
+      "openfaas",
+      "knative",
+      "rabbitmq",
+      "apache-kafka",
+      "nats",
+      "minio",
+      "opencost",
+      "backstage"
+    ],
+    "learningTopics": [
+      "Cloud Native fundamentals",
+      "Common tools",
+      "Production use cases",
+      "Automation and best practices"
+    ]
+  }
 ]

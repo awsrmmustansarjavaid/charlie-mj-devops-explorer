@@ -1,997 +1,4067 @@
 [
-    {
-        "id": "linux",
-        "name": "Linux",
-        "slug": "linux",
-        "category": "Operating Systems",
-        "subcategory": "Server Operating Systems",
-        "icon": "LNX",
-        "skillLevel": "Beginner",
-        "description": "Linux is one of the most important operating systems for DevOps engineering. It is widely used for servers, cloud infrastructure, containers, Kubernetes nodes and automation.",
-        "shortDescription": "Server operating system and foundation for DevOps.",
-        "aliases": [
-            "linux os",
-            "linux administration",
-            "gnu linux"
-        ],
-        "keywords": [
-            "linux",
-            "ubuntu",
-            "debian",
-            "redhat",
-            "rhel",
-            "centos",
-            "server",
-            "shell",
-            "system administration"
-        ],
-        "relatedTechnologies": [
-            "bash",
-            "docker",
-            "kubernetes",
-            "ansible"
-        ]
-    },
-
-    {
-        "id": "git",
-        "name": "Git",
-        "slug": "git",
-        "category": "Version Control",
-        "subcategory": "Source Code Management",
-        "icon": "GIT",
-        "skillLevel": "Beginner",
-        "description": "Git is a distributed version control system used to track source code changes, collaborate with teams and manage software development history.",
-        "shortDescription": "Distributed version control system.",
-        "aliases": [
-            "git scm",
-            "source control"
-        ],
-        "keywords": [
-            "git",
-            "commit",
-            "branch",
-            "merge",
-            "rebase",
-            "pull",
-            "push",
-            "clone",
-            "repository"
-        ],
-        "relatedTechnologies": [
-            "github",
-            "gitlab",
-            "jenkins",
-            "github-actions"
-        ]
-    },
-
-    {
-        "id": "github",
-        "name": "GitHub",
-        "slug": "github",
-        "category": "DevOps Platforms",
-        "subcategory": "Code Collaboration",
-        "icon": "GH",
-        "skillLevel": "Beginner",
-        "description": "GitHub is a platform for source code hosting, collaboration, pull requests, issue tracking, GitHub Actions and software development workflows.",
-        "shortDescription": "Code hosting, collaboration and automation platform.",
-        "aliases": [
-            "github.com",
-            "gh"
-        ],
-        "keywords": [
-            "github",
-            "repository",
-            "pull request",
-            "actions",
-            "issues",
-            "code review",
-            "git"
-        ],
-        "relatedTechnologies": [
-            "git",
-            "github-actions",
-            "jenkins",
-            "argo-cd"
-        ]
-    },
-
-    {
-        "id": "github-actions",
-        "name": "GitHub Actions",
-        "slug": "github-actions",
-        "category": "CI/CD",
-        "subcategory": "Continuous Integration and Delivery",
-        "icon": "GHA",
-        "skillLevel": "Intermediate",
-        "description": "GitHub Actions is a CI/CD and automation platform integrated into GitHub repositories. It can build, test, scan and deploy applications.",
-        "shortDescription": "GitHub-native CI/CD and automation platform.",
-        "aliases": [
-            "gha",
-            "github action",
-            "gh actions"
-        ],
-        "keywords": [
-            "github actions",
-            "workflow",
-            "workflow yaml",
-            "runner",
-            "pipeline",
-            "ci",
-            "cd",
-            "automation"
-        ],
-        "relatedTechnologies": [
-            "github",
-            "docker",
-            "kubernetes",
-            "terraform"
-        ]
-    },
-
-    {
-        "id": "docker",
-        "name": "Docker",
-        "slug": "docker",
-        "category": "Containers",
-        "subcategory": "Containerization",
-        "icon": "DOC",
-        "skillLevel": "Beginner",
-        "description": "Docker is a container platform used to package applications and their dependencies into portable container images.",
-        "shortDescription": "Container platform for packaging and running applications.",
-        "aliases": [
-            "docker engine",
-            "docker containers"
-        ],
-        "keywords": [
-            "docker",
-            "container",
-            "containerization",
-            "dockerfile",
-            "image",
-            "registry",
-            "docker compose",
-            "docker hub"
-        ],
-        "relatedTechnologies": [
-            "kubernetes",
-            "containerd",
-            "trivy",
-            "amazon-ecr"
-        ]
-    },
-
-    {
-        "id": "containerd",
-        "name": "containerd",
-        "slug": "containerd",
-        "category": "Containers",
-        "subcategory": "Container Runtime",
-        "icon": "CTR",
-        "skillLevel": "Intermediate",
-        "description": "containerd is an industry-standard container runtime used by Kubernetes and other container platforms to manage container lifecycle operations.",
-        "shortDescription": "Container runtime used by Kubernetes and container platforms.",
-        "aliases": [
-            "container runtime"
-        ],
-        "keywords": [
-            "containerd",
-            "runtime",
-            "containers",
-            "kubernetes",
-            "oci"
-        ],
-        "relatedTechnologies": [
-            "docker",
-            "kubernetes",
-            "cri-o"
-        ]
-    },
-
-    {
-        "id": "kubernetes",
-        "name": "Kubernetes",
-        "slug": "kubernetes",
-        "category": "Container Orchestration",
-        "subcategory": "Cloud Native",
-        "icon": "K8S",
-        "skillLevel": "Intermediate",
-        "description": "Kubernetes is an open-source platform for deploying, scaling and managing containerized applications across clusters of machines.",
-        "shortDescription": "Container orchestration platform.",
-        "aliases": [
-            "k8s",
-            "kubernatives",
-            "kube"
-        ],
-        "keywords": [
-            "kubernetes",
-            "k8s",
-            "cluster",
-            "node",
-            "pod",
-            "deployment",
-            "service",
-            "ingress",
-            "configmap",
-            "secret",
-            "namespace",
-            "statefulset",
-            "daemonset"
-        ],
-        "relatedTechnologies": [
-            "docker",
-            "helm",
-            "argocd",
-            "prometheus",
-            "amazon-eks",
-            "terraform"
-        ]
-    },
-
-    {
-        "id": "amazon-eks",
-        "name": "Amazon EKS",
-        "slug": "amazon-eks",
-        "category": "Cloud",
-        "subcategory": "Managed Kubernetes",
-        "icon": "EKS",
-        "skillLevel": "Advanced",
-        "description": "Amazon Elastic Kubernetes Service is AWS's managed Kubernetes service for running Kubernetes clusters in AWS.",
-        "shortDescription": "AWS managed Kubernetes service.",
-        "aliases": [
-            "eks",
-            "aws eks",
-            "amazon elastic kubernetes service"
-        ],
-        "keywords": [
-            "eks",
-            "aws",
-            "kubernetes",
-            "cluster",
-            "managed kubernetes",
-            "aws eks"
-        ],
-        "relatedTechnologies": [
-            "kubernetes",
-            "aws",
-            "terraform",
-            "amazon-ecr",
-            "aws-load-balancer-controller"
-        ]
-    },
-
-    {
-        "id": "aws",
-        "name": "AWS",
-        "slug": "aws",
-        "category": "Cloud",
-        "subcategory": "Cloud Provider",
-        "icon": "AWS",
-        "skillLevel": "Intermediate",
-        "description": "Amazon Web Services is a major cloud platform providing compute, networking, storage, databases, containers, Kubernetes, security and many other infrastructure services.",
-        "shortDescription": "Cloud platform with infrastructure and managed services.",
-        "aliases": [
-            "amazon web services",
-            "amazon aws",
-            "aws cloud"
-        ],
-        "keywords": [
-            "aws",
-            "cloud",
-            "ec2",
-            "s3",
-            "vpc",
-            "iam",
-            "rds",
-            "eks",
-            "ecr",
-            "lambda",
-            "cloudformation"
-        ],
-        "relatedTechnologies": [
-            "amazon-eks",
-            "amazon-ecr",
-            "terraform",
-            "cloudformation"
-        ]
-    },
-
-    {
-        "id": "amazon-ecr",
-        "name": "Amazon ECR",
-        "slug": "amazon-ecr",
-        "category": "Cloud",
-        "subcategory": "Container Registry",
-        "icon": "ECR",
-        "skillLevel": "Intermediate",
-        "description": "Amazon Elastic Container Registry is an AWS managed container image registry used to store, manage and deploy Docker and OCI container images.",
-        "shortDescription": "AWS managed container image registry.",
-        "aliases": [
-            "ecr",
-            "amazon elastic container registry"
-        ],
-        "keywords": [
-            "ecr",
-            "container registry",
-            "docker registry",
-            "container image",
-            "aws"
-        ],
-        "relatedTechnologies": [
-            "aws",
-            "docker",
-            "kubernetes",
-            "amazon-eks",
-            "trivy"
-        ]
-    },
-
-    {
-        "id": "terraform",
-        "name": "Terraform",
-        "slug": "terraform",
-        "category": "Infrastructure as Code",
-        "subcategory": "Infrastructure Provisioning",
-        "icon": "TF",
-        "skillLevel": "Intermediate",
-        "description": "Terraform is an Infrastructure as Code tool used to define, provision and manage infrastructure using declarative configuration files.",
-        "shortDescription": "Infrastructure as Code provisioning tool.",
-        "aliases": [
-            "tf",
-            "terraform iac",
-            "hashicorp terraform"
-        ],
-        "keywords": [
-            "terraform",
-            "iac",
-            "infrastructure as code",
-            "hcl",
-            "provider",
-            "resource",
-            "module",
-            "state"
-        ],
-        "relatedTechnologies": [
-            "aws",
-            "kubernetes",
-            "ansible",
-            "cloudformation"
-        ]
-    },
-
-    {
-        "id": "cloudformation",
-        "name": "AWS CloudFormation",
-        "slug": "cloudformation",
-        "category": "Infrastructure as Code",
-        "subcategory": "AWS Infrastructure",
-        "icon": "CFN",
-        "skillLevel": "Intermediate",
-        "description": "AWS CloudFormation is an Infrastructure as Code service that allows AWS resources to be defined and managed using templates.",
-        "shortDescription": "AWS-native Infrastructure as Code service.",
-        "aliases": [
-            "cfn",
-            "aws cfn",
-            "cloudformation"
-        ],
-        "keywords": [
-            "cloudformation",
-            "aws",
-            "iac",
-            "yaml",
-            "json",
-            "stack",
-            "nested stack"
-        ],
-        "relatedTechnologies": [
-            "aws",
-            "terraform",
-            "github-actions",
-            "jenkins"
-        ]
-    },
-
-    {
-        "id": "jenkins",
-        "name": "Jenkins",
-        "slug": "jenkins",
-        "category": "CI/CD",
-        "subcategory": "Continuous Integration and Delivery",
-        "icon": "JNK",
-        "skillLevel": "Intermediate",
-        "description": "Jenkins is an open-source automation server commonly used to build CI/CD pipelines for testing, packaging and deploying applications.",
-        "shortDescription": "Automation server for CI/CD pipelines.",
-        "aliases": [
-            "jenkins ci",
-            "jenkins cicd"
-        ],
-        "keywords": [
-            "jenkins",
-            "pipeline",
-            "jenkinsfile",
-            "ci",
-            "cd",
-            "continuous integration",
-            "continuous delivery",
-            "groovy"
-        ],
-        "relatedTechnologies": [
-            "git",
-            "github",
-            "docker",
-            "kubernetes",
-            "sonarqube",
-            "trivy"
-        ]
-    },
-
-    {
-        "id": "ansible",
-        "name": "Ansible",
-        "slug": "ansible",
-        "category": "Automation",
-        "subcategory": "Configuration Management",
-        "icon": "ANS",
-        "skillLevel": "Intermediate",
-        "description": "Ansible is an automation platform used for configuration management, server provisioning, application deployment and operational automation.",
-        "shortDescription": "Agentless infrastructure and configuration automation.",
-        "aliases": [
-            "ansible automation",
-            "ansible core"
-        ],
-        "keywords": [
-            "ansible",
-            "playbook",
-            "inventory",
-            "role",
-            "yaml",
-            "configuration management",
-            "automation"
-        ],
-        "relatedTechnologies": [
-            "linux",
-            "python",
-            "terraform",
-            "jenkins",
-            "aws"
-        ]
-    },
-
-    {
-        "id": "helm",
-        "name": "Helm",
-        "slug": "helm",
-        "category": "Kubernetes",
-        "subcategory": "Package Management",
-        "icon": "HLM",
-        "skillLevel": "Intermediate",
-        "description": "Helm is a package manager for Kubernetes that helps package, configure and deploy applications using reusable charts.",
-        "shortDescription": "Package manager for Kubernetes applications.",
-        "aliases": [
-            "helm charts",
-            "kubernetes helm"
-        ],
-        "keywords": [
-            "helm",
-            "chart",
-            "kubernetes",
-            "values",
-            "templates",
-            "release"
-        ],
-        "relatedTechnologies": [
-            "kubernetes",
-            "argocd",
-            "gitops"
-        ]
-    },
-
-    {
-        "id": "argo-cd",
-        "name": "Argo CD",
-        "slug": "argo-cd",
-        "category": "GitOps",
-        "subcategory": "Continuous Delivery",
-        "icon": "ARGO",
-        "skillLevel": "Intermediate",
-        "description": "Argo CD is a declarative GitOps continuous delivery tool designed for Kubernetes applications.",
-        "shortDescription": "GitOps continuous delivery for Kubernetes.",
-        "aliases": [
-            "argocd",
-            "argo cd",
-            "argo-cd"
-        ],
-        "keywords": [
-            "argocd",
-            "argo cd",
-            "gitops",
-            "kubernetes",
-            "continuous delivery",
-            "declarative deployment"
-        ],
-        "relatedTechnologies": [
-            "kubernetes",
-            "git",
-            "github",
-            "helm",
-            "gitops"
-        ]
-    },
-
-    {
-        "id": "flux",
-        "name": "Flux",
-        "slug": "flux",
-        "category": "GitOps",
-        "subcategory": "Continuous Delivery",
-        "icon": "FLX",
-        "skillLevel": "Intermediate",
-        "description": "Flux is a GitOps toolkit for keeping Kubernetes clusters synchronized with configuration stored in Git repositories.",
-        "shortDescription": "GitOps toolkit for Kubernetes.",
-        "aliases": [
-            "fluxcd",
-            "flux cd",
-            "fluxcd"
-        ],
-        "keywords": [
-            "flux",
-            "fluxcd",
-            "gitops",
-            "kubernetes",
-            "continuous delivery"
-        ],
-        "relatedTechnologies": [
-            "kubernetes",
-            "git",
-            "github",
-            "helm"
-        ]
-    },
-
-    {
-        "id": "prometheus",
-        "name": "Prometheus",
-        "slug": "prometheus",
-        "category": "Observability",
-        "subcategory": "Monitoring",
-        "icon": "PROM",
-        "skillLevel": "Intermediate",
-        "description": "Prometheus is an open-source monitoring and alerting system designed for collecting and querying time-series metrics.",
-        "shortDescription": "Metrics monitoring and alerting system.",
-        "aliases": [
-            "prometheus monitoring"
-        ],
-        "keywords": [
-            "prometheus",
-            "metrics",
-            "monitoring",
-            "alerting",
-            "promql",
-            "kubernetes"
-        ],
-        "relatedTechnologies": [
-            "grafana",
-            "kubernetes",
-            "alertmanager",
-            "opentelemetry"
-        ]
-    },
-
-    {
-        "id": "grafana",
-        "name": "Grafana",
-        "slug": "grafana",
-        "category": "Observability",
-        "subcategory": "Visualization",
-        "icon": "GRAF",
-        "skillLevel": "Intermediate",
-        "description": "Grafana is an observability and visualization platform used to create dashboards for metrics, logs and traces.",
-        "shortDescription": "Observability dashboards and visualization platform.",
-        "aliases": [
-            "grafana dashboards"
-        ],
-        "keywords": [
-            "grafana",
-            "dashboard",
-            "visualization",
-            "monitoring",
-            "metrics",
-            "logs",
-            "traces"
-        ],
-        "relatedTechnologies": [
-            "prometheus",
-            "loki",
-            "opentelemetry",
-            "kubernetes"
-        ]
-    },
-
-    {
-        "id": "trivy",
-        "name": "Trivy",
-        "slug": "trivy",
-        "category": "DevSecOps",
-        "subcategory": "Security Scanning",
-        "icon": "TRY",
-        "skillLevel": "Intermediate",
-        "description": "Trivy is a security scanner used to identify vulnerabilities and configuration problems in container images, filesystems, repositories and infrastructure configurations.",
-        "shortDescription": "Vulnerability and security scanner.",
-        "aliases": [
-            "trivy scanner"
-        ],
-        "keywords": [
-            "trivy",
-            "security",
-            "vulnerability",
-            "container scanning",
-            "docker scanning",
-            "iac scanning",
-            "sbom"
-        ],
-        "relatedTechnologies": [
-            "docker",
-            "kubernetes",
-            "jenkins",
-            "github-actions",
-            "terraform"
-        ]
-    },
-
-    {
-        "id": "sonarqube",
-        "name": "SonarQube",
-        "slug": "sonarqube",
-        "category": "DevSecOps",
-        "subcategory": "Code Quality",
-        "icon": "SONAR",
-        "skillLevel": "Intermediate",
-        "description": "SonarQube is a code quality and security analysis platform used to identify bugs, vulnerabilities, code smells and maintainability issues.",
-        "shortDescription": "Static code quality and security analysis.",
-        "aliases": [
-            "sonar",
-            "sonarqube scanner"
-        ],
-        "keywords": [
-            "sonarqube",
-            "sonar",
-            "code quality",
-            "static analysis",
-            "sast",
-            "security"
-        ],
-        "relatedTechnologies": [
-            "jenkins",
-            "github-actions",
-            "java",
-            "python",
-            "docker"
-        ]
-    },
-
-    {
-        "id": "owasp-dependency-check",
-        "name": "OWASP Dependency-Check",
-        "slug": "owasp-dependency-check",
-        "category": "DevSecOps",
-        "subcategory": "Dependency Security",
-        "icon": "OWASP",
-        "skillLevel": "Intermediate",
-        "description": "OWASP Dependency-Check identifies known vulnerabilities in project dependencies and libraries.",
-        "shortDescription": "Dependency vulnerability analysis tool.",
-        "aliases": [
-            "dependency check",
-            "owasp dependency check"
-        ],
-        "keywords": [
-            "owasp",
-            "dependency check",
-            "dependency scanning",
-            "vulnerability",
-            "security",
-            "sast"
-        ],
-        "relatedTechnologies": [
-            "jenkins",
-            "sonarqube",
-            "trivy"
-        ]
-    },
-
-    {
-        "id": "python",
-        "name": "Python",
-        "slug": "python",
-        "category": "Programming & Scripting",
-        "subcategory": "Programming Language",
-        "icon": "PY",
-        "skillLevel": "Beginner",
-        "description": "Python is widely used in DevOps for automation, scripting, cloud APIs, infrastructure tooling, testing and platform engineering.",
-        "shortDescription": "Programming language widely used for automation.",
-        "aliases": [
-            "python3",
-            "python programming"
-        ],
-        "keywords": [
-            "python",
-            "python3",
-            "automation",
-            "scripting",
-            "boto3",
-            "api",
-            "devops"
-        ],
-        "relatedTechnologies": [
-            "ansible",
-            "aws",
-            "docker",
-            "kubernetes"
-        ]
-    },
-
-    {
-        "id": "bash",
-        "name": "Bash",
-        "slug": "bash",
-        "category": "Programming & Scripting",
-        "subcategory": "Shell Scripting",
-        "icon": "SH",
-        "skillLevel": "Beginner",
-        "description": "Bash is a Unix shell and scripting language commonly used for Linux administration, automation and DevOps workflows.",
-        "shortDescription": "Shell scripting and Linux automation.",
-        "aliases": [
-            "shell",
-            "bash scripting",
-            "shell scripting"
-        ],
-        "keywords": [
-            "bash",
-            "shell",
-            "sh",
-            "linux",
-            "script",
-            "automation",
-            "cli"
-        ],
-        "relatedTechnologies": [
-            "linux",
-            "docker",
-            "jenkins",
-            "github-actions"
-        ]
-    },
-
-    {
-        "id": "go",
-        "name": "Go",
-        "slug": "go",
-        "category": "Programming & Scripting",
-        "subcategory": "Programming Language",
-        "icon": "GO",
-        "skillLevel": "Intermediate",
-        "description": "Go is a compiled programming language heavily used in cloud-native infrastructure and DevOps tooling.",
-        "shortDescription": "Programming language widely used for cloud-native tools.",
-        "aliases": [
-            "golang",
-            "go lang"
-        ],
-        "keywords": [
-            "go",
-            "golang",
-            "cloud native",
-            "kubernetes",
-            "cli",
-            "microservices"
-        ],
-        "relatedTechnologies": [
-            "kubernetes",
-            "docker",
-            "terraform",
-            "prometheus"
-        ]
-    },
-
-    {
-        "id": "javascript",
-        "name": "JavaScript",
-        "slug": "javascript",
-        "category": "Programming & Scripting",
-        "subcategory": "Programming Language",
-        "icon": "JS",
-        "skillLevel": "Beginner",
-        "description": "JavaScript is widely used for web applications, automation tooling, APIs and developer platforms.",
-        "shortDescription": "Programming language for web and automation tooling.",
-        "aliases": [
-            "js",
-            "javascript"
-        ],
-        "keywords": [
-            "javascript",
-            "js",
-            "node",
-            "nodejs",
-            "npm",
-            "web"
-        ],
-        "relatedTechnologies": [
-            "nodejs",
-            "github-actions",
-            "docker",
-            "kubernetes"
-        ]
-    },
-
-    {
-        "id": "nodejs",
-        "name": "Node.js",
-        "slug": "nodejs",
-        "category": "Programming & Scripting",
-        "subcategory": "Runtime",
-        "icon": "NODE",
-        "skillLevel": "Beginner",
-        "description": "Node.js is a JavaScript runtime commonly used for APIs, web applications, automation tools and backend services.",
-        "shortDescription": "JavaScript runtime for backend and tooling.",
-        "aliases": [
-            "node",
-            "node js"
-        ],
-        "keywords": [
-            "node",
-            "nodejs",
-            "javascript",
-            "npm",
-            "backend",
-            "api"
-        ],
-        "relatedTechnologies": [
-            "javascript",
-            "docker",
-            "kubernetes",
-            "github-actions"
-        ]
-    },
-
-    {
-        "id": "java",
-        "name": "Java",
-        "slug": "java",
-        "category": "Programming & Scripting",
-        "subcategory": "Programming Language",
-        "icon": "JAVA",
-        "skillLevel": "Intermediate",
-        "description": "Java is widely used for enterprise applications, microservices and backend systems commonly deployed through DevOps pipelines.",
-        "shortDescription": "Enterprise programming language used in many DevOps workloads.",
-        "aliases": [
-            "java programming"
-        ],
-        "keywords": [
-            "java",
-            "spring",
-            "maven",
-            "gradle",
-            "microservices",
-            "backend"
-        ],
-        "relatedTechnologies": [
-            "jenkins",
-            "docker",
-            "kubernetes",
-            "sonarqube"
-        ]
-    },
-
-    {
-        "id": "nginx",
-        "name": "Nginx",
-        "slug": "nginx",
-        "category": "Networking",
-        "subcategory": "Web Server and Reverse Proxy",
-        "icon": "NGX",
-        "skillLevel": "Intermediate",
-        "description": "Nginx is a high-performance web server, reverse proxy and load balancing technology frequently used in DevOps architectures.",
-        "shortDescription": "Web server, reverse proxy and load balancer.",
-        "aliases": [
-            "nginx server"
-        ],
-        "keywords": [
-            "nginx",
-            "web server",
-            "reverse proxy",
-            "load balancer",
-            "http",
-            "https"
-        ],
-        "relatedTechnologies": [
-            "linux",
-            "docker",
-            "kubernetes",
-            "aws"
-        ]
-    },
-
-    {
-        "id": "redis",
-        "name": "Redis",
-        "slug": "redis",
-        "category": "Databases",
-        "subcategory": "In-Memory Data Store",
-        "icon": "REDIS",
-        "skillLevel": "Intermediate",
-        "description": "Redis is an in-memory data store commonly used for caching, sessions, queues and high-performance application workloads.",
-        "shortDescription": "In-memory database and caching system.",
-        "aliases": [
-            "redis cache"
-        ],
-        "keywords": [
-            "redis",
-            "cache",
-            "database",
-            "session",
-            "queue",
-            "in-memory"
-        ],
-        "relatedTechnologies": [
-            "docker",
-            "kubernetes",
-            "aws"
-        ]
-    },
-
-    {
-        "id": "postgresql",
-        "name": "PostgreSQL",
-        "slug": "postgresql",
-        "category": "Databases",
-        "subcategory": "Relational Database",
-        "icon": "PG",
-        "skillLevel": "Intermediate",
-        "description": "PostgreSQL is an open-source relational database commonly used by applications deployed through DevOps pipelines and cloud infrastructure.",
-        "shortDescription": "Open-source relational database.",
-        "aliases": [
-            "postgres",
-            "postgres db"
-        ],
-        "keywords": [
-            "postgresql",
-            "postgres",
-            "sql",
-            "database",
-            "rds"
-        ],
-        "relatedTechnologies": [
-            "aws",
-            "docker",
-            "kubernetes"
-        ]
-    },
-
-    {
-        "id": "opentelemetry",
-        "name": "OpenTelemetry",
-        "slug": "opentelemetry",
-        "category": "Observability",
-        "subcategory": "Telemetry",
-        "icon": "OTEL",
-        "skillLevel": "Advanced",
-        "description": "OpenTelemetry is an open-source observability framework for collecting and exporting traces, metrics and logs.",
-        "shortDescription": "Open standard for application telemetry.",
-        "aliases": [
-            "otel",
-            "open telemetry"
-        ],
-        "keywords": [
-            "opentelemetry",
-            "otel",
-            "tracing",
-            "metrics",
-            "logs",
-            "observability"
-        ],
-        "relatedTechnologies": [
-            "prometheus",
-            "grafana",
-            "kubernetes"
-        ]
-    }
+  {
+    "id": "linux",
+    "name": "Linux",
+    "slug": "linux",
+    "category": "Operating Systems",
+    "subcategory": "Server OS",
+    "icon": "Linux",
+    "skillLevel": "Beginner",
+    "description": "Core server OS for cloud, containers, Kubernetes and automation.",
+    "shortDescription": "Core server OS for cloud, containers, Kubernetes and automation.",
+    "aliases": [
+      "ubuntu",
+      "debian",
+      "rhel",
+      "ssh",
+      "shell"
+    ],
+    "keywords": [
+      "linux",
+      "operating systems",
+      "server os",
+      "ubuntu",
+      "debian",
+      "rhel",
+      "ssh",
+      "shell"
+    ],
+    "relatedTechnologies": [
+      "ubuntu",
+      "redhat-enterprise-linux",
+      "alpine-linux",
+      "amazon-linux"
+    ]
+  },
+  {
+    "id": "ubuntu",
+    "name": "Ubuntu",
+    "slug": "ubuntu",
+    "category": "Operating Systems",
+    "subcategory": "Linux distribution",
+    "icon": "Ubuntu",
+    "skillLevel": "Beginner",
+    "description": "Popular Linux distribution used for servers, cloud images and development.",
+    "shortDescription": "Popular Linux distribution used for servers, cloud images and development.",
+    "aliases": [
+      "linux",
+      "apt",
+      "server"
+    ],
+    "keywords": [
+      "ubuntu",
+      "operating systems",
+      "linux distribution",
+      "linux",
+      "apt",
+      "server"
+    ],
+    "relatedTechnologies": [
+      "linux",
+      "redhat-enterprise-linux",
+      "alpine-linux",
+      "amazon-linux"
+    ]
+  },
+  {
+    "id": "redhat-enterprise-linux",
+    "name": "Red Hat Enterprise Linux",
+    "slug": "redhat-enterprise-linux",
+    "category": "Operating Systems",
+    "subcategory": "Enterprise Linux",
+    "icon": "RHEL",
+    "skillLevel": "Beginner",
+    "description": "Enterprise Linux platform widely used in production infrastructure.",
+    "shortDescription": "Enterprise Linux platform widely used in production infrastructure.",
+    "aliases": [
+      "rhel",
+      "red hat",
+      "linux"
+    ],
+    "keywords": [
+      "redhat enterprise linux",
+      "red hat enterprise linux",
+      "operating systems",
+      "enterprise linux",
+      "rhel",
+      "red hat",
+      "linux"
+    ],
+    "relatedTechnologies": [
+      "linux",
+      "ubuntu",
+      "alpine-linux",
+      "amazon-linux"
+    ]
+  },
+  {
+    "id": "alpine-linux",
+    "name": "Alpine Linux",
+    "slug": "alpine-linux",
+    "category": "Operating Systems",
+    "subcategory": "Minimal Linux",
+    "icon": "AL",
+    "skillLevel": "Beginner",
+    "description": "Small security-oriented Linux distribution frequently used in containers.",
+    "shortDescription": "Small security-oriented Linux distribution frequently used in containers.",
+    "aliases": [
+      "alpine",
+      "containers",
+      "musl"
+    ],
+    "keywords": [
+      "alpine linux",
+      "operating systems",
+      "minimal linux",
+      "alpine",
+      "containers",
+      "musl"
+    ],
+    "relatedTechnologies": [
+      "linux",
+      "ubuntu",
+      "redhat-enterprise-linux",
+      "amazon-linux"
+    ]
+  },
+  {
+    "id": "amazon-linux",
+    "name": "Amazon Linux",
+    "slug": "amazon-linux",
+    "category": "Operating Systems",
+    "subcategory": "Cloud Linux",
+    "icon": "AL",
+    "skillLevel": "Beginner",
+    "description": "AWS-oriented Linux distribution for cloud workloads.",
+    "shortDescription": "AWS-oriented Linux distribution for cloud workloads.",
+    "aliases": [
+      "aws linux",
+      "ec2",
+      "linux"
+    ],
+    "keywords": [
+      "amazon linux",
+      "operating systems",
+      "cloud linux",
+      "aws linux",
+      "ec2",
+      "linux"
+    ],
+    "relatedTechnologies": [
+      "linux",
+      "ubuntu",
+      "redhat-enterprise-linux",
+      "alpine-linux"
+    ]
+  },
+  {
+    "id": "windows-server",
+    "name": "Windows Server",
+    "slug": "windows-server",
+    "category": "Operating Systems",
+    "subcategory": "Server OS",
+    "icon": "WIN",
+    "skillLevel": "Beginner",
+    "description": "Windows server platform used for enterprise workloads and automation.",
+    "shortDescription": "Windows server platform used for enterprise workloads and automation.",
+    "aliases": [
+      "powershell",
+      "iis",
+      "active directory"
+    ],
+    "keywords": [
+      "windows server",
+      "operating systems",
+      "server os",
+      "powershell",
+      "iis",
+      "active directory"
+    ],
+    "relatedTechnologies": [
+      "linux",
+      "ubuntu",
+      "redhat-enterprise-linux",
+      "alpine-linux"
+    ]
+  },
+  {
+    "id": "git",
+    "name": "Git",
+    "slug": "git",
+    "category": "Version Control",
+    "subcategory": "Source Control",
+    "icon": "GIT",
+    "skillLevel": "Beginner",
+    "description": "Distributed version control foundation for modern DevOps workflows.",
+    "shortDescription": "Distributed version control foundation for modern DevOps workflows.",
+    "aliases": [
+      "scm",
+      "commit",
+      "branch",
+      "merge",
+      "rebase"
+    ],
+    "keywords": [
+      "git",
+      "version control",
+      "source control",
+      "scm",
+      "commit",
+      "branch",
+      "merge",
+      "rebase"
+    ],
+    "relatedTechnologies": [
+      "github",
+      "gitlab",
+      "bitbucket",
+      "gitea"
+    ]
+  },
+  {
+    "id": "github",
+    "name": "GitHub",
+    "slug": "github",
+    "category": "Version Control",
+    "subcategory": "Code Hosting",
+    "icon": "GH",
+    "skillLevel": "Beginner",
+    "description": "Git hosting and collaboration platform with repositories, pull requests and Actions.",
+    "shortDescription": "Git hosting and collaboration platform with repositories, pull requests and Actions.",
+    "aliases": [
+      "github repo",
+      "pull request",
+      "actions"
+    ],
+    "keywords": [
+      "github",
+      "version control",
+      "code hosting",
+      "github repo",
+      "pull request",
+      "actions"
+    ],
+    "relatedTechnologies": [
+      "git",
+      "gitlab",
+      "bitbucket",
+      "gitea"
+    ]
+  },
+  {
+    "id": "gitlab",
+    "name": "GitLab",
+    "slug": "gitlab",
+    "category": "Version Control",
+    "subcategory": "DevOps Platform",
+    "icon": "GL",
+    "skillLevel": "Beginner",
+    "description": "Source control and DevOps platform with integrated CI/CD and security.",
+    "shortDescription": "Source control and DevOps platform with integrated CI/CD and security.",
+    "aliases": [
+      "gitlab ci",
+      "repository"
+    ],
+    "keywords": [
+      "gitlab",
+      "version control",
+      "devops platform",
+      "gitlab ci",
+      "repository"
+    ],
+    "relatedTechnologies": [
+      "git",
+      "github",
+      "bitbucket",
+      "gitea"
+    ]
+  },
+  {
+    "id": "bitbucket",
+    "name": "Bitbucket",
+    "slug": "bitbucket",
+    "category": "Version Control",
+    "subcategory": "Code Hosting",
+    "icon": "BB",
+    "skillLevel": "Beginner",
+    "description": "Git repository hosting integrated with Atlassian workflows.",
+    "shortDescription": "Git repository hosting integrated with Atlassian workflows.",
+    "aliases": [
+      "git",
+      "atlassian"
+    ],
+    "keywords": [
+      "bitbucket",
+      "version control",
+      "code hosting",
+      "git",
+      "atlassian"
+    ],
+    "relatedTechnologies": [
+      "git",
+      "github",
+      "gitlab",
+      "gitea"
+    ]
+  },
+  {
+    "id": "gitea",
+    "name": "Gitea",
+    "slug": "gitea",
+    "category": "Version Control",
+    "subcategory": "Self-hosted Git",
+    "icon": "GT",
+    "skillLevel": "Beginner",
+    "description": "Lightweight self-hosted Git service.",
+    "shortDescription": "Lightweight self-hosted Git service.",
+    "aliases": [
+      "git server",
+      "self hosted"
+    ],
+    "keywords": [
+      "gitea",
+      "version control",
+      "self-hosted git",
+      "git server",
+      "self hosted"
+    ],
+    "relatedTechnologies": [
+      "git",
+      "github",
+      "gitlab",
+      "bitbucket"
+    ]
+  },
+  {
+    "id": "github-cli",
+    "name": "GitHub CLI",
+    "slug": "github-cli",
+    "category": "Developer Tools",
+    "subcategory": "CLI",
+    "icon": "GH",
+    "skillLevel": "Intermediate",
+    "description": "Command-line interface for GitHub repositories, issues, pull requests and workflows.",
+    "shortDescription": "Command-line interface for GitHub repositories, issues, pull requests and workflows.",
+    "aliases": [
+      "gh",
+      "github cli"
+    ],
+    "keywords": [
+      "github cli",
+      "developer tools",
+      "cli",
+      "gh"
+    ],
+    "relatedTechnologies": []
+  },
+  {
+    "id": "docker",
+    "name": "Docker",
+    "slug": "docker",
+    "category": "Containers",
+    "subcategory": "Container Platform",
+    "icon": "DK",
+    "skillLevel": "Intermediate",
+    "description": "Container platform for packaging, building and running applications.",
+    "shortDescription": "Container platform for packaging, building and running applications.",
+    "aliases": [
+      "container",
+      "dockerfile",
+      "compose"
+    ],
+    "keywords": [
+      "docker",
+      "containers",
+      "container platform",
+      "container",
+      "dockerfile",
+      "compose"
+    ],
+    "relatedTechnologies": [
+      "podman",
+      "containerd",
+      "cri-o",
+      "docker-compose"
+    ]
+  },
+  {
+    "id": "podman",
+    "name": "Podman",
+    "slug": "podman",
+    "category": "Containers",
+    "subcategory": "Container Engine",
+    "icon": "PM",
+    "skillLevel": "Intermediate",
+    "description": "Daemonless container engine with a Docker-compatible CLI.",
+    "shortDescription": "Daemonless container engine with a Docker-compatible CLI.",
+    "aliases": [
+      "containers",
+      "oci"
+    ],
+    "keywords": [
+      "podman",
+      "containers",
+      "container engine",
+      "oci"
+    ],
+    "relatedTechnologies": [
+      "docker",
+      "containerd",
+      "cri-o",
+      "docker-compose"
+    ]
+  },
+  {
+    "id": "containerd",
+    "name": "containerd",
+    "slug": "containerd",
+    "category": "Containers",
+    "subcategory": "Container Runtime",
+    "icon": "CT",
+    "skillLevel": "Intermediate",
+    "description": "Industry-standard container runtime used by Kubernetes and other platforms.",
+    "shortDescription": "Industry-standard container runtime used by Kubernetes and other platforms.",
+    "aliases": [
+      "cri",
+      "runtime",
+      "oci"
+    ],
+    "keywords": [
+      "containerd",
+      "containers",
+      "container runtime",
+      "cri",
+      "runtime",
+      "oci"
+    ],
+    "relatedTechnologies": [
+      "docker",
+      "podman",
+      "cri-o",
+      "docker-compose"
+    ]
+  },
+  {
+    "id": "cri-o",
+    "name": "CRI-O",
+    "slug": "cri-o",
+    "category": "Containers",
+    "subcategory": "Container Runtime",
+    "icon": "CR",
+    "skillLevel": "Intermediate",
+    "description": "Kubernetes-focused OCI container runtime.",
+    "shortDescription": "Kubernetes-focused OCI container runtime.",
+    "aliases": [
+      "cri",
+      "kubernetes"
+    ],
+    "keywords": [
+      "cri o",
+      "cri-o",
+      "containers",
+      "container runtime",
+      "cri",
+      "kubernetes"
+    ],
+    "relatedTechnologies": [
+      "docker",
+      "podman",
+      "containerd",
+      "docker-compose"
+    ]
+  },
+  {
+    "id": "docker-compose",
+    "name": "Docker Compose",
+    "slug": "docker-compose",
+    "category": "Containers",
+    "subcategory": "Multi-container Apps",
+    "icon": "DC",
+    "skillLevel": "Intermediate",
+    "description": "Tool for defining and running multi-container applications.",
+    "shortDescription": "Tool for defining and running multi-container applications.",
+    "aliases": [
+      "compose",
+      "yaml"
+    ],
+    "keywords": [
+      "docker compose",
+      "containers",
+      "multi-container apps",
+      "compose",
+      "yaml"
+    ],
+    "relatedTechnologies": [
+      "docker",
+      "podman",
+      "containerd",
+      "cri-o"
+    ]
+  },
+  {
+    "id": "buildkit",
+    "name": "BuildKit",
+    "slug": "buildkit",
+    "category": "Containers",
+    "subcategory": "Image Build",
+    "icon": "BK",
+    "skillLevel": "Intermediate",
+    "description": "Modern backend for fast, cache-aware container image builds.",
+    "shortDescription": "Modern backend for fast, cache-aware container image builds.",
+    "aliases": [
+      "docker build",
+      "container build"
+    ],
+    "keywords": [
+      "buildkit",
+      "containers",
+      "image build",
+      "docker build",
+      "container build"
+    ],
+    "relatedTechnologies": [
+      "docker",
+      "podman",
+      "containerd",
+      "cri-o"
+    ]
+  },
+  {
+    "id": "buildah",
+    "name": "Buildah",
+    "slug": "buildah",
+    "category": "Containers",
+    "subcategory": "Image Build",
+    "icon": "BH",
+    "skillLevel": "Intermediate",
+    "description": "OCI image building tool commonly used with Podman.",
+    "shortDescription": "OCI image building tool commonly used with Podman.",
+    "aliases": [
+      "oci",
+      "containers"
+    ],
+    "keywords": [
+      "buildah",
+      "containers",
+      "image build",
+      "oci"
+    ],
+    "relatedTechnologies": [
+      "docker",
+      "podman",
+      "containerd",
+      "cri-o"
+    ]
+  },
+  {
+    "id": "kubernetes",
+    "name": "Kubernetes",
+    "slug": "kubernetes",
+    "category": "Container Orchestration",
+    "subcategory": "Orchestrator",
+    "icon": "K8S",
+    "skillLevel": "Intermediate",
+    "description": "Open-source platform for deploying, scaling and managing containerized workloads.",
+    "shortDescription": "Open-source platform for deploying, scaling and managing containerized workloads.",
+    "aliases": [
+      "k8s",
+      "pods",
+      "cluster",
+      "orchestration"
+    ],
+    "keywords": [
+      "kubernetes",
+      "container orchestration",
+      "orchestrator",
+      "k8s",
+      "pods",
+      "cluster",
+      "orchestration"
+    ],
+    "relatedTechnologies": [
+      "nomad"
+    ]
+  },
+  {
+    "id": "amazon-eks",
+    "name": "Amazon EKS",
+    "slug": "amazon-eks",
+    "category": "Cloud Computing",
+    "subcategory": "Managed Kubernetes",
+    "icon": "EKS",
+    "skillLevel": "Intermediate",
+    "description": "AWS managed Kubernetes service.",
+    "shortDescription": "AWS managed Kubernetes service.",
+    "aliases": [
+      "eks",
+      "aws kubernetes",
+      "elastic kubernetes"
+    ],
+    "keywords": [
+      "amazon eks",
+      "cloud computing",
+      "managed kubernetes",
+      "eks",
+      "aws kubernetes",
+      "elastic kubernetes"
+    ],
+    "relatedTechnologies": [
+      "azure-aks",
+      "google-gke",
+      "aws",
+      "microsoft-azure"
+    ]
+  },
+  {
+    "id": "azure-aks",
+    "name": "Azure Kubernetes Service",
+    "slug": "azure-aks",
+    "category": "Cloud Computing",
+    "subcategory": "Managed Kubernetes",
+    "icon": "AKS",
+    "skillLevel": "Intermediate",
+    "description": "Microsoft Azure managed Kubernetes service.",
+    "shortDescription": "Microsoft Azure managed Kubernetes service.",
+    "aliases": [
+      "aks",
+      "azure kubernetes"
+    ],
+    "keywords": [
+      "azure aks",
+      "azure kubernetes service",
+      "cloud computing",
+      "managed kubernetes",
+      "aks",
+      "azure kubernetes"
+    ],
+    "relatedTechnologies": [
+      "amazon-eks",
+      "google-gke",
+      "aws",
+      "microsoft-azure"
+    ]
+  },
+  {
+    "id": "google-gke",
+    "name": "Google Kubernetes Engine",
+    "slug": "google-gke",
+    "category": "Cloud Computing",
+    "subcategory": "Managed Kubernetes",
+    "icon": "GKE",
+    "skillLevel": "Intermediate",
+    "description": "Google Cloud managed Kubernetes service.",
+    "shortDescription": "Google Cloud managed Kubernetes service.",
+    "aliases": [
+      "gke",
+      "gcp kubernetes"
+    ],
+    "keywords": [
+      "google gke",
+      "google kubernetes engine",
+      "cloud computing",
+      "managed kubernetes",
+      "gke",
+      "gcp kubernetes"
+    ],
+    "relatedTechnologies": [
+      "amazon-eks",
+      "azure-aks",
+      "aws",
+      "microsoft-azure"
+    ]
+  },
+  {
+    "id": "helm",
+    "name": "Helm",
+    "slug": "helm",
+    "category": "Kubernetes Ecosystem",
+    "subcategory": "Package Manager",
+    "icon": "HE",
+    "skillLevel": "Intermediate",
+    "description": "Package manager for Kubernetes applications using charts.",
+    "shortDescription": "Package manager for Kubernetes applications using charts.",
+    "aliases": [
+      "helm chart",
+      "k8s"
+    ],
+    "keywords": [
+      "helm",
+      "kubernetes ecosystem",
+      "package manager",
+      "helm chart",
+      "k8s"
+    ],
+    "relatedTechnologies": [
+      "kustomize",
+      "rancher",
+      "openshift",
+      "kubectl"
+    ]
+  },
+  {
+    "id": "kustomize",
+    "name": "Kustomize",
+    "slug": "kustomize",
+    "category": "Kubernetes Ecosystem",
+    "subcategory": "Configuration",
+    "icon": "KU",
+    "skillLevel": "Intermediate",
+    "description": "Template-free Kubernetes configuration customization tool.",
+    "shortDescription": "Template-free Kubernetes configuration customization tool.",
+    "aliases": [
+      "kustomization",
+      "k8s"
+    ],
+    "keywords": [
+      "kustomize",
+      "kubernetes ecosystem",
+      "configuration",
+      "kustomization",
+      "k8s"
+    ],
+    "relatedTechnologies": [
+      "helm",
+      "rancher",
+      "openshift",
+      "kubectl"
+    ]
+  },
+  {
+    "id": "rancher",
+    "name": "Rancher",
+    "slug": "rancher",
+    "category": "Kubernetes Ecosystem",
+    "subcategory": "Cluster Management",
+    "icon": "RA",
+    "skillLevel": "Intermediate",
+    "description": "Platform for managing Kubernetes clusters and workloads.",
+    "shortDescription": "Platform for managing Kubernetes clusters and workloads.",
+    "aliases": [
+      "rancher labs",
+      "k8s"
+    ],
+    "keywords": [
+      "rancher",
+      "kubernetes ecosystem",
+      "cluster management",
+      "rancher labs",
+      "k8s"
+    ],
+    "relatedTechnologies": [
+      "helm",
+      "kustomize",
+      "openshift",
+      "kubectl"
+    ]
+  },
+  {
+    "id": "openshift",
+    "name": "Red Hat OpenShift",
+    "slug": "openshift",
+    "category": "Kubernetes Ecosystem",
+    "subcategory": "Enterprise Kubernetes",
+    "icon": "OS",
+    "skillLevel": "Intermediate",
+    "description": "Enterprise Kubernetes platform with integrated developer and operations capabilities.",
+    "shortDescription": "Enterprise Kubernetes platform with integrated developer and operations capabilities.",
+    "aliases": [
+      "openshift",
+      "okd"
+    ],
+    "keywords": [
+      "openshift",
+      "red hat openshift",
+      "kubernetes ecosystem",
+      "enterprise kubernetes",
+      "okd"
+    ],
+    "relatedTechnologies": [
+      "helm",
+      "kustomize",
+      "rancher",
+      "kubectl"
+    ]
+  },
+  {
+    "id": "nomad",
+    "name": "HashiCorp Nomad",
+    "slug": "nomad",
+    "category": "Container Orchestration",
+    "subcategory": "Workload Orchestrator",
+    "icon": "NO",
+    "skillLevel": "Intermediate",
+    "description": "Workload scheduler for containers and other applications.",
+    "shortDescription": "Workload scheduler for containers and other applications.",
+    "aliases": [
+      "hashicorp",
+      "scheduler"
+    ],
+    "keywords": [
+      "nomad",
+      "hashicorp nomad",
+      "container orchestration",
+      "workload orchestrator",
+      "hashicorp",
+      "scheduler"
+    ],
+    "relatedTechnologies": [
+      "kubernetes"
+    ]
+  },
+  {
+    "id": "aws",
+    "name": "Amazon Web Services",
+    "slug": "aws",
+    "category": "Cloud Computing",
+    "subcategory": "Cloud Provider",
+    "icon": "AWS",
+    "skillLevel": "Intermediate",
+    "description": "Major cloud platform providing compute, networking, storage, databases and managed services.",
+    "shortDescription": "Major cloud platform providing compute, networking, storage, databases and managed services.",
+    "aliases": [
+      "amazon aws",
+      "cloud"
+    ],
+    "keywords": [
+      "aws",
+      "amazon web services",
+      "cloud computing",
+      "cloud provider",
+      "amazon aws",
+      "cloud"
+    ],
+    "relatedTechnologies": [
+      "amazon-eks",
+      "azure-aks",
+      "google-gke",
+      "microsoft-azure"
+    ]
+  },
+  {
+    "id": "microsoft-azure",
+    "name": "Microsoft Azure",
+    "slug": "microsoft-azure",
+    "category": "Cloud Computing",
+    "subcategory": "Cloud Provider",
+    "icon": "AZ",
+    "skillLevel": "Intermediate",
+    "description": "Microsoft cloud platform for compute, networking, storage, data and DevOps services.",
+    "shortDescription": "Microsoft cloud platform for compute, networking, storage, data and DevOps services.",
+    "aliases": [
+      "azure",
+      "cloud"
+    ],
+    "keywords": [
+      "microsoft azure",
+      "cloud computing",
+      "cloud provider",
+      "azure",
+      "cloud"
+    ],
+    "relatedTechnologies": [
+      "amazon-eks",
+      "azure-aks",
+      "google-gke",
+      "aws"
+    ]
+  },
+  {
+    "id": "google-cloud",
+    "name": "Google Cloud",
+    "slug": "google-cloud",
+    "category": "Cloud Computing",
+    "subcategory": "Cloud Provider",
+    "icon": "GC",
+    "skillLevel": "Intermediate",
+    "description": "Google cloud platform with compute, data, networking and cloud-native services.",
+    "shortDescription": "Google cloud platform with compute, data, networking and cloud-native services.",
+    "aliases": [
+      "gcp",
+      "google cloud"
+    ],
+    "keywords": [
+      "google cloud",
+      "cloud computing",
+      "cloud provider",
+      "gcp"
+    ],
+    "relatedTechnologies": [
+      "amazon-eks",
+      "azure-aks",
+      "google-gke",
+      "aws"
+    ]
+  },
+  {
+    "id": "oracle-cloud",
+    "name": "Oracle Cloud Infrastructure",
+    "slug": "oracle-cloud",
+    "category": "Cloud Computing",
+    "subcategory": "Cloud Provider",
+    "icon": "OCI",
+    "skillLevel": "Intermediate",
+    "description": "Oracle cloud platform for compute, networking, storage and enterprise workloads.",
+    "shortDescription": "Oracle cloud platform for compute, networking, storage and enterprise workloads.",
+    "aliases": [
+      "oci",
+      "oracle"
+    ],
+    "keywords": [
+      "oracle cloud",
+      "oracle cloud infrastructure",
+      "cloud computing",
+      "cloud provider",
+      "oci",
+      "oracle"
+    ],
+    "relatedTechnologies": [
+      "amazon-eks",
+      "azure-aks",
+      "google-gke",
+      "aws"
+    ]
+  },
+  {
+    "id": "digitalocean",
+    "name": "DigitalOcean",
+    "slug": "digitalocean",
+    "category": "Cloud Computing",
+    "subcategory": "Cloud Provider",
+    "icon": "DO",
+    "skillLevel": "Intermediate",
+    "description": "Cloud platform offering droplets, managed Kubernetes, databases and storage.",
+    "shortDescription": "Cloud platform offering droplets, managed Kubernetes, databases and storage.",
+    "aliases": [
+      "do",
+      "droplets"
+    ],
+    "keywords": [
+      "digitalocean",
+      "cloud computing",
+      "cloud provider",
+      "do",
+      "droplets"
+    ],
+    "relatedTechnologies": [
+      "amazon-eks",
+      "azure-aks",
+      "google-gke",
+      "aws"
+    ]
+  },
+  {
+    "id": "ibm-cloud",
+    "name": "IBM Cloud",
+    "slug": "ibm-cloud",
+    "category": "Cloud Computing",
+    "subcategory": "Cloud Provider",
+    "icon": "IBM",
+    "skillLevel": "Intermediate",
+    "description": "Enterprise cloud platform with infrastructure and managed services.",
+    "shortDescription": "Enterprise cloud platform with infrastructure and managed services.",
+    "aliases": [
+      "ibm"
+    ],
+    "keywords": [
+      "ibm cloud",
+      "cloud computing",
+      "cloud provider",
+      "ibm"
+    ],
+    "relatedTechnologies": [
+      "amazon-eks",
+      "azure-aks",
+      "google-gke",
+      "aws"
+    ]
+  },
+  {
+    "id": "alibaba-cloud",
+    "name": "Alibaba Cloud",
+    "slug": "alibaba-cloud",
+    "category": "Cloud Computing",
+    "subcategory": "Cloud Provider",
+    "icon": "ALI",
+    "skillLevel": "Intermediate",
+    "description": "Cloud platform with compute, networking, storage and managed services.",
+    "shortDescription": "Cloud platform with compute, networking, storage and managed services.",
+    "aliases": [
+      "alicloud"
+    ],
+    "keywords": [
+      "alibaba cloud",
+      "cloud computing",
+      "cloud provider",
+      "alicloud"
+    ],
+    "relatedTechnologies": [
+      "amazon-eks",
+      "azure-aks",
+      "google-gke",
+      "aws"
+    ]
+  },
+  {
+    "id": "cloudflare",
+    "name": "Cloudflare",
+    "slug": "cloudflare",
+    "category": "Cloud Computing",
+    "subcategory": "Edge Cloud",
+    "icon": "CF",
+    "skillLevel": "Intermediate",
+    "description": "Edge, DNS, CDN, security and serverless platform.",
+    "shortDescription": "Edge, DNS, CDN, security and serverless platform.",
+    "aliases": [
+      "cdn",
+      "dns",
+      "workers",
+      "zero trust"
+    ],
+    "keywords": [
+      "cloudflare",
+      "cloud computing",
+      "edge cloud",
+      "cdn",
+      "dns",
+      "workers",
+      "zero trust"
+    ],
+    "relatedTechnologies": [
+      "amazon-eks",
+      "azure-aks",
+      "google-gke",
+      "aws"
+    ]
+  },
+  {
+    "id": "terraform",
+    "name": "Terraform",
+    "slug": "terraform",
+    "category": "Infrastructure as Code",
+    "subcategory": "IaC",
+    "icon": "TF",
+    "skillLevel": "Intermediate",
+    "description": "Declarative infrastructure provisioning tool using HCL.",
+    "shortDescription": "Declarative infrastructure provisioning tool using HCL.",
+    "aliases": [
+      "tf",
+      "iac",
+      "hcl",
+      "terraform cloud"
+    ],
+    "keywords": [
+      "terraform",
+      "infrastructure as code",
+      "iac",
+      "tf",
+      "hcl",
+      "terraform cloud"
+    ],
+    "relatedTechnologies": [
+      "opentofu",
+      "aws-cloudformation",
+      "aws-cdk",
+      "pulumi"
+    ]
+  },
+  {
+    "id": "opentofu",
+    "name": "OpenTofu",
+    "slug": "opentofu",
+    "category": "Infrastructure as Code",
+    "subcategory": "IaC",
+    "icon": "OT",
+    "skillLevel": "Intermediate",
+    "description": "Open-source infrastructure as code tool compatible with Terraform workflows.",
+    "shortDescription": "Open-source infrastructure as code tool compatible with Terraform workflows.",
+    "aliases": [
+      "tofu",
+      "terraform alternative"
+    ],
+    "keywords": [
+      "opentofu",
+      "infrastructure as code",
+      "iac",
+      "tofu",
+      "terraform alternative"
+    ],
+    "relatedTechnologies": [
+      "terraform",
+      "aws-cloudformation",
+      "aws-cdk",
+      "pulumi"
+    ]
+  },
+  {
+    "id": "aws-cloudformation",
+    "name": "AWS CloudFormation",
+    "slug": "aws-cloudformation",
+    "category": "Infrastructure as Code",
+    "subcategory": "AWS IaC",
+    "icon": "CF",
+    "skillLevel": "Intermediate",
+    "description": "AWS native infrastructure as code using YAML or JSON templates.",
+    "shortDescription": "AWS native infrastructure as code using YAML or JSON templates.",
+    "aliases": [
+      "cloudformation",
+      "cfn",
+      "aws cfn"
+    ],
+    "keywords": [
+      "aws cloudformation",
+      "infrastructure as code",
+      "aws iac",
+      "cloudformation",
+      "cfn",
+      "aws cfn"
+    ],
+    "relatedTechnologies": [
+      "terraform",
+      "opentofu",
+      "aws-cdk",
+      "pulumi"
+    ]
+  },
+  {
+    "id": "aws-cdk",
+    "name": "AWS CDK",
+    "slug": "aws-cdk",
+    "category": "Infrastructure as Code",
+    "subcategory": "IaC Framework",
+    "icon": "CDK",
+    "skillLevel": "Intermediate",
+    "description": "Define AWS infrastructure with familiar programming languages.",
+    "shortDescription": "Define AWS infrastructure with familiar programming languages.",
+    "aliases": [
+      "cdk",
+      "cloud development kit"
+    ],
+    "keywords": [
+      "aws cdk",
+      "infrastructure as code",
+      "iac framework",
+      "cdk",
+      "cloud development kit"
+    ],
+    "relatedTechnologies": [
+      "terraform",
+      "opentofu",
+      "aws-cloudformation",
+      "pulumi"
+    ]
+  },
+  {
+    "id": "pulumi",
+    "name": "Pulumi",
+    "slug": "pulumi",
+    "category": "Infrastructure as Code",
+    "subcategory": "IaC Framework",
+    "icon": "PU",
+    "skillLevel": "Intermediate",
+    "description": "Infrastructure as code using general-purpose programming languages.",
+    "shortDescription": "Infrastructure as code using general-purpose programming languages.",
+    "aliases": [
+      "pulumi",
+      "typescript iac"
+    ],
+    "keywords": [
+      "pulumi",
+      "infrastructure as code",
+      "iac framework",
+      "typescript iac"
+    ],
+    "relatedTechnologies": [
+      "terraform",
+      "opentofu",
+      "aws-cloudformation",
+      "aws-cdk"
+    ]
+  },
+  {
+    "id": "crossplane",
+    "name": "Crossplane",
+    "slug": "crossplane",
+    "category": "Infrastructure as Code",
+    "subcategory": "Cloud Control Plane",
+    "icon": "XP",
+    "skillLevel": "Intermediate",
+    "description": "Kubernetes-based control plane for managing infrastructure and cloud resources.",
+    "shortDescription": "Kubernetes-based control plane for managing infrastructure and cloud resources.",
+    "aliases": [
+      "kubernetes iac"
+    ],
+    "keywords": [
+      "crossplane",
+      "infrastructure as code",
+      "cloud control plane",
+      "kubernetes iac"
+    ],
+    "relatedTechnologies": [
+      "terraform",
+      "opentofu",
+      "aws-cloudformation",
+      "aws-cdk"
+    ]
+  },
+  {
+    "id": "packer",
+    "name": "HashiCorp Packer",
+    "slug": "packer",
+    "category": "Infrastructure as Code",
+    "subcategory": "Image Builder",
+    "icon": "PK",
+    "skillLevel": "Intermediate",
+    "description": "Automates creation of machine images across platforms.",
+    "shortDescription": "Automates creation of machine images across platforms.",
+    "aliases": [
+      "packer",
+      "golden image"
+    ],
+    "keywords": [
+      "packer",
+      "hashicorp packer",
+      "infrastructure as code",
+      "image builder",
+      "golden image"
+    ],
+    "relatedTechnologies": [
+      "terraform",
+      "opentofu",
+      "aws-cloudformation",
+      "aws-cdk"
+    ]
+  },
+  {
+    "id": "vagrant",
+    "name": "Vagrant",
+    "slug": "vagrant",
+    "category": "Infrastructure as Code",
+    "subcategory": "Environment Manager",
+    "icon": "VG",
+    "skillLevel": "Intermediate",
+    "description": "Tool for reproducible development environments and virtual machines.",
+    "shortDescription": "Tool for reproducible development environments and virtual machines.",
+    "aliases": [
+      "hashicorp",
+      "vm"
+    ],
+    "keywords": [
+      "vagrant",
+      "infrastructure as code",
+      "environment manager",
+      "hashicorp",
+      "vm"
+    ],
+    "relatedTechnologies": [
+      "terraform",
+      "opentofu",
+      "aws-cloudformation",
+      "aws-cdk"
+    ]
+  },
+  {
+    "id": "jenkins",
+    "name": "Jenkins",
+    "slug": "jenkins",
+    "category": "CI/CD",
+    "subcategory": "Automation Server",
+    "icon": "JK",
+    "skillLevel": "Intermediate",
+    "description": "Extensible automation server used to build, test and deploy software.",
+    "shortDescription": "Extensible automation server used to build, test and deploy software.",
+    "aliases": [
+      "jenkins pipeline",
+      "ci",
+      "cd"
+    ],
+    "keywords": [
+      "jenkins",
+      "ci/cd",
+      "automation server",
+      "jenkins pipeline",
+      "ci",
+      "cd"
+    ],
+    "relatedTechnologies": [
+      "github-actions",
+      "gitlab-ci",
+      "circleci",
+      "travis-ci"
+    ]
+  },
+  {
+    "id": "github-actions",
+    "name": "GitHub Actions",
+    "slug": "github-actions",
+    "category": "CI/CD",
+    "subcategory": "Cloud CI/CD",
+    "icon": "GA",
+    "skillLevel": "Intermediate",
+    "description": "Workflow automation and CI/CD integrated with GitHub repositories.",
+    "shortDescription": "Workflow automation and CI/CD integrated with GitHub repositories.",
+    "aliases": [
+      "gha",
+      "github workflow"
+    ],
+    "keywords": [
+      "github actions",
+      "ci/cd",
+      "cloud ci/cd",
+      "gha",
+      "github workflow"
+    ],
+    "relatedTechnologies": [
+      "jenkins",
+      "gitlab-ci",
+      "circleci",
+      "travis-ci"
+    ]
+  },
+  {
+    "id": "gitlab-ci",
+    "name": "GitLab CI/CD",
+    "slug": "gitlab-ci",
+    "category": "CI/CD",
+    "subcategory": "Pipeline Automation",
+    "icon": "GI",
+    "skillLevel": "Intermediate",
+    "description": "Integrated CI/CD pipeline system in GitLab.",
+    "shortDescription": "Integrated CI/CD pipeline system in GitLab.",
+    "aliases": [
+      "gitlab ci",
+      "pipeline"
+    ],
+    "keywords": [
+      "gitlab ci",
+      "gitlab ci/cd",
+      "ci/cd",
+      "pipeline automation",
+      "pipeline"
+    ],
+    "relatedTechnologies": [
+      "jenkins",
+      "github-actions",
+      "circleci",
+      "travis-ci"
+    ]
+  },
+  {
+    "id": "circleci",
+    "name": "CircleCI",
+    "slug": "circleci",
+    "category": "CI/CD",
+    "subcategory": "Pipeline Automation",
+    "icon": "CI",
+    "skillLevel": "Intermediate",
+    "description": "Cloud and self-hosted CI/CD platform.",
+    "shortDescription": "Cloud and self-hosted CI/CD platform.",
+    "aliases": [
+      "circle ci",
+      "pipeline"
+    ],
+    "keywords": [
+      "circleci",
+      "ci/cd",
+      "pipeline automation",
+      "circle ci",
+      "pipeline"
+    ],
+    "relatedTechnologies": [
+      "jenkins",
+      "github-actions",
+      "gitlab-ci",
+      "travis-ci"
+    ]
+  },
+  {
+    "id": "travis-ci",
+    "name": "Travis CI",
+    "slug": "travis-ci",
+    "category": "CI/CD",
+    "subcategory": "Pipeline Automation",
+    "icon": "TC",
+    "skillLevel": "Intermediate",
+    "description": "Hosted CI service for automated builds and tests.",
+    "shortDescription": "Hosted CI service for automated builds and tests.",
+    "aliases": [
+      "travis"
+    ],
+    "keywords": [
+      "travis ci",
+      "ci/cd",
+      "pipeline automation",
+      "travis"
+    ],
+    "relatedTechnologies": [
+      "jenkins",
+      "github-actions",
+      "gitlab-ci",
+      "circleci"
+    ]
+  },
+  {
+    "id": "azure-devops",
+    "name": "Azure DevOps",
+    "slug": "azure-devops",
+    "category": "CI/CD",
+    "subcategory": "DevOps Platform",
+    "icon": "ADO",
+    "skillLevel": "Intermediate",
+    "description": "Microsoft platform for repositories, pipelines, boards and artifacts.",
+    "shortDescription": "Microsoft platform for repositories, pipelines, boards and artifacts.",
+    "aliases": [
+      "azure pipelines"
+    ],
+    "keywords": [
+      "azure devops",
+      "ci/cd",
+      "devops platform",
+      "azure pipelines"
+    ],
+    "relatedTechnologies": [
+      "jenkins",
+      "github-actions",
+      "gitlab-ci",
+      "circleci"
+    ]
+  },
+  {
+    "id": "tekton",
+    "name": "Tekton",
+    "slug": "tekton",
+    "category": "CI/CD",
+    "subcategory": "Cloud Native CI",
+    "icon": "TE",
+    "skillLevel": "Intermediate",
+    "description": "Kubernetes-native framework for CI/CD pipelines.",
+    "shortDescription": "Kubernetes-native framework for CI/CD pipelines.",
+    "aliases": [
+      "tekton pipelines",
+      "kubernetes"
+    ],
+    "keywords": [
+      "tekton",
+      "ci/cd",
+      "cloud native ci",
+      "tekton pipelines",
+      "kubernetes"
+    ],
+    "relatedTechnologies": [
+      "jenkins",
+      "github-actions",
+      "gitlab-ci",
+      "circleci"
+    ]
+  },
+  {
+    "id": "argo-workflows",
+    "name": "Argo Workflows",
+    "slug": "argo-workflows",
+    "category": "CI/CD",
+    "subcategory": "Kubernetes Workflows",
+    "icon": "AW",
+    "skillLevel": "Intermediate",
+    "description": "Container-native workflow engine for Kubernetes.",
+    "shortDescription": "Container-native workflow engine for Kubernetes.",
+    "aliases": [
+      "argo",
+      "workflows"
+    ],
+    "keywords": [
+      "argo workflows",
+      "ci/cd",
+      "kubernetes workflows",
+      "argo",
+      "workflows"
+    ],
+    "relatedTechnologies": [
+      "jenkins",
+      "github-actions",
+      "gitlab-ci",
+      "circleci"
+    ]
+  },
+  {
+    "id": "argo-cd",
+    "name": "Argo CD",
+    "slug": "argo-cd",
+    "category": "GitOps",
+    "subcategory": "Continuous Delivery",
+    "icon": "AC",
+    "skillLevel": "Intermediate",
+    "description": "Declarative GitOps continuous delivery controller for Kubernetes.",
+    "shortDescription": "Declarative GitOps continuous delivery controller for Kubernetes.",
+    "aliases": [
+      "argocd",
+      "argo cd"
+    ],
+    "keywords": [
+      "argo cd",
+      "gitops",
+      "continuous delivery",
+      "argocd"
+    ],
+    "relatedTechnologies": [
+      "flux",
+      "argocd-image-updater",
+      "argocd"
+    ]
+  },
+  {
+    "id": "flux",
+    "name": "Flux",
+    "slug": "flux",
+    "category": "GitOps",
+    "subcategory": "Continuous Delivery",
+    "icon": "FX",
+    "skillLevel": "Intermediate",
+    "description": "GitOps toolkit for continuous delivery on Kubernetes.",
+    "shortDescription": "GitOps toolkit for continuous delivery on Kubernetes.",
+    "aliases": [
+      "fluxcd",
+      "gitops"
+    ],
+    "keywords": [
+      "flux",
+      "gitops",
+      "continuous delivery",
+      "fluxcd"
+    ],
+    "relatedTechnologies": [
+      "argo-cd",
+      "argocd-image-updater",
+      "argocd"
+    ]
+  },
+  {
+    "id": "argocd-image-updater",
+    "name": "Argo CD Image Updater",
+    "slug": "argocd-image-updater",
+    "category": "GitOps",
+    "subcategory": "Image Automation",
+    "icon": "AI",
+    "skillLevel": "Intermediate",
+    "description": "Automates image updates for Argo CD applications.",
+    "shortDescription": "Automates image updates for Argo CD applications.",
+    "aliases": [
+      "argo",
+      "image updater"
+    ],
+    "keywords": [
+      "argocd image updater",
+      "argo cd image updater",
+      "gitops",
+      "image automation",
+      "argo",
+      "image updater"
+    ],
+    "relatedTechnologies": [
+      "argo-cd",
+      "flux",
+      "argocd"
+    ]
+  },
+  {
+    "id": "ansible",
+    "name": "Ansible",
+    "slug": "ansible",
+    "category": "Configuration Management",
+    "subcategory": "Automation",
+    "icon": "AN",
+    "skillLevel": "Intermediate",
+    "description": "Agentless automation for configuration, provisioning and application deployment.",
+    "shortDescription": "Agentless automation for configuration, provisioning and application deployment.",
+    "aliases": [
+      "ansible playbook",
+      "yaml"
+    ],
+    "keywords": [
+      "ansible",
+      "configuration management",
+      "automation",
+      "ansible playbook",
+      "yaml"
+    ],
+    "relatedTechnologies": [
+      "chef",
+      "puppet",
+      "saltstack"
+    ]
+  },
+  {
+    "id": "chef",
+    "name": "Chef",
+    "slug": "chef",
+    "category": "Configuration Management",
+    "subcategory": "Configuration Automation",
+    "icon": "CH",
+    "skillLevel": "Intermediate",
+    "description": "Infrastructure automation and configuration management platform.",
+    "shortDescription": "Infrastructure automation and configuration management platform.",
+    "aliases": [
+      "chef infra",
+      "cookbooks"
+    ],
+    "keywords": [
+      "chef",
+      "configuration management",
+      "configuration automation",
+      "chef infra",
+      "cookbooks"
+    ],
+    "relatedTechnologies": [
+      "ansible",
+      "puppet",
+      "saltstack"
+    ]
+  },
+  {
+    "id": "puppet",
+    "name": "Puppet",
+    "slug": "puppet",
+    "category": "Configuration Management",
+    "subcategory": "Configuration Automation",
+    "icon": "PP",
+    "skillLevel": "Intermediate",
+    "description": "Declarative configuration management and infrastructure automation.",
+    "shortDescription": "Declarative configuration management and infrastructure automation.",
+    "aliases": [
+      "puppet"
+    ],
+    "keywords": [
+      "puppet",
+      "configuration management",
+      "configuration automation"
+    ],
+    "relatedTechnologies": [
+      "ansible",
+      "chef",
+      "saltstack"
+    ]
+  },
+  {
+    "id": "saltstack",
+    "name": "Salt Project",
+    "slug": "saltstack",
+    "category": "Configuration Management",
+    "subcategory": "Automation",
+    "icon": "SL",
+    "skillLevel": "Intermediate",
+    "description": "Event-driven infrastructure automation and configuration management.",
+    "shortDescription": "Event-driven infrastructure automation and configuration management.",
+    "aliases": [
+      "salt",
+      "saltstack"
+    ],
+    "keywords": [
+      "saltstack",
+      "salt project",
+      "configuration management",
+      "automation",
+      "salt"
+    ],
+    "relatedTechnologies": [
+      "ansible",
+      "chef",
+      "puppet"
+    ]
+  },
+  {
+    "id": "trivy",
+    "name": "Trivy",
+    "slug": "trivy",
+    "category": "DevSecOps",
+    "subcategory": "Security Scanner",
+    "icon": "TR",
+    "skillLevel": "Intermediate",
+    "description": "Scanner for vulnerabilities, misconfigurations, secrets and SBOMs.",
+    "shortDescription": "Scanner for vulnerabilities, misconfigurations, secrets and SBOMs.",
+    "aliases": [
+      "aquasecurity",
+      "container scan",
+      "sbom"
+    ],
+    "keywords": [
+      "trivy",
+      "devsecops",
+      "security scanner",
+      "aquasecurity",
+      "container scan",
+      "sbom"
+    ],
+    "relatedTechnologies": [
+      "sonarqube",
+      "owasp-dependency-check",
+      "snyk",
+      "semgrep"
+    ]
+  },
+  {
+    "id": "sonarqube",
+    "name": "SonarQube",
+    "slug": "sonarqube",
+    "category": "DevSecOps",
+    "subcategory": "Code Quality",
+    "icon": "SQ",
+    "skillLevel": "Intermediate",
+    "description": "Static analysis platform for code quality and security issues.",
+    "shortDescription": "Static analysis platform for code quality and security issues.",
+    "aliases": [
+      "sonar",
+      "sast"
+    ],
+    "keywords": [
+      "sonarqube",
+      "devsecops",
+      "code quality",
+      "sonar",
+      "sast"
+    ],
+    "relatedTechnologies": [
+      "trivy",
+      "owasp-dependency-check",
+      "snyk",
+      "semgrep"
+    ]
+  },
+  {
+    "id": "owasp-dependency-check",
+    "name": "OWASP Dependency-Check",
+    "slug": "owasp-dependency-check",
+    "category": "DevSecOps",
+    "subcategory": "Dependency Security",
+    "icon": "OD",
+    "skillLevel": "Intermediate",
+    "description": "Identifies known vulnerabilities in project dependencies.",
+    "shortDescription": "Identifies known vulnerabilities in project dependencies.",
+    "aliases": [
+      "owasp",
+      "dependency scanning"
+    ],
+    "keywords": [
+      "owasp dependency check",
+      "owasp dependency-check",
+      "devsecops",
+      "dependency security",
+      "owasp",
+      "dependency scanning"
+    ],
+    "relatedTechnologies": [
+      "trivy",
+      "sonarqube",
+      "snyk",
+      "semgrep"
+    ]
+  },
+  {
+    "id": "snyk",
+    "name": "Snyk",
+    "slug": "snyk",
+    "category": "DevSecOps",
+    "subcategory": "Developer Security",
+    "icon": "SY",
+    "skillLevel": "Intermediate",
+    "description": "Security tooling for dependencies, containers, code and infrastructure.",
+    "shortDescription": "Security tooling for dependencies, containers, code and infrastructure.",
+    "aliases": [
+      "snyk scan",
+      "security"
+    ],
+    "keywords": [
+      "snyk",
+      "devsecops",
+      "developer security",
+      "snyk scan",
+      "security"
+    ],
+    "relatedTechnologies": [
+      "trivy",
+      "sonarqube",
+      "owasp-dependency-check",
+      "semgrep"
+    ]
+  },
+  {
+    "id": "semgrep",
+    "name": "Semgrep",
+    "slug": "semgrep",
+    "category": "DevSecOps",
+    "subcategory": "SAST",
+    "icon": "SG",
+    "skillLevel": "Intermediate",
+    "description": "Lightweight code scanning and static analysis engine.",
+    "shortDescription": "Lightweight code scanning and static analysis engine.",
+    "aliases": [
+      "sast",
+      "code scanning"
+    ],
+    "keywords": [
+      "semgrep",
+      "devsecops",
+      "sast",
+      "code scanning"
+    ],
+    "relatedTechnologies": [
+      "trivy",
+      "sonarqube",
+      "owasp-dependency-check",
+      "snyk"
+    ]
+  },
+  {
+    "id": "checkov",
+    "name": "Checkov",
+    "slug": "checkov",
+    "category": "DevSecOps",
+    "subcategory": "IaC Security",
+    "icon": "CK",
+    "skillLevel": "Intermediate",
+    "description": "Policy-as-code scanner for infrastructure as code.",
+    "shortDescription": "Policy-as-code scanner for infrastructure as code.",
+    "aliases": [
+      "iac security",
+      "terraform security"
+    ],
+    "keywords": [
+      "checkov",
+      "devsecops",
+      "iac security",
+      "terraform security"
+    ],
+    "relatedTechnologies": [
+      "trivy",
+      "sonarqube",
+      "owasp-dependency-check",
+      "snyk"
+    ]
+  },
+  {
+    "id": "gitleaks",
+    "name": "Gitleaks",
+    "slug": "gitleaks",
+    "category": "DevSecOps",
+    "subcategory": "Secret Scanning",
+    "icon": "GK",
+    "skillLevel": "Intermediate",
+    "description": "Detects hardcoded secrets in Git repositories.",
+    "shortDescription": "Detects hardcoded secrets in Git repositories.",
+    "aliases": [
+      "secret scanning"
+    ],
+    "keywords": [
+      "gitleaks",
+      "devsecops",
+      "secret scanning"
+    ],
+    "relatedTechnologies": [
+      "trivy",
+      "sonarqube",
+      "owasp-dependency-check",
+      "snyk"
+    ]
+  },
+  {
+    "id": "vault",
+    "name": "HashiCorp Vault",
+    "slug": "vault",
+    "category": "Secrets Management",
+    "subcategory": "Secrets",
+    "icon": "VA",
+    "skillLevel": "Intermediate",
+    "description": "Centralized secrets management and dynamic credentials platform.",
+    "shortDescription": "Centralized secrets management and dynamic credentials platform.",
+    "aliases": [
+      "hashicorp vault",
+      "secrets"
+    ],
+    "keywords": [
+      "vault",
+      "hashicorp vault",
+      "secrets management",
+      "secrets"
+    ],
+    "relatedTechnologies": [
+      "external-secrets"
+    ]
+  },
+  {
+    "id": "external-secrets",
+    "name": "External Secrets Operator",
+    "slug": "external-secrets",
+    "category": "Secrets Management",
+    "subcategory": "Kubernetes Secrets",
+    "icon": "ES",
+    "skillLevel": "Intermediate",
+    "description": "Synchronizes secrets from external secret stores into Kubernetes.",
+    "shortDescription": "Synchronizes secrets from external secret stores into Kubernetes.",
+    "aliases": [
+      "eso",
+      "kubernetes secrets"
+    ],
+    "keywords": [
+      "external secrets",
+      "external secrets operator",
+      "secrets management",
+      "kubernetes secrets",
+      "eso"
+    ],
+    "relatedTechnologies": [
+      "vault"
+    ]
+  },
+  {
+    "id": "prometheus",
+    "name": "Prometheus",
+    "slug": "prometheus",
+    "category": "Observability",
+    "subcategory": "Metrics",
+    "icon": "PR",
+    "skillLevel": "Intermediate",
+    "description": "Open-source metrics collection and alerting system.",
+    "shortDescription": "Open-source metrics collection and alerting system.",
+    "aliases": [
+      "prometheus monitoring",
+      "promql"
+    ],
+    "keywords": [
+      "prometheus",
+      "observability",
+      "metrics",
+      "prometheus monitoring",
+      "promql"
+    ],
+    "relatedTechnologies": [
+      "grafana",
+      "opentelemetry",
+      "loki",
+      "promtail"
+    ]
+  },
+  {
+    "id": "grafana",
+    "name": "Grafana",
+    "slug": "grafana",
+    "category": "Observability",
+    "subcategory": "Dashboards",
+    "icon": "GR",
+    "skillLevel": "Intermediate",
+    "description": "Visualization and dashboard platform for metrics, logs and traces.",
+    "shortDescription": "Visualization and dashboard platform for metrics, logs and traces.",
+    "aliases": [
+      "grafana dashboard"
+    ],
+    "keywords": [
+      "grafana",
+      "observability",
+      "dashboards",
+      "grafana dashboard"
+    ],
+    "relatedTechnologies": [
+      "prometheus",
+      "opentelemetry",
+      "loki",
+      "promtail"
+    ]
+  },
+  {
+    "id": "opentelemetry",
+    "name": "OpenTelemetry",
+    "slug": "opentelemetry",
+    "category": "Observability",
+    "subcategory": "Telemetry",
+    "icon": "OT",
+    "skillLevel": "Intermediate",
+    "description": "Open standard and toolkit for traces, metrics and logs.",
+    "shortDescription": "Open standard and toolkit for traces, metrics and logs.",
+    "aliases": [
+      "otel",
+      "observability"
+    ],
+    "keywords": [
+      "opentelemetry",
+      "observability",
+      "telemetry",
+      "otel"
+    ],
+    "relatedTechnologies": [
+      "prometheus",
+      "grafana",
+      "loki",
+      "promtail"
+    ]
+  },
+  {
+    "id": "loki",
+    "name": "Grafana Loki",
+    "slug": "loki",
+    "category": "Observability",
+    "subcategory": "Logs",
+    "icon": "LO",
+    "skillLevel": "Intermediate",
+    "description": "Log aggregation system designed to work with Grafana.",
+    "shortDescription": "Log aggregation system designed to work with Grafana.",
+    "aliases": [
+      "loki logs"
+    ],
+    "keywords": [
+      "loki",
+      "grafana loki",
+      "observability",
+      "logs",
+      "loki logs"
+    ],
+    "relatedTechnologies": [
+      "prometheus",
+      "grafana",
+      "opentelemetry",
+      "promtail"
+    ]
+  },
+  {
+    "id": "promtail",
+    "name": "Promtail",
+    "slug": "promtail",
+    "category": "Observability",
+    "subcategory": "Log Collection",
+    "icon": "PT",
+    "skillLevel": "Intermediate",
+    "description": "Log collector commonly used with Loki deployments.",
+    "shortDescription": "Log collector commonly used with Loki deployments.",
+    "aliases": [
+      "loki agent"
+    ],
+    "keywords": [
+      "promtail",
+      "observability",
+      "log collection",
+      "loki agent"
+    ],
+    "relatedTechnologies": [
+      "prometheus",
+      "grafana",
+      "opentelemetry",
+      "loki"
+    ]
+  },
+  {
+    "id": "jaeger",
+    "name": "Jaeger",
+    "slug": "jaeger",
+    "category": "Observability",
+    "subcategory": "Tracing",
+    "icon": "JA",
+    "skillLevel": "Intermediate",
+    "description": "Distributed tracing platform for cloud-native applications.",
+    "shortDescription": "Distributed tracing platform for cloud-native applications.",
+    "aliases": [
+      "tracing"
+    ],
+    "keywords": [
+      "jaeger",
+      "observability",
+      "tracing"
+    ],
+    "relatedTechnologies": [
+      "prometheus",
+      "grafana",
+      "opentelemetry",
+      "loki"
+    ]
+  },
+  {
+    "id": "elastic-stack",
+    "name": "Elastic Stack",
+    "slug": "elastic-stack",
+    "category": "Observability",
+    "subcategory": "Logs & Search",
+    "icon": "ELK",
+    "skillLevel": "Intermediate",
+    "description": "Elasticsearch, Logstash and Kibana ecosystem for search, logs and analytics.",
+    "shortDescription": "Elasticsearch, Logstash and Kibana ecosystem for search, logs and analytics.",
+    "aliases": [
+      "elk",
+      "elasticsearch",
+      "kibana",
+      "logstash"
+    ],
+    "keywords": [
+      "elastic stack",
+      "observability",
+      "logs & search",
+      "elk",
+      "elasticsearch",
+      "kibana",
+      "logstash"
+    ],
+    "relatedTechnologies": [
+      "prometheus",
+      "grafana",
+      "opentelemetry",
+      "loki"
+    ]
+  },
+  {
+    "id": "fluent-bit",
+    "name": "Fluent Bit",
+    "slug": "fluent-bit",
+    "category": "Observability",
+    "subcategory": "Log Collection",
+    "icon": "FB",
+    "skillLevel": "Intermediate",
+    "description": "Lightweight high-performance telemetry and log processor.",
+    "shortDescription": "Lightweight high-performance telemetry and log processor.",
+    "aliases": [
+      "fluentd",
+      "logging"
+    ],
+    "keywords": [
+      "fluent bit",
+      "observability",
+      "log collection",
+      "fluentd",
+      "logging"
+    ],
+    "relatedTechnologies": [
+      "prometheus",
+      "grafana",
+      "opentelemetry",
+      "loki"
+    ]
+  },
+  {
+    "id": "datadog",
+    "name": "Datadog",
+    "slug": "datadog",
+    "category": "Monitoring",
+    "subcategory": "SaaS Observability",
+    "icon": "DD",
+    "skillLevel": "Intermediate",
+    "description": "Monitoring and observability platform for infrastructure and applications.",
+    "shortDescription": "Monitoring and observability platform for infrastructure and applications.",
+    "aliases": [
+      "apm",
+      "logs"
+    ],
+    "keywords": [
+      "datadog",
+      "monitoring",
+      "saas observability",
+      "apm",
+      "logs"
+    ],
+    "relatedTechnologies": [
+      "new-relic"
+    ]
+  },
+  {
+    "id": "new-relic",
+    "name": "New Relic",
+    "slug": "new-relic",
+    "category": "Monitoring",
+    "subcategory": "APM",
+    "icon": "NR",
+    "skillLevel": "Intermediate",
+    "description": "Application and infrastructure observability platform.",
+    "shortDescription": "Application and infrastructure observability platform.",
+    "aliases": [
+      "apm",
+      "monitoring"
+    ],
+    "keywords": [
+      "new relic",
+      "monitoring",
+      "apm"
+    ],
+    "relatedTechnologies": [
+      "datadog"
+    ]
+  },
+  {
+    "id": "nginx",
+    "name": "Nginx",
+    "slug": "nginx",
+    "category": "Networking",
+    "subcategory": "Web Server / Proxy",
+    "icon": "NG",
+    "skillLevel": "Intermediate",
+    "description": "Web server, reverse proxy, load balancer and API gateway.",
+    "shortDescription": "Web server, reverse proxy, load balancer and API gateway.",
+    "aliases": [
+      "reverse proxy",
+      "load balancer"
+    ],
+    "keywords": [
+      "nginx",
+      "networking",
+      "web server / proxy",
+      "reverse proxy",
+      "load balancer"
+    ],
+    "relatedTechnologies": [
+      "haproxy",
+      "traefik",
+      "envoy",
+      "coredns"
+    ]
+  },
+  {
+    "id": "haproxy",
+    "name": "HAProxy",
+    "slug": "haproxy",
+    "category": "Networking",
+    "subcategory": "Load Balancer",
+    "icon": "HA",
+    "skillLevel": "Intermediate",
+    "description": "High-performance TCP and HTTP load balancer and proxy.",
+    "shortDescription": "High-performance TCP and HTTP load balancer and proxy.",
+    "aliases": [
+      "proxy",
+      "load balancer"
+    ],
+    "keywords": [
+      "haproxy",
+      "networking",
+      "load balancer",
+      "proxy"
+    ],
+    "relatedTechnologies": [
+      "nginx",
+      "traefik",
+      "envoy",
+      "coredns"
+    ]
+  },
+  {
+    "id": "traefik",
+    "name": "Traefik",
+    "slug": "traefik",
+    "category": "Networking",
+    "subcategory": "Cloud Native Proxy",
+    "icon": "TF",
+    "skillLevel": "Intermediate",
+    "description": "Dynamic reverse proxy and ingress controller for modern applications.",
+    "shortDescription": "Dynamic reverse proxy and ingress controller for modern applications.",
+    "aliases": [
+      "ingress",
+      "proxy"
+    ],
+    "keywords": [
+      "traefik",
+      "networking",
+      "cloud native proxy",
+      "ingress",
+      "proxy"
+    ],
+    "relatedTechnologies": [
+      "nginx",
+      "haproxy",
+      "envoy",
+      "coredns"
+    ]
+  },
+  {
+    "id": "envoy",
+    "name": "Envoy Proxy",
+    "slug": "envoy",
+    "category": "Networking",
+    "subcategory": "Service Proxy",
+    "icon": "EN",
+    "skillLevel": "Intermediate",
+    "description": "High-performance proxy commonly used in cloud-native and service mesh systems.",
+    "shortDescription": "High-performance proxy commonly used in cloud-native and service mesh systems.",
+    "aliases": [
+      "proxy",
+      "service mesh"
+    ],
+    "keywords": [
+      "envoy",
+      "envoy proxy",
+      "networking",
+      "service proxy",
+      "proxy",
+      "service mesh"
+    ],
+    "relatedTechnologies": [
+      "nginx",
+      "haproxy",
+      "traefik",
+      "coredns"
+    ]
+  },
+  {
+    "id": "coredns",
+    "name": "CoreDNS",
+    "slug": "coredns",
+    "category": "Networking",
+    "subcategory": "DNS",
+    "icon": "DNS",
+    "skillLevel": "Intermediate",
+    "description": "Flexible DNS server widely used by Kubernetes.",
+    "shortDescription": "Flexible DNS server widely used by Kubernetes.",
+    "aliases": [
+      "kubernetes dns",
+      "dns"
+    ],
+    "keywords": [
+      "coredns",
+      "networking",
+      "dns",
+      "kubernetes dns"
+    ],
+    "relatedTechnologies": [
+      "nginx",
+      "haproxy",
+      "traefik",
+      "envoy"
+    ]
+  },
+  {
+    "id": "istio",
+    "name": "Istio",
+    "slug": "istio",
+    "category": "Service Mesh",
+    "subcategory": "Service Mesh",
+    "icon": "IS",
+    "skillLevel": "Intermediate",
+    "description": "Service mesh for traffic management, security and observability.",
+    "shortDescription": "Service mesh for traffic management, security and observability.",
+    "aliases": [
+      "service mesh",
+      "kubernetes"
+    ],
+    "keywords": [
+      "istio",
+      "service mesh",
+      "kubernetes"
+    ],
+    "relatedTechnologies": [
+      "linkerd",
+      "consul"
+    ]
+  },
+  {
+    "id": "linkerd",
+    "name": "Linkerd",
+    "slug": "linkerd",
+    "category": "Service Mesh",
+    "subcategory": "Service Mesh",
+    "icon": "LK",
+    "skillLevel": "Intermediate",
+    "description": "Lightweight Kubernetes service mesh.",
+    "shortDescription": "Lightweight Kubernetes service mesh.",
+    "aliases": [
+      "service mesh",
+      "k8s"
+    ],
+    "keywords": [
+      "linkerd",
+      "service mesh",
+      "k8s"
+    ],
+    "relatedTechnologies": [
+      "istio",
+      "consul"
+    ]
+  },
+  {
+    "id": "redis",
+    "name": "Redis",
+    "slug": "redis",
+    "category": "Databases",
+    "subcategory": "In-memory Data Store",
+    "icon": "RD",
+    "skillLevel": "Intermediate",
+    "description": "In-memory data store commonly used for caching, queues and application state.",
+    "shortDescription": "In-memory data store commonly used for caching, queues and application state.",
+    "aliases": [
+      "cache",
+      "redis"
+    ],
+    "keywords": [
+      "redis",
+      "databases",
+      "in-memory data store",
+      "cache"
+    ],
+    "relatedTechnologies": [
+      "postgresql",
+      "mysql",
+      "mongodb",
+      "amazon-rds"
+    ]
+  },
+  {
+    "id": "postgresql",
+    "name": "PostgreSQL",
+    "slug": "postgresql",
+    "category": "Databases",
+    "subcategory": "Relational Database",
+    "icon": "PG",
+    "skillLevel": "Intermediate",
+    "description": "Open-source relational database widely used in applications and platforms.",
+    "shortDescription": "Open-source relational database widely used in applications and platforms.",
+    "aliases": [
+      "postgres",
+      "sql"
+    ],
+    "keywords": [
+      "postgresql",
+      "databases",
+      "relational database",
+      "postgres",
+      "sql"
+    ],
+    "relatedTechnologies": [
+      "redis",
+      "mysql",
+      "mongodb",
+      "amazon-rds"
+    ]
+  },
+  {
+    "id": "mysql",
+    "name": "MySQL",
+    "slug": "mysql",
+    "category": "Databases",
+    "subcategory": "Relational Database",
+    "icon": "MY",
+    "skillLevel": "Intermediate",
+    "description": "Popular relational database used across web and enterprise applications.",
+    "shortDescription": "Popular relational database used across web and enterprise applications.",
+    "aliases": [
+      "mysql",
+      "sql"
+    ],
+    "keywords": [
+      "mysql",
+      "databases",
+      "relational database",
+      "sql"
+    ],
+    "relatedTechnologies": [
+      "redis",
+      "postgresql",
+      "mongodb",
+      "amazon-rds"
+    ]
+  },
+  {
+    "id": "mongodb",
+    "name": "MongoDB",
+    "slug": "mongodb",
+    "category": "Databases",
+    "subcategory": "Document Database",
+    "icon": "MO",
+    "skillLevel": "Intermediate",
+    "description": "Document-oriented database used for flexible application data.",
+    "shortDescription": "Document-oriented database used for flexible application data.",
+    "aliases": [
+      "nosql",
+      "mongodb"
+    ],
+    "keywords": [
+      "mongodb",
+      "databases",
+      "document database",
+      "nosql"
+    ],
+    "relatedTechnologies": [
+      "redis",
+      "postgresql",
+      "mysql",
+      "amazon-rds"
+    ]
+  },
+  {
+    "id": "amazon-rds",
+    "name": "Amazon RDS",
+    "slug": "amazon-rds",
+    "category": "Databases",
+    "subcategory": "Managed Database",
+    "icon": "RDS",
+    "skillLevel": "Intermediate",
+    "description": "AWS managed relational database service.",
+    "shortDescription": "AWS managed relational database service.",
+    "aliases": [
+      "aws rds",
+      "database"
+    ],
+    "keywords": [
+      "amazon rds",
+      "databases",
+      "managed database",
+      "aws rds",
+      "database"
+    ],
+    "relatedTechnologies": [
+      "redis",
+      "postgresql",
+      "mysql",
+      "mongodb"
+    ]
+  },
+  {
+    "id": "amazon-ecr",
+    "name": "Amazon ECR",
+    "slug": "amazon-ecr",
+    "category": "Artifact Management",
+    "subcategory": "Container Registry",
+    "icon": "ECR",
+    "skillLevel": "Intermediate",
+    "description": "AWS managed container image registry.",
+    "shortDescription": "AWS managed container image registry.",
+    "aliases": [
+      "ecr",
+      "docker registry"
+    ],
+    "keywords": [
+      "amazon ecr",
+      "artifact management",
+      "container registry",
+      "ecr",
+      "docker registry"
+    ],
+    "relatedTechnologies": [
+      "docker-hub",
+      "harbor",
+      "jfrog-artifactory",
+      "nexus-repository"
+    ]
+  },
+  {
+    "id": "docker-hub",
+    "name": "Docker Hub",
+    "slug": "docker-hub",
+    "category": "Artifact Management",
+    "subcategory": "Container Registry",
+    "icon": "DH",
+    "skillLevel": "Intermediate",
+    "description": "Public and private registry for container images.",
+    "shortDescription": "Public and private registry for container images.",
+    "aliases": [
+      "registry",
+      "docker"
+    ],
+    "keywords": [
+      "docker hub",
+      "artifact management",
+      "container registry",
+      "registry",
+      "docker"
+    ],
+    "relatedTechnologies": [
+      "amazon-ecr",
+      "harbor",
+      "jfrog-artifactory",
+      "nexus-repository"
+    ]
+  },
+  {
+    "id": "harbor",
+    "name": "Harbor",
+    "slug": "harbor",
+    "category": "Artifact Management",
+    "subcategory": "Registry",
+    "icon": "HB",
+    "skillLevel": "Intermediate",
+    "description": "Open-source cloud-native registry with security and policy features.",
+    "shortDescription": "Open-source cloud-native registry with security and policy features.",
+    "aliases": [
+      "container registry",
+      "cncf"
+    ],
+    "keywords": [
+      "harbor",
+      "artifact management",
+      "registry",
+      "container registry",
+      "cncf"
+    ],
+    "relatedTechnologies": [
+      "amazon-ecr",
+      "docker-hub",
+      "jfrog-artifactory",
+      "nexus-repository"
+    ]
+  },
+  {
+    "id": "jfrog-artifactory",
+    "name": "JFrog Artifactory",
+    "slug": "jfrog-artifactory",
+    "category": "Artifact Management",
+    "subcategory": "Artifact Repository",
+    "icon": "JF",
+    "skillLevel": "Intermediate",
+    "description": "Repository manager for binaries, packages and container images.",
+    "shortDescription": "Repository manager for binaries, packages and container images.",
+    "aliases": [
+      "artifactory"
+    ],
+    "keywords": [
+      "jfrog artifactory",
+      "artifact management",
+      "artifact repository",
+      "artifactory"
+    ],
+    "relatedTechnologies": [
+      "amazon-ecr",
+      "docker-hub",
+      "harbor",
+      "nexus-repository"
+    ]
+  },
+  {
+    "id": "nexus-repository",
+    "name": "Sonatype Nexus Repository",
+    "slug": "nexus-repository",
+    "category": "Artifact Management",
+    "subcategory": "Artifact Repository",
+    "icon": "NX",
+    "skillLevel": "Intermediate",
+    "description": "Repository manager for software packages and artifacts.",
+    "shortDescription": "Repository manager for software packages and artifacts.",
+    "aliases": [
+      "nexus",
+      "artifact repository"
+    ],
+    "keywords": [
+      "nexus repository",
+      "sonatype nexus repository",
+      "artifact management",
+      "artifact repository",
+      "nexus"
+    ],
+    "relatedTechnologies": [
+      "amazon-ecr",
+      "docker-hub",
+      "harbor",
+      "jfrog-artifactory"
+    ]
+  },
+  {
+    "id": "bash",
+    "name": "Bash",
+    "slug": "bash",
+    "category": "Scripting & Programming",
+    "subcategory": "Shell Scripting",
+    "icon": "SH",
+    "skillLevel": "Beginner",
+    "description": "Unix shell used for automation, CI/CD scripts and system administration.",
+    "shortDescription": "Unix shell used for automation, CI/CD scripts and system administration.",
+    "aliases": [
+      "shell",
+      "bash script",
+      "linux commands"
+    ],
+    "keywords": [
+      "bash",
+      "scripting & programming",
+      "shell scripting",
+      "shell",
+      "bash script",
+      "linux commands"
+    ],
+    "relatedTechnologies": [
+      "powershell",
+      "python",
+      "go",
+      "ruby"
+    ]
+  },
+  {
+    "id": "powershell",
+    "name": "PowerShell",
+    "slug": "powershell",
+    "category": "Scripting & Programming",
+    "subcategory": "Shell Scripting",
+    "icon": "PS",
+    "skillLevel": "Beginner",
+    "description": "Cross-platform shell and automation language from Microsoft.",
+    "shortDescription": "Cross-platform shell and automation language from Microsoft.",
+    "aliases": [
+      "powershell script",
+      "pwsh"
+    ],
+    "keywords": [
+      "powershell",
+      "scripting & programming",
+      "shell scripting",
+      "powershell script",
+      "pwsh"
+    ],
+    "relatedTechnologies": [
+      "bash",
+      "python",
+      "go",
+      "ruby"
+    ]
+  },
+  {
+    "id": "python",
+    "name": "Python",
+    "slug": "python",
+    "category": "Scripting & Programming",
+    "subcategory": "Programming Language",
+    "icon": "PY",
+    "skillLevel": "Beginner",
+    "description": "General-purpose language widely used for automation, APIs, tooling and cloud operations.",
+    "shortDescription": "General-purpose language widely used for automation, APIs, tooling and cloud operations.",
+    "aliases": [
+      "python scripting"
+    ],
+    "keywords": [
+      "python",
+      "scripting & programming",
+      "programming language",
+      "python scripting"
+    ],
+    "relatedTechnologies": [
+      "bash",
+      "powershell",
+      "go",
+      "ruby"
+    ]
+  },
+  {
+    "id": "go",
+    "name": "Go",
+    "slug": "go",
+    "category": "Scripting & Programming",
+    "subcategory": "Programming Language",
+    "icon": "GO",
+    "skillLevel": "Beginner",
+    "description": "Compiled language widely used for cloud-native tooling and infrastructure systems.",
+    "shortDescription": "Compiled language widely used for cloud-native tooling and infrastructure systems.",
+    "aliases": [
+      "golang"
+    ],
+    "keywords": [
+      "go",
+      "scripting & programming",
+      "programming language",
+      "golang"
+    ],
+    "relatedTechnologies": [
+      "bash",
+      "powershell",
+      "python",
+      "ruby"
+    ]
+  },
+  {
+    "id": "ruby",
+    "name": "Ruby",
+    "slug": "ruby",
+    "category": "Scripting & Programming",
+    "subcategory": "Programming Language",
+    "icon": "RB",
+    "skillLevel": "Beginner",
+    "description": "Programming language used by tools such as Chef and many automation projects.",
+    "shortDescription": "Programming language used by tools such as Chef and many automation projects.",
+    "aliases": [
+      "ruby scripting"
+    ],
+    "keywords": [
+      "ruby",
+      "scripting & programming",
+      "programming language",
+      "ruby scripting"
+    ],
+    "relatedTechnologies": [
+      "bash",
+      "powershell",
+      "python",
+      "go"
+    ]
+  },
+  {
+    "id": "javascript",
+    "name": "JavaScript",
+    "slug": "javascript",
+    "category": "Scripting & Programming",
+    "subcategory": "Programming Language",
+    "icon": "JS",
+    "skillLevel": "Beginner",
+    "description": "Language used for automation, tooling and web applications.",
+    "shortDescription": "Language used for automation, tooling and web applications.",
+    "aliases": [
+      "js"
+    ],
+    "keywords": [
+      "javascript",
+      "scripting & programming",
+      "programming language",
+      "js"
+    ],
+    "relatedTechnologies": [
+      "bash",
+      "powershell",
+      "python",
+      "go"
+    ]
+  },
+  {
+    "id": "typescript",
+    "name": "TypeScript",
+    "slug": "typescript",
+    "category": "Scripting & Programming",
+    "subcategory": "Programming Language",
+    "icon": "TS",
+    "skillLevel": "Beginner",
+    "description": "Typed JavaScript used by infrastructure frameworks and developer tooling.",
+    "shortDescription": "Typed JavaScript used by infrastructure frameworks and developer tooling.",
+    "aliases": [
+      "ts"
+    ],
+    "keywords": [
+      "typescript",
+      "scripting & programming",
+      "programming language",
+      "ts"
+    ],
+    "relatedTechnologies": [
+      "bash",
+      "powershell",
+      "python",
+      "go"
+    ]
+  },
+  {
+    "id": "java",
+    "name": "Java",
+    "slug": "java",
+    "category": "Scripting & Programming",
+    "subcategory": "Programming Language",
+    "icon": "JV",
+    "skillLevel": "Beginner",
+    "description": "Enterprise language common in distributed systems and build pipelines.",
+    "shortDescription": "Enterprise language common in distributed systems and build pipelines.",
+    "aliases": [
+      "jvm"
+    ],
+    "keywords": [
+      "java",
+      "scripting & programming",
+      "programming language",
+      "jvm"
+    ],
+    "relatedTechnologies": [
+      "bash",
+      "powershell",
+      "python",
+      "go"
+    ]
+  },
+  {
+    "id": "csharp",
+    "name": "C#",
+    "slug": "csharp",
+    "category": "Scripting & Programming",
+    "subcategory": "Programming Language",
+    "icon": "C#",
+    "skillLevel": "Beginner",
+    "description": "Microsoft language used in enterprise applications and platform tooling.",
+    "shortDescription": "Microsoft language used in enterprise applications and platform tooling.",
+    "aliases": [
+      ".net"
+    ],
+    "keywords": [
+      "csharp",
+      "c#",
+      "scripting & programming",
+      "programming language",
+      ".net"
+    ],
+    "relatedTechnologies": [
+      "bash",
+      "powershell",
+      "python",
+      "go"
+    ]
+  },
+  {
+    "id": "rust",
+    "name": "Rust",
+    "slug": "rust",
+    "category": "Scripting & Programming",
+    "subcategory": "Programming Language",
+    "icon": "RS",
+    "skillLevel": "Beginner",
+    "description": "Systems language increasingly used for secure and high-performance tooling.",
+    "shortDescription": "Systems language increasingly used for secure and high-performance tooling.",
+    "aliases": [
+      "rustlang"
+    ],
+    "keywords": [
+      "rust",
+      "scripting & programming",
+      "programming language",
+      "rustlang"
+    ],
+    "relatedTechnologies": [
+      "bash",
+      "powershell",
+      "python",
+      "go"
+    ]
+  },
+  {
+    "id": "hcl",
+    "name": "HCL",
+    "slug": "hcl",
+    "category": "Infrastructure as Code",
+    "subcategory": "Configuration Language",
+    "icon": "HCL",
+    "skillLevel": "Intermediate",
+    "description": "HashiCorp Configuration Language used by Terraform and related tools.",
+    "shortDescription": "HashiCorp Configuration Language used by Terraform and related tools.",
+    "aliases": [
+      "terraform language"
+    ],
+    "keywords": [
+      "hcl",
+      "infrastructure as code",
+      "configuration language",
+      "terraform language"
+    ],
+    "relatedTechnologies": [
+      "terraform",
+      "opentofu",
+      "aws-cloudformation",
+      "aws-cdk"
+    ]
+  },
+  {
+    "id": "yaml",
+    "name": "YAML",
+    "slug": "yaml",
+    "category": "Infrastructure as Code",
+    "subcategory": "Configuration & Data",
+    "icon": "YML",
+    "skillLevel": "Intermediate",
+    "description": "Human-readable configuration format used heavily in CI/CD and Kubernetes.",
+    "shortDescription": "Human-readable configuration format used heavily in CI/CD and Kubernetes.",
+    "aliases": [
+      "k8s yaml",
+      "github actions yaml"
+    ],
+    "keywords": [
+      "yaml",
+      "infrastructure as code",
+      "configuration & data",
+      "k8s yaml",
+      "github actions yaml"
+    ],
+    "relatedTechnologies": [
+      "terraform",
+      "opentofu",
+      "aws-cloudformation",
+      "aws-cdk"
+    ]
+  },
+  {
+    "id": "json",
+    "name": "JSON",
+    "slug": "json",
+    "category": "Infrastructure as Code",
+    "subcategory": "Data & Configuration",
+    "icon": "JS",
+    "skillLevel": "Intermediate",
+    "description": "Data format used by cloud APIs, policies and infrastructure definitions.",
+    "shortDescription": "Data format used by cloud APIs, policies and infrastructure definitions.",
+    "aliases": [
+      "configuration"
+    ],
+    "keywords": [
+      "json",
+      "infrastructure as code",
+      "data & configuration",
+      "configuration"
+    ],
+    "relatedTechnologies": [
+      "terraform",
+      "opentofu",
+      "aws-cloudformation",
+      "aws-cdk"
+    ]
+  },
+  {
+    "id": "cue",
+    "name": "CUE",
+    "slug": "cue",
+    "category": "Infrastructure as Code",
+    "subcategory": "Configuration Language",
+    "icon": "CUE",
+    "skillLevel": "Intermediate",
+    "description": "Configuration language for validating and generating structured data.",
+    "shortDescription": "Configuration language for validating and generating structured data.",
+    "aliases": [
+      "cue lang"
+    ],
+    "keywords": [
+      "cue",
+      "infrastructure as code",
+      "configuration language",
+      "cue lang"
+    ],
+    "relatedTechnologies": [
+      "terraform",
+      "opentofu",
+      "aws-cloudformation",
+      "aws-cdk"
+    ]
+  },
+  {
+    "id": "make",
+    "name": "GNU Make",
+    "slug": "make",
+    "category": "Automation",
+    "subcategory": "Build Automation",
+    "icon": "MK",
+    "skillLevel": "Intermediate",
+    "description": "Build automation tool frequently used in developer and infrastructure workflows.",
+    "shortDescription": "Build automation tool frequently used in developer and infrastructure workflows.",
+    "aliases": [
+      "makefile"
+    ],
+    "keywords": [
+      "make",
+      "gnu make",
+      "automation",
+      "build automation",
+      "makefile"
+    ],
+    "relatedTechnologies": [
+      "jq",
+      "yq",
+      "curl",
+      "wget"
+    ]
+  },
+  {
+    "id": "jq",
+    "name": "jq",
+    "slug": "jq",
+    "category": "Automation",
+    "subcategory": "CLI Data Processing",
+    "icon": "JQ",
+    "skillLevel": "Intermediate",
+    "description": "Command-line JSON processor useful for automation and cloud CLI workflows.",
+    "shortDescription": "Command-line JSON processor useful for automation and cloud CLI workflows.",
+    "aliases": [
+      "json cli"
+    ],
+    "keywords": [
+      "jq",
+      "automation",
+      "cli data processing",
+      "json cli"
+    ],
+    "relatedTechnologies": [
+      "make",
+      "yq",
+      "curl",
+      "wget"
+    ]
+  },
+  {
+    "id": "yq",
+    "name": "yq",
+    "slug": "yq",
+    "category": "Automation",
+    "subcategory": "CLI Data Processing",
+    "icon": "YQ",
+    "skillLevel": "Intermediate",
+    "description": "Command-line YAML/XML/JSON processor useful in pipelines.",
+    "shortDescription": "Command-line YAML/XML/JSON processor useful in pipelines.",
+    "aliases": [
+      "yaml cli"
+    ],
+    "keywords": [
+      "yq",
+      "automation",
+      "cli data processing",
+      "yaml cli"
+    ],
+    "relatedTechnologies": [
+      "make",
+      "jq",
+      "curl",
+      "wget"
+    ]
+  },
+  {
+    "id": "curl",
+    "name": "cURL",
+    "slug": "curl",
+    "category": "Automation",
+    "subcategory": "CLI Networking",
+    "icon": "CU",
+    "skillLevel": "Intermediate",
+    "description": "Command-line tool for HTTP and network requests used in scripts and diagnostics.",
+    "shortDescription": "Command-line tool for HTTP and network requests used in scripts and diagnostics.",
+    "aliases": [
+      "http",
+      "api",
+      "cli"
+    ],
+    "keywords": [
+      "curl",
+      "automation",
+      "cli networking",
+      "http",
+      "api",
+      "cli"
+    ],
+    "relatedTechnologies": [
+      "make",
+      "jq",
+      "yq",
+      "wget"
+    ]
+  },
+  {
+    "id": "wget",
+    "name": "Wget",
+    "slug": "wget",
+    "category": "Automation",
+    "subcategory": "CLI Networking",
+    "icon": "WG",
+    "skillLevel": "Intermediate",
+    "description": "Command-line downloader useful for automation and server operations.",
+    "shortDescription": "Command-line downloader useful for automation and server operations.",
+    "aliases": [
+      "download",
+      "cli"
+    ],
+    "keywords": [
+      "wget",
+      "automation",
+      "cli networking",
+      "download",
+      "cli"
+    ],
+    "relatedTechnologies": [
+      "make",
+      "jq",
+      "yq",
+      "curl"
+    ]
+  },
+  {
+    "id": "jira",
+    "name": "Jira",
+    "slug": "jira",
+    "category": "Project Management",
+    "subcategory": "Issue Tracking",
+    "icon": "JR",
+    "skillLevel": "Intermediate",
+    "description": "Issue and project tracking platform widely used by engineering teams.",
+    "shortDescription": "Issue and project tracking platform widely used by engineering teams.",
+    "aliases": [
+      "atlassian",
+      "tickets"
+    ],
+    "keywords": [
+      "jira",
+      "project management",
+      "issue tracking",
+      "atlassian",
+      "tickets"
+    ],
+    "relatedTechnologies": [
+      "confluence",
+      "mkdocs"
+    ]
+  },
+  {
+    "id": "confluence",
+    "name": "Confluence",
+    "slug": "confluence",
+    "category": "Project Management",
+    "subcategory": "Documentation",
+    "icon": "CO",
+    "skillLevel": "Intermediate",
+    "description": "Team documentation and knowledge management platform.",
+    "shortDescription": "Team documentation and knowledge management platform.",
+    "aliases": [
+      "atlassian",
+      "wiki"
+    ],
+    "keywords": [
+      "confluence",
+      "project management",
+      "documentation",
+      "atlassian",
+      "wiki"
+    ],
+    "relatedTechnologies": [
+      "jira",
+      "mkdocs"
+    ]
+  },
+  {
+    "id": "cncf",
+    "name": "CNCF Cloud Native",
+    "slug": "cncf",
+    "category": "Cloud Native",
+    "subcategory": "Ecosystem",
+    "icon": "CN",
+    "skillLevel": "Intermediate",
+    "description": "Cloud Native Computing Foundation ecosystem of open-source infrastructure projects.",
+    "shortDescription": "Cloud Native Computing Foundation ecosystem of open-source infrastructure projects.",
+    "aliases": [
+      "cncf",
+      "cloud native"
+    ],
+    "keywords": [
+      "cncf",
+      "cncf cloud native",
+      "cloud native",
+      "ecosystem"
+    ],
+    "relatedTechnologies": [
+      "openfaas",
+      "knative",
+      "rabbitmq",
+      "apache-kafka"
+    ]
+  },
+  {
+    "id": "openfaas",
+    "name": "OpenFaaS",
+    "slug": "openfaas",
+    "category": "Cloud Native",
+    "subcategory": "Serverless",
+    "icon": "OF",
+    "skillLevel": "Intermediate",
+    "description": "Serverless functions platform for containerized workloads.",
+    "shortDescription": "Serverless functions platform for containerized workloads.",
+    "aliases": [
+      "functions",
+      "serverless"
+    ],
+    "keywords": [
+      "openfaas",
+      "cloud native",
+      "serverless",
+      "functions"
+    ],
+    "relatedTechnologies": [
+      "cncf",
+      "knative",
+      "rabbitmq",
+      "apache-kafka"
+    ]
+  },
+  {
+    "id": "knative",
+    "name": "Knative",
+    "slug": "knative",
+    "category": "Cloud Native",
+    "subcategory": "Serverless",
+    "icon": "KN",
+    "skillLevel": "Intermediate",
+    "description": "Kubernetes-based components for serverless workloads.",
+    "shortDescription": "Kubernetes-based components for serverless workloads.",
+    "aliases": [
+      "serverless",
+      "kubernetes"
+    ],
+    "keywords": [
+      "knative",
+      "cloud native",
+      "serverless",
+      "kubernetes"
+    ],
+    "relatedTechnologies": [
+      "cncf",
+      "openfaas",
+      "rabbitmq",
+      "apache-kafka"
+    ]
+  },
+  {
+    "id": "aws-cli",
+    "name": "AWS CLI",
+    "slug": "aws-cli",
+    "category": "Automation",
+    "subcategory": "Cloud CLI",
+    "icon": "AWS",
+    "skillLevel": "Intermediate",
+    "description": "Command-line interface for managing AWS services and infrastructure.",
+    "shortDescription": "Command-line interface for managing AWS services and infrastructure.",
+    "aliases": [
+      "aws cli",
+      "aws command"
+    ],
+    "keywords": [
+      "aws cli",
+      "automation",
+      "cloud cli",
+      "aws command"
+    ],
+    "relatedTechnologies": [
+      "make",
+      "jq",
+      "yq",
+      "curl"
+    ]
+  },
+  {
+    "id": "azure-cli",
+    "name": "Azure CLI",
+    "slug": "azure-cli",
+    "category": "Automation",
+    "subcategory": "Cloud CLI",
+    "icon": "AZ",
+    "skillLevel": "Intermediate",
+    "description": "Command-line interface for Azure resource management.",
+    "shortDescription": "Command-line interface for Azure resource management.",
+    "aliases": [
+      "az cli",
+      "azure command"
+    ],
+    "keywords": [
+      "azure cli",
+      "automation",
+      "cloud cli",
+      "az cli",
+      "azure command"
+    ],
+    "relatedTechnologies": [
+      "make",
+      "jq",
+      "yq",
+      "curl"
+    ]
+  },
+  {
+    "id": "gcloud-cli",
+    "name": "Google Cloud CLI",
+    "slug": "gcloud-cli",
+    "category": "Automation",
+    "subcategory": "Cloud CLI",
+    "icon": "GC",
+    "skillLevel": "Intermediate",
+    "description": "Command-line interface for Google Cloud resources and services.",
+    "shortDescription": "Command-line interface for Google Cloud resources and services.",
+    "aliases": [
+      "gcloud",
+      "gcp cli"
+    ],
+    "keywords": [
+      "gcloud cli",
+      "google cloud cli",
+      "automation",
+      "cloud cli",
+      "gcloud",
+      "gcp cli"
+    ],
+    "relatedTechnologies": [
+      "make",
+      "jq",
+      "yq",
+      "curl"
+    ]
+  },
+  {
+    "id": "kubectl",
+    "name": "kubectl",
+    "slug": "kubectl",
+    "category": "Kubernetes Ecosystem",
+    "subcategory": "Cluster CLI",
+    "icon": "K8",
+    "skillLevel": "Intermediate",
+    "description": "Kubernetes command-line tool for inspecting and managing cluster resources.",
+    "shortDescription": "Kubernetes command-line tool for inspecting and managing cluster resources.",
+    "aliases": [
+      "kube control",
+      "kubernetes cli"
+    ],
+    "keywords": [
+      "kubectl",
+      "kubernetes ecosystem",
+      "cluster cli",
+      "kube control",
+      "kubernetes cli"
+    ],
+    "relatedTechnologies": [
+      "helm",
+      "kustomize",
+      "rancher",
+      "openshift"
+    ]
+  },
+  {
+    "id": "k9s",
+    "name": "k9s",
+    "slug": "k9s",
+    "category": "Kubernetes Ecosystem",
+    "subcategory": "Cluster CLI",
+    "icon": "K9",
+    "skillLevel": "Intermediate",
+    "description": "Terminal UI for interacting with Kubernetes clusters.",
+    "shortDescription": "Terminal UI for interacting with Kubernetes clusters.",
+    "aliases": [
+      "kubernetes tui"
+    ],
+    "keywords": [
+      "k9s",
+      "kubernetes ecosystem",
+      "cluster cli",
+      "kubernetes tui"
+    ],
+    "relatedTechnologies": [
+      "helm",
+      "kustomize",
+      "rancher",
+      "openshift"
+    ]
+  },
+  {
+    "id": "kind",
+    "name": "kind",
+    "slug": "kind",
+    "category": "Kubernetes Ecosystem",
+    "subcategory": "Local Kubernetes",
+    "icon": "KI",
+    "skillLevel": "Intermediate",
+    "description": "Runs Kubernetes clusters using Docker containers for local development and testing.",
+    "shortDescription": "Runs Kubernetes clusters using Docker containers for local development and testing.",
+    "aliases": [
+      "kubernetes in docker"
+    ],
+    "keywords": [
+      "kind",
+      "kubernetes ecosystem",
+      "local kubernetes",
+      "kubernetes in docker"
+    ],
+    "relatedTechnologies": [
+      "helm",
+      "kustomize",
+      "rancher",
+      "openshift"
+    ]
+  },
+  {
+    "id": "minikube",
+    "name": "Minikube",
+    "slug": "minikube",
+    "category": "Kubernetes Ecosystem",
+    "subcategory": "Local Kubernetes",
+    "icon": "MK",
+    "skillLevel": "Intermediate",
+    "description": "Runs a local Kubernetes cluster for learning and development.",
+    "shortDescription": "Runs a local Kubernetes cluster for learning and development.",
+    "aliases": [
+      "minikube k8s"
+    ],
+    "keywords": [
+      "minikube",
+      "kubernetes ecosystem",
+      "local kubernetes",
+      "minikube k8s"
+    ],
+    "relatedTechnologies": [
+      "helm",
+      "kustomize",
+      "rancher",
+      "openshift"
+    ]
+  },
+  {
+    "id": "eksctl",
+    "name": "eksctl",
+    "slug": "eksctl",
+    "category": "Kubernetes Ecosystem",
+    "subcategory": "AWS Kubernetes CLI",
+    "icon": "EK",
+    "skillLevel": "Intermediate",
+    "description": "CLI for creating and managing Amazon EKS clusters.",
+    "shortDescription": "CLI for creating and managing Amazon EKS clusters.",
+    "aliases": [
+      "eks cli"
+    ],
+    "keywords": [
+      "eksctl",
+      "kubernetes ecosystem",
+      "aws kubernetes cli",
+      "eks cli"
+    ],
+    "relatedTechnologies": [
+      "helm",
+      "kustomize",
+      "rancher",
+      "openshift"
+    ]
+  },
+  {
+    "id": "cilium",
+    "name": "Cilium",
+    "slug": "cilium",
+    "category": "Kubernetes Ecosystem",
+    "subcategory": "Networking & Security",
+    "icon": "CI",
+    "skillLevel": "Intermediate",
+    "description": "eBPF-based networking, security and observability for cloud-native environments.",
+    "shortDescription": "eBPF-based networking, security and observability for cloud-native environments.",
+    "aliases": [
+      "ebpf",
+      "kubernetes networking"
+    ],
+    "keywords": [
+      "cilium",
+      "kubernetes ecosystem",
+      "networking & security",
+      "ebpf",
+      "kubernetes networking"
+    ],
+    "relatedTechnologies": [
+      "helm",
+      "kustomize",
+      "rancher",
+      "openshift"
+    ]
+  },
+  {
+    "id": "calico",
+    "name": "Calico",
+    "slug": "calico",
+    "category": "Kubernetes Ecosystem",
+    "subcategory": "Networking",
+    "icon": "CA",
+    "skillLevel": "Intermediate",
+    "description": "Networking and network policy platform for Kubernetes and cloud-native workloads.",
+    "shortDescription": "Networking and network policy platform for Kubernetes and cloud-native workloads.",
+    "aliases": [
+      "kubernetes network policy"
+    ],
+    "keywords": [
+      "calico",
+      "kubernetes ecosystem",
+      "networking",
+      "kubernetes network policy"
+    ],
+    "relatedTechnologies": [
+      "helm",
+      "kustomize",
+      "rancher",
+      "openshift"
+    ]
+  },
+  {
+    "id": "consul",
+    "name": "HashiCorp Consul",
+    "slug": "consul",
+    "category": "Service Mesh",
+    "subcategory": "Service Networking",
+    "icon": "CO",
+    "skillLevel": "Intermediate",
+    "description": "Service discovery and networking platform for distributed systems.",
+    "shortDescription": "Service discovery and networking platform for distributed systems.",
+    "aliases": [
+      "hashicorp",
+      "service discovery"
+    ],
+    "keywords": [
+      "consul",
+      "hashicorp consul",
+      "service mesh",
+      "service networking",
+      "hashicorp",
+      "service discovery"
+    ],
+    "relatedTechnologies": [
+      "istio",
+      "linkerd"
+    ]
+  },
+  {
+    "id": "rabbitmq",
+    "name": "RabbitMQ",
+    "slug": "rabbitmq",
+    "category": "Cloud Native",
+    "subcategory": "Message Broker",
+    "icon": "RM",
+    "skillLevel": "Intermediate",
+    "description": "Message broker used for asynchronous communication and event-driven systems.",
+    "shortDescription": "Message broker used for asynchronous communication and event-driven systems.",
+    "aliases": [
+      "amqp",
+      "messaging"
+    ],
+    "keywords": [
+      "rabbitmq",
+      "cloud native",
+      "message broker",
+      "amqp",
+      "messaging"
+    ],
+    "relatedTechnologies": [
+      "cncf",
+      "openfaas",
+      "knative",
+      "apache-kafka"
+    ]
+  },
+  {
+    "id": "apache-kafka",
+    "name": "Apache Kafka",
+    "slug": "apache-kafka",
+    "category": "Cloud Native",
+    "subcategory": "Event Streaming",
+    "icon": "KF",
+    "skillLevel": "Intermediate",
+    "description": "Distributed event streaming platform for high-throughput data pipelines.",
+    "shortDescription": "Distributed event streaming platform for high-throughput data pipelines.",
+    "aliases": [
+      "kafka",
+      "event streaming"
+    ],
+    "keywords": [
+      "apache kafka",
+      "cloud native",
+      "event streaming",
+      "kafka"
+    ],
+    "relatedTechnologies": [
+      "cncf",
+      "openfaas",
+      "knative",
+      "rabbitmq"
+    ]
+  },
+  {
+    "id": "nats",
+    "name": "NATS",
+    "slug": "nats",
+    "category": "Cloud Native",
+    "subcategory": "Messaging",
+    "icon": "NA",
+    "skillLevel": "Intermediate",
+    "description": "Lightweight messaging system for distributed and cloud-native applications.",
+    "shortDescription": "Lightweight messaging system for distributed and cloud-native applications.",
+    "aliases": [
+      "nats io"
+    ],
+    "keywords": [
+      "nats",
+      "cloud native",
+      "messaging",
+      "nats io"
+    ],
+    "relatedTechnologies": [
+      "cncf",
+      "openfaas",
+      "knative",
+      "rabbitmq"
+    ]
+  },
+  {
+    "id": "minio",
+    "name": "MinIO",
+    "slug": "minio",
+    "category": "Cloud Native",
+    "subcategory": "Object Storage",
+    "icon": "MI",
+    "skillLevel": "Intermediate",
+    "description": "S3-compatible object storage for private cloud and data workloads.",
+    "shortDescription": "S3-compatible object storage for private cloud and data workloads.",
+    "aliases": [
+      "s3 compatible",
+      "object storage"
+    ],
+    "keywords": [
+      "minio",
+      "cloud native",
+      "object storage",
+      "s3 compatible"
+    ],
+    "relatedTechnologies": [
+      "cncf",
+      "openfaas",
+      "knative",
+      "rabbitmq"
+    ]
+  },
+  {
+    "id": "argocd",
+    "name": "Argo CD",
+    "slug": "argocd",
+    "category": "GitOps",
+    "subcategory": "Continuous Delivery",
+    "icon": "AC",
+    "skillLevel": "Intermediate",
+    "description": "Declarative GitOps continuous delivery controller for Kubernetes.",
+    "shortDescription": "Declarative GitOps continuous delivery controller for Kubernetes.",
+    "aliases": [
+      "argocd",
+      "argo cd"
+    ],
+    "keywords": [
+      "argocd",
+      "argo cd",
+      "gitops",
+      "continuous delivery"
+    ],
+    "relatedTechnologies": [
+      "argo-cd",
+      "flux",
+      "argocd-image-updater"
+    ]
+  },
+  {
+    "id": "jenkins-x",
+    "name": "Jenkins X",
+    "slug": "jenkins-x",
+    "category": "CI/CD",
+    "subcategory": "Kubernetes CI/CD",
+    "icon": "JX",
+    "skillLevel": "Intermediate",
+    "description": "Kubernetes-oriented CI/CD automation platform.",
+    "shortDescription": "Kubernetes-oriented CI/CD automation platform.",
+    "aliases": [
+      "jenkins x"
+    ],
+    "keywords": [
+      "jenkins x",
+      "ci/cd",
+      "kubernetes ci/cd"
+    ],
+    "relatedTechnologies": [
+      "jenkins",
+      "github-actions",
+      "gitlab-ci",
+      "circleci"
+    ]
+  },
+  {
+    "id": "tekton-chains",
+    "name": "Tekton Chains",
+    "slug": "tekton-chains",
+    "category": "DevSecOps",
+    "subcategory": "Supply Chain Security",
+    "icon": "TC",
+    "skillLevel": "Intermediate",
+    "description": "Supply-chain security and provenance for Tekton pipelines.",
+    "shortDescription": "Supply-chain security and provenance for Tekton pipelines.",
+    "aliases": [
+      "tekton",
+      "provenance"
+    ],
+    "keywords": [
+      "tekton chains",
+      "devsecops",
+      "supply chain security",
+      "tekton",
+      "provenance"
+    ],
+    "relatedTechnologies": [
+      "trivy",
+      "sonarqube",
+      "owasp-dependency-check",
+      "snyk"
+    ]
+  },
+  {
+    "id": "cosign",
+    "name": "Sigstore Cosign",
+    "slug": "cosign",
+    "category": "DevSecOps",
+    "subcategory": "Artifact Signing",
+    "icon": "CS",
+    "skillLevel": "Intermediate",
+    "description": "Container and artifact signing and verification tool from the Sigstore ecosystem.",
+    "shortDescription": "Container and artifact signing and verification tool from the Sigstore ecosystem.",
+    "aliases": [
+      "sigstore",
+      "container signing"
+    ],
+    "keywords": [
+      "cosign",
+      "sigstore cosign",
+      "devsecops",
+      "artifact signing",
+      "sigstore",
+      "container signing"
+    ],
+    "relatedTechnologies": [
+      "trivy",
+      "sonarqube",
+      "owasp-dependency-check",
+      "snyk"
+    ]
+  },
+  {
+    "id": "syft",
+    "name": "Syft",
+    "slug": "syft",
+    "category": "DevSecOps",
+    "subcategory": "SBOM",
+    "icon": "SY",
+    "skillLevel": "Intermediate",
+    "description": "Generates software bills of materials for container images and filesystems.",
+    "shortDescription": "Generates software bills of materials for container images and filesystems.",
+    "aliases": [
+      "sbom",
+      "anchore"
+    ],
+    "keywords": [
+      "syft",
+      "devsecops",
+      "sbom",
+      "anchore"
+    ],
+    "relatedTechnologies": [
+      "trivy",
+      "sonarqube",
+      "owasp-dependency-check",
+      "snyk"
+    ]
+  },
+  {
+    "id": "grype",
+    "name": "Grype",
+    "slug": "grype",
+    "category": "DevSecOps",
+    "subcategory": "Vulnerability Scanner",
+    "icon": "GY",
+    "skillLevel": "Intermediate",
+    "description": "Vulnerability scanner for container images and filesystems.",
+    "shortDescription": "Vulnerability scanner for container images and filesystems.",
+    "aliases": [
+      "anchore",
+      "container scanning"
+    ],
+    "keywords": [
+      "grype",
+      "devsecops",
+      "vulnerability scanner",
+      "anchore",
+      "container scanning"
+    ],
+    "relatedTechnologies": [
+      "trivy",
+      "sonarqube",
+      "owasp-dependency-check",
+      "snyk"
+    ]
+  },
+  {
+    "id": "falco",
+    "name": "Falco",
+    "slug": "falco",
+    "category": "DevSecOps",
+    "subcategory": "Runtime Security",
+    "icon": "FA",
+    "skillLevel": "Intermediate",
+    "description": "Cloud-native runtime security and threat detection engine.",
+    "shortDescription": "Cloud-native runtime security and threat detection engine.",
+    "aliases": [
+      "cncf",
+      "runtime security"
+    ],
+    "keywords": [
+      "falco",
+      "devsecops",
+      "runtime security",
+      "cncf"
+    ],
+    "relatedTechnologies": [
+      "trivy",
+      "sonarqube",
+      "owasp-dependency-check",
+      "snyk"
+    ]
+  },
+  {
+    "id": "keda",
+    "name": "KEDA",
+    "slug": "keda",
+    "category": "Kubernetes Ecosystem",
+    "subcategory": "Autoscaling",
+    "icon": "KD",
+    "skillLevel": "Intermediate",
+    "description": "Kubernetes event-driven autoscaling component.",
+    "shortDescription": "Kubernetes event-driven autoscaling component.",
+    "aliases": [
+      "kubernetes autoscaling"
+    ],
+    "keywords": [
+      "keda",
+      "kubernetes ecosystem",
+      "autoscaling",
+      "kubernetes autoscaling"
+    ],
+    "relatedTechnologies": [
+      "helm",
+      "kustomize",
+      "rancher",
+      "openshift"
+    ]
+  },
+  {
+    "id": "velero",
+    "name": "Velero",
+    "slug": "velero",
+    "category": "Kubernetes Ecosystem",
+    "subcategory": "Backup & Recovery",
+    "icon": "VE",
+    "skillLevel": "Intermediate",
+    "description": "Backup and disaster recovery tool for Kubernetes resources and persistent volumes.",
+    "shortDescription": "Backup and disaster recovery tool for Kubernetes resources and persistent volumes.",
+    "aliases": [
+      "kubernetes backup"
+    ],
+    "keywords": [
+      "velero",
+      "kubernetes ecosystem",
+      "backup & recovery",
+      "kubernetes backup"
+    ],
+    "relatedTechnologies": [
+      "helm",
+      "kustomize",
+      "rancher",
+      "openshift"
+    ]
+  },
+  {
+    "id": "external-dns",
+    "name": "ExternalDNS",
+    "slug": "external-dns",
+    "category": "Kubernetes Ecosystem",
+    "subcategory": "DNS Automation",
+    "icon": "ED",
+    "skillLevel": "Intermediate",
+    "description": "Synchronizes Kubernetes services and ingress with DNS providers.",
+    "shortDescription": "Synchronizes Kubernetes services and ingress with DNS providers.",
+    "aliases": [
+      "kubernetes dns"
+    ],
+    "keywords": [
+      "external dns",
+      "externaldns",
+      "kubernetes ecosystem",
+      "dns automation",
+      "kubernetes dns"
+    ],
+    "relatedTechnologies": [
+      "helm",
+      "kustomize",
+      "rancher",
+      "openshift"
+    ]
+  },
+  {
+    "id": "cert-manager",
+    "name": "cert-manager",
+    "slug": "cert-manager",
+    "category": "Kubernetes Ecosystem",
+    "subcategory": "Certificates",
+    "icon": "CM",
+    "skillLevel": "Intermediate",
+    "description": "Automates certificate issuance and renewal for Kubernetes.",
+    "shortDescription": "Automates certificate issuance and renewal for Kubernetes.",
+    "aliases": [
+      "tls",
+      "letsencrypt"
+    ],
+    "keywords": [
+      "cert manager",
+      "cert-manager",
+      "kubernetes ecosystem",
+      "certificates",
+      "tls",
+      "letsencrypt"
+    ],
+    "relatedTechnologies": [
+      "helm",
+      "kustomize",
+      "rancher",
+      "openshift"
+    ]
+  },
+  {
+    "id": "opencost",
+    "name": "OpenCost",
+    "slug": "opencost",
+    "category": "Cloud Native",
+    "subcategory": "FinOps",
+    "icon": "OC",
+    "skillLevel": "Intermediate",
+    "description": "Open-source cloud cost monitoring and Kubernetes cost allocation.",
+    "shortDescription": "Open-source cloud cost monitoring and Kubernetes cost allocation.",
+    "aliases": [
+      "kubernetes cost",
+      "finops"
+    ],
+    "keywords": [
+      "opencost",
+      "cloud native",
+      "finops",
+      "kubernetes cost"
+    ],
+    "relatedTechnologies": [
+      "cncf",
+      "openfaas",
+      "knative",
+      "rabbitmq"
+    ]
+  },
+  {
+    "id": "backstage",
+    "name": "Backstage",
+    "slug": "backstage",
+    "category": "Cloud Native",
+    "subcategory": "Developer Platform",
+    "icon": "BS",
+    "skillLevel": "Intermediate",
+    "description": "Open platform for building developer portals and internal developer platforms.",
+    "shortDescription": "Open platform for building developer portals and internal developer platforms.",
+    "aliases": [
+      "cncf",
+      "idp"
+    ],
+    "keywords": [
+      "backstage",
+      "cloud native",
+      "developer platform",
+      "cncf",
+      "idp"
+    ],
+    "relatedTechnologies": [
+      "cncf",
+      "openfaas",
+      "knative",
+      "rabbitmq"
+    ]
+  },
+  {
+    "id": "mkdocs",
+    "name": "MkDocs",
+    "slug": "mkdocs",
+    "category": "Project Management",
+    "subcategory": "Documentation",
+    "icon": "MD",
+    "skillLevel": "Intermediate",
+    "description": "Static documentation site generator useful for engineering knowledge bases.",
+    "shortDescription": "Static documentation site generator useful for engineering knowledge bases.",
+    "aliases": [
+      "documentation",
+      "python"
+    ],
+    "keywords": [
+      "mkdocs",
+      "project management",
+      "documentation",
+      "python"
+    ],
+    "relatedTechnologies": [
+      "jira",
+      "confluence"
+    ]
+  }
 ]

@@ -145,7 +145,37 @@ const SEARCH_ALIASES = {
         '"GitHub Actions"',
 
     gitlabci:
-        '"GitLab CI"'
+        '"GitLab CI"',
+
+    powershell:
+        'PowerShell',
+
+    pwsh:
+        'PowerShell',
+
+    cfn:
+        '"CloudFormation"',
+
+    cloudformation:
+        '"CloudFormation"',
+
+    tofu:
+        'OpenTofu',
+
+    ghactions:
+        '"GitHub Actions"',
+
+    eso:
+        '"External Secrets Operator"',
+
+    otel:
+        'OpenTelemetry',
+
+    elk:
+        '"Elastic Stack"',
+
+    k3s:
+        'k3s'
 
 };
 

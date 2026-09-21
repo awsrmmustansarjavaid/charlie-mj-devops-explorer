@@ -1,1644 +1,740 @@
-# Charlie-MJ DevOPS Explorer
+# Charlie MJ DevOps Explorer
 
-![Charlie-MJ DevOPS Explorer](./assets/images/devops-engineer.png)
+![Charlie MJ DevOps Explorer](./assets/images/devops-engineer.png)
 
-> **A DevOps-focused GitHub Explorer for discovering labs, projects, tutorials, notes, technologies, learning resources, and DevOps creators.**
+> **A modern GitHub-powered DevOps discovery engine for finding projects, labs, tutorials, notes, technologies, scripts, infrastructure-as-code examples, CI/CD pipelines, GitOps resources, security tooling, observability projects, and practical engineering repositories.**
 
-Charlie-MJ DevOPS Explorer is a web-based DevOps resource discovery platform designed to make it easier to find useful **GitHub repositories, DevOps projects, hands-on labs, tutorials, study notes, CI/CD projects, GitOps resources, and technology-specific learning material**.
-
-Instead of manually searching GitHub again and again for Kubernetes, Docker, AWS, Terraform, Jenkins, GitHub Actions, Argo CD, DevSecOps, monitoring, and other DevOps technologies, this project provides a focused interface for discovering and organizing those resources.
+**Live Demo:** https://awsrmmustansarjavaid.github.io/charlie-mj-devops-explorer/
 
 ---
 
-# 🚀 Live Demo
+## 🚀 What Is Charlie MJ DevOps Explorer?
 
-## Live Website
+**Charlie MJ DevOps Explorer** is a frontend web application built to make DevOps-focused GitHub discovery easier.
 
-👉 **Live Demo:** [Click here for the live website](https://awsrmmustansarjavaid.github.io/charlie-mj-devops-explorer/)
+Instead of repeatedly searching GitHub for individual technologies such as Kubernetes, Docker, AWS, Terraform, CloudFormation, Jenkins, Bash, PowerShell, Ansible, Argo CD, Prometheus, Grafana, Trivy, or GitHub Actions, the Explorer provides a dedicated DevOps-oriented search and technology interface.
 
-> Replace the URL above with the actual GitHub Pages URL after deploying the project.
+The project combines:
 
----
+- 🔎 GitHub repository discovery
+- 🧰 DevOps technology discovery
+- ☁️ Cloud platforms
+- 📦 Containers and container orchestration
+- ☸️ Kubernetes ecosystem
+- 🏗️ Infrastructure as Code
+- 🔄 CI/CD and GitOps
+- ⚙️ Configuration management and automation
+- 💻 Programming and scripting languages
+- 🖥️ Command-line and DevOps utilities
+- 🛡️ DevSecOps and software supply-chain security
+- 📊 Monitoring and observability
+- 🌐 Networking and service mesh
+- 🗄️ Databases and artifact repositories
+- 📚 Learning-oriented GitHub resources
 
-# 📌 1. What Is This Project?
-
-**Charlie-MJ DevOPS Explorer** is a frontend-based DevOps discovery and learning platform.
-
-The main purpose of the project is to provide a dedicated interface for finding DevOps-related GitHub resources.
-
-It combines:
-
-* GitHub Repository Search
-* DevOps Technology Knowledge Base
-* DevOps Categories
-* Resource Filtering
-* Technology Filtering
-* Programming Language Filtering
-* Repository Sorting
-* Search Modes
-* DevOps Labs
-* DevOps Projects
-* Tutorials
-* Study Notes
-* CI/CD Resources
-* GitOps Resources
-* Repository Details
-* Creator Profiles
-* Saved Repositories
-* Search History
-* Recently Viewed Resources
-* Learning Paths
-* DevOps Architecture Concepts
-
-The application uses the **GitHub REST API** for live repository and user searches while also maintaining a local JSON-based DevOps knowledge base.
+The application is intentionally lightweight: it is a **static frontend** that uses the public GitHub REST API and local JSON data without requiring a backend database.
 
 ---
 
-# 🎯 2. Why I Developed This Project
+# ✨ Current Project Highlights
 
-## The Problem
+### Modern DevOps UI
 
-While learning DevOps, there are many technologies, tools, cloud platforms, projects, tutorials, and GitHub repositories available.
+The frontend has been redesigned around a modern dark DevOps dashboard aesthetic with:
 
-For example:
+- Blue / cyan / purple accent system
+- Responsive layout
+- Glass-style panels and cards
+- Modern hero section
+- DevOps engineer artwork
+- Background artwork treatment
+- Technology cards
+- Category cards
+- Search and filter controls
+- Pipeline / architecture sections
+- Automation and scripting content
+- Security and observability sections
+- Modern CTA and footer sections
 
-* Linux
-* Git
-* GitHub
-* Docker
-* Kubernetes
-* AWS
-* Amazon EKS
-* Terraform
-* CloudFormation
-* Jenkins
-* GitHub Actions
-* Ansible
-* Helm
-* Argo CD
-* Prometheus
-* Grafana
-* Trivy
-* SonarQube
-* Redis
-* PostgreSQL
-* Python
-* Bash
-* and many more.
+### GitHub Discovery Engine
 
-The problem is not the lack of resources.
+Search GitHub directly from the application using DevOps-oriented search modes and filters.
 
-The problem is **finding the right resources**.
+### 148 Technologies
 
-A normal GitHub search can return a very large number of repositories, and it can become difficult to identify:
+The local technology knowledge base currently contains **148 DevOps-related technologies and tools across 23 categories**.
 
-* Which repository is a lab?
-* Which repository is a complete project?
-* Which repository contains tutorials?
-* Which repository contains Kubernetes notes?
-* Which project uses Jenkins?
-* Which project uses GitOps?
-* Which repositories are related to AWS EKS?
-* Which repositories are useful for beginners?
-* Which repositories contain hands-on practice?
-* Which DevOps technologies are related to each other?
+### DevOps Languages & Scripting
 
-## My Solution
+The technology index includes languages and configuration formats such as:
 
-I developed **Charlie-MJ DevOPS Explorer** to create a focused discovery layer specifically for DevOps.
+- Bash / Shell
+- PowerShell
+- Python
+- Go
+- Ruby
+- JavaScript
+- TypeScript
+- Java
+- C#
+- Rust
+- HCL
+- YAML
+- JSON
+- CUE
 
-Instead of searching GitHub randomly, users can search using DevOps-oriented categories and filters.
+### Infrastructure as Code
 
-For example:
+The project includes technologies such as:
 
-```text
-Kubernetes Labs
-AWS EKS
-Terraform AWS
-Jenkins CI/CD
-Docker Projects
-Argo CD GitOps
-```
+- Terraform
+- OpenTofu
+- AWS CloudFormation
+- AWS CDK
+- Pulumi
+- Crossplane
+- Packer
+- Vagrant
 
-The application converts the user's search into an appropriate GitHub search query and displays the results in a structured interface.
+### DevOps Command-Line Tools
 
----
+The technology map also covers common command-line tooling including:
 
-# 💡 3. Benefits of This Project
-
-## For DevOps Learners
-
-The project can help learners quickly discover:
-
-* DevOps projects
-* Kubernetes labs
-* Docker projects
-* AWS projects
-* Terraform repositories
-* Jenkins pipelines
-* GitHub Actions workflows
-* GitOps projects
-* DevSecOps resources
-* Monitoring projects
-* Infrastructure-as-Code repositories
-* Study notes
-* Tutorials
-
-## For Practical Learning
-
-Instead of only reading theoretical documentation, learners can find repositories containing:
-
-```text
-README
-↓
-Source Code
-↓
-Configuration
-↓
-Infrastructure
-↓
-Docker
-↓
-Kubernetes
-↓
-CI/CD
-↓
-Deployment
-```
-
-This makes it easier to study how different DevOps technologies work together.
-
-## For Project Discovery
-
-Users can discover real GitHub repositories based on:
-
-* Technology
-* Programming language
-* Resource type
-* Repository popularity
-* Last update
-* Creation date
-
-## For Personal Learning
-
-The application also provides functionality for saving repositories and maintaining search/recent history.
-
-This can help create a personal DevOps resource collection.
+- AWS CLI
+- Azure CLI
+- Google Cloud CLI (`gcloud`)
+- `kubectl`
+- `eksctl`
+- `k9s`
+- `jq`
+- `yq`
+- `curl`
+- `wget`
+- GNU Make
 
 ---
 
-# ✨ 4. Features
+# 🔎 GitHub Search
 
-## 🔎 GitHub Repository Search
+The homepage provides a dedicated GitHub search engine with multiple search modes:
 
-Search GitHub repositories directly from the application.
+- **Everything** — general DevOps repository discovery
+- **Labs** — hands-on labs, workshops and practical exercises
+- **Projects** — complete DevOps projects and implementations
+- **Tutorials** — tutorials, guides and learning material
+- **Notes** — notes, documentation and study resources
+- **CI/CD** — pipelines, automation and continuous delivery resources
+- **GitOps** — GitOps, Argo CD and Flux resources
 
-Example:
+### Search filters
+
+The search interface supports filtering by:
+
+- Resource type
+- DevOps technology
+- Programming / configuration language
+- Repository sorting
+
+Supported sorting options include GitHub-oriented options such as:
+
+- Best Match
+- Most Stars
+- Most Forks
+- Recently Updated
+- Recently Created
+
+### Example searches
 
 ```text
 kubernetes
-docker
-terraform aws
+kubernetes labs
 amazon eks
-jenkins
-argocd
-prometheus
-grafana
+terraform aws
+cloudformation
+jenkins cicd
+github actions
+docker projects
+argocd gitops
+prometheus grafana
+bash devops
+powershell automation
+ansible automation
+trivy devsecops
 ```
 
 ---
 
-## 🧭 DevOps Search Modes
+# ⚡ Quick Searches
 
-The project provides specialized search modes:
+The homepage includes predefined searches so users can start exploring immediately.
 
-* Everything
-* Labs
-* Projects
-* Tutorials
-* Notes
-* CI/CD
-* GitOps
-
-For example:
+Examples include:
 
 ```text
-Labs
-```
-
-can focus the search toward:
-
-```text
-lab
-laboratory
-hands-on
-workshop
-```
-
-while:
-
-```text
-GitOps
-```
-
-can focus the search toward:
-
-```text
-gitops
-argocd
-argo cd
-flux
-```
-
----
-
-## ⚡ Quick Searches
-
-The homepage provides predefined searches such as:
-
-```text
-Kubernetes Labs
+Kubernetes
 AWS EKS
 Terraform AWS
+CloudFormation
+Bash / Shell
 Jenkins CI/CD
-Docker Projects
-Argo CD GitOps
+Ansible
+Argo CD
 ```
 
-This allows users to start exploring without writing complex search queries.
-
 ---
 
-## 🧰 Technology Filtering
+# 🧠 Search Alias Support
 
-Users can filter resources by DevOps technologies.
-
-Examples:
-
-* Kubernetes
-* Docker
-* Terraform
-* AWS
-* Amazon EKS
-* Jenkins
-* GitHub Actions
-* Argo CD
-* Prometheus
-* Grafana
-* Ansible
-* Helm
-
----
-
-## 💻 Programming Language Filtering
-
-Repositories can also be filtered by programming language.
+The search engine understands common DevOps abbreviations and aliases.
 
 Examples:
 
 ```text
-Python
-JavaScript
-Java
-Go
-Shell
-TypeScript
-C#
+k8s       → kubernetes
+tf        → terraform
+eks       → amazon eks
+argocd    → argo cd
+gha       → github actions
+cicd      → ci/cd
+otel      → opentelemetry
+pwsh      → powershell
 ```
 
----
-
-## ⭐ Repository Sorting
-
-Search results can be sorted using different GitHub search options:
-
-* Best Match
-* Most Stars
-* Recently Updated
-* Recently Created
+The technology database also stores aliases and keywords so users can find technologies without always typing their official names.
 
 ---
 
-## 📦 Repository Cards
+# 🧰 DevOps Technology Map
 
-Each repository can display information such as:
+The project contains a local JSON-based technology index containing **148 technologies across 23 categories**.
 
-* Repository name
-* Description
-* Owner
-* Programming language
-* Stars
-* Forks
-* Topics
-* Last update
-* GitHub link
-* Internal repository details
-* Save/bookmark action
+## Technology categories
+
+1. Operating Systems
+2. Version Control
+3. Developer Tools
+4. Containers
+5. Container Orchestration
+6. Cloud Computing
+7. Kubernetes Ecosystem
+8. Infrastructure as Code
+9. CI/CD
+10. GitOps
+11. Configuration Management
+12. DevSecOps
+13. Secrets Management
+14. Observability
+15. Monitoring
+16. Networking
+17. Service Mesh
+18. Databases
+19. Artifact Management
+20. Scripting & Programming
+21. Automation
+22. Project Management
+23. Cloud Native
 
 ---
 
-## 🔖 Save Repositories
+# ☁️ Cloud Platforms
 
-Users can save useful repositories locally.
+The technology index covers major cloud and cloud-adjacent platforms including:
 
-Saved repositories are stored using:
+- AWS
+- Microsoft Azure
+- Google Cloud
+- Oracle Cloud
+- IBM Cloud
+- Alibaba Cloud
+- DigitalOcean
+- Cloudflare
 
-```text
-localStorage
-```
+AWS-related discovery includes technologies such as:
 
-This means the application can maintain saved resources without requiring a backend database.
+- Amazon EKS
+- Amazon ECR
+- Amazon RDS
+- AWS CloudFormation
+- AWS CDK
+- AWS CLI
 
 ---
 
-## 🕘 Search History
+# 📦 Containers
 
-The application can store recent searches locally.
+Container technologies represented in the Explorer include:
+
+- Docker
+- Podman
+- containerd
+- CRI-O
+- BuildKit
+- Buildah
+- Docker Compose
+
+---
+
+# ☸️ Kubernetes Ecosystem
+
+The technology map covers Kubernetes and commonly related tooling including:
+
+- Kubernetes
+- Amazon EKS
+- Azure AKS
+- Google GKE
+- Helm
+- Kustomize
+- Rancher
+- OpenShift
+- kind
+- Minikube
+- kubectl
+- k9s
+- eksctl
+
+The project is designed to help users discover both Kubernetes learning material and repositories that demonstrate how Kubernetes fits into broader DevOps workflows.
+
+---
+
+# 🏗️ Infrastructure as Code
+
+Infrastructure-as-Code coverage includes:
+
+- Terraform
+- OpenTofu
+- AWS CloudFormation
+- AWS CDK
+- Pulumi
+- Crossplane
+- Packer
+- Vagrant
+
+The Explorer also recognizes infrastructure configuration formats such as **HCL, YAML, JSON and CUE**.
+
+---
+
+# 🔄 CI/CD & Automation
+
+CI/CD tooling represented in the technology database includes:
+
+- Jenkins
+- GitHub Actions
+- GitLab CI/CD
+- CircleCI
+- Travis CI
+- Azure DevOps
+- Tekton
+- Argo Workflows
+
+The project also covers automation and configuration-management technologies such as:
+
+- Ansible
+- Chef
+- Puppet
+- Salt
+
+---
+
+# 🔁 GitOps
+
+GitOps resources can be discovered using dedicated search terms and technology data around:
+
+- Argo CD
+- Flux
+- GitOps workflows
+- Image automation
 
 Example:
 
 ```text
-kubernetes labs
-terraform aws
-jenkins cicd
-amazon eks
+argocd gitops
+argo cd kubernetes
+flux gitops
 ```
 
 ---
 
-## 👀 Recently Viewed Resources
+# 💻 DevOps Programming & Scripting
 
-The application can also track recently viewed resources.
+DevOps work often requires more than one programming language. The Explorer therefore includes a dedicated scripting and programming category.
 
-This makes it easier to return to repositories or resources previously explored.
-
----
-
-## 👨‍💻 Creator Profiles
-
-The application can display GitHub creator information such as:
-
-* Username
-* Profile image
-* Name
-* Bio
-* Public repositories
-* Followers
-* GitHub profile
-
----
-
-## 🧠 DevOps Technology Knowledge Base
-
-The project contains a local JSON database containing DevOps technologies.
-
-Each technology can contain information such as:
+### Languages
 
 ```text
-Name
-Slug
-Category
-Subcategory
-Icon
-Skill Level
-Description
-Short Description
-Aliases
-Keywords
-Related Technologies
+Bash / Shell
+PowerShell
+Python
+Go
+Ruby
+JavaScript
+TypeScript
+Java
+C#
+Rust
 ```
 
----
-
-## 🗂️ DevOps Categories
-
-The project also contains a DevOps category knowledge base.
-
-Examples:
+### Configuration / Infrastructure formats
 
 ```text
-Operating Systems
-Version Control
-Containers
-Container Orchestration
-Cloud Computing
-Infrastructure as Code
-CI/CD
-GitOps
-Configuration Management
-DevSecOps
-Observability
-Monitoring
-Networking
-Databases
-Scripting & Programming
-Kubernetes Ecosystem
-Cloud Native
-Secrets Management
-Artifact Management
-Microservices
-Automation
+HCL
+YAML
+JSON
+CUE
 ```
+
+These technologies can be used as search terms when discovering GitHub repositories containing automation scripts, infrastructure definitions, CI/CD pipelines and DevOps tooling.
 
 ---
 
-## 🛤️ Learning Paths
+# 🛡️ DevSecOps & Security
 
-The project can organize technologies and resources into learning paths.
+Security tooling represented in the technology index includes:
 
-For example:
+- Trivy
+- SonarQube
+- OWASP Dependency-Check
+- Snyk
+- Semgrep
+- Checkov
+- Gitleaks
+- Cosign
+- Syft
+- Grype
+- Falco
+
+Secrets-management coverage includes:
+
+- HashiCorp Vault
+- External Secrets Operator
+
+The goal is to make security-related DevOps repositories easier to discover alongside application delivery and infrastructure resources.
+
+---
+
+# 📊 Observability & Monitoring
+
+The project includes technologies used across metrics, logs, traces and monitoring:
+
+- Prometheus
+- Grafana
+- OpenTelemetry
+- Loki
+- Jaeger
+- Elastic Stack
+- Fluent Bit
+- Datadog
+- New Relic
+
+This allows searches such as:
 
 ```text
-Linux
-   ↓
-Git
-   ↓
-GitHub
-   ↓
-Docker
-   ↓
-Kubernetes
-   ↓
-AWS
-   ↓
-Terraform
-   ↓
-CI/CD
-   ↓
-GitOps
-   ↓
-Observability
+prometheus kubernetes
+grafana monitoring
+opentelemetry devops
+loki kubernetes
+jaeger microservices
+elastic observability
 ```
 
 ---
 
-# 🛠️ 5. Technologies Used
+# 🌐 Networking & Service Mesh
 
-This project is intentionally built primarily with frontend web technologies and public/local data sources.
+Networking and traffic-management technologies include:
 
-## Frontend
+- Nginx
+- HAProxy
+- Traefik
+- Envoy
+- CoreDNS
+- Istio
+- Linkerd
+- Cilium
+- Calico
+- Consul
 
-### HTML5
-
-Used to create the application structure and pages.
-
-### CSS3
-
-Used for:
-
-* Layout
-* Responsive design
-* Cards
-* Navigation
-* Buttons
-* Search interface
-* Hero section
-* Technology sections
-* Repository cards
-* Mobile layouts
-
-### JavaScript
-
-JavaScript provides the main application logic.
-
-It handles:
-
-* GitHub API communication
-* Search
-* Filtering
-* Sorting
-* Rendering
-* Navigation
-* Local storage
-* Technology data
-* Category data
-* Repository cards
-* Creator cards
+These categories help connect infrastructure, Kubernetes networking, ingress, service discovery and service-mesh concepts.
 
 ---
 
-# ☁️ External API
+# 🗄️ Databases & Supporting Technologies
 
-## GitHub REST API
+Database technologies include:
 
-The application communicates with the GitHub API for live data.
+- Redis
+- PostgreSQL
+- MySQL
+- MongoDB
+- Amazon RDS
 
-The main GitHub API functionality includes:
+Supporting platform and infrastructure technologies include:
+
+- Amazon ECR
+- Docker Hub
+- Harbor
+- JFrog Artifactory
+- Nexus Repository
+- RabbitMQ
+- Kafka
+- NATS
+- MinIO
+- Knative
+- OpenFaaS
+- Backstage
+- OpenCost
+
+---
+
+# 🏛️ Project Architecture
+
+Charlie MJ DevOps Explorer is a client-side web application.
+
+```text
+                         USER
+                           │
+                           ▼
+                ┌─────────────────────┐
+                │     index.html      │
+                │  UI / Search / UX   │
+                └──────────┬──────────┘
+                           │
+                           ▼
+                ┌─────────────────────┐
+                │     JavaScript      │
+                │    Application      │
+                └──────────┬──────────┘
+                           │
+          ┌────────────────┼────────────────┐
+          │                │                │
+          ▼                ▼                ▼
+   ┌─────────────┐  ┌──────────────┐  ┌──────────────┐
+   │ Search      │  │ Technology   │  │ Category     │
+   │ Engine      │  │ Knowledge    │  │ Knowledge    │
+   │ search.js   │  │ technologies │  │ categories   │
+   └──────┬──────┘  └──────┬───────┘  └──────┬───────┘
+          │                │                 │
+          ▼                ▼                 ▼
+   ┌─────────────┐  ┌──────────────┐  ┌──────────────┐
+   │ GitHub REST │  │ JSON         │  │ JSON         │
+   │ API         │  │ Technology   │  │ Category     │
+   │             │  │ Database     │  │ Database     │
+   └──────┬──────┘  └──────────────┘  └──────────────┘
+          │
+          ▼
+   ┌─────────────┐
+   │ Repository  │
+   │ Results     │
+   └──────┬──────┘
+          │
+          ▼
+   ┌─────────────────────┐
+   │ Browser / local     │
+   │ persistence         │
+   │ localStorage        │
+   └─────────────────────┘
+```
+
+---
+
+# 🔄 Search Workflow
+
+A typical repository search follows this flow:
+
+```text
+User enters query
+       │
+       ▼
+Select search mode
+       │
+       ▼
+Apply technology filter
+       │
+       ▼
+Apply language filter
+       │
+       ▼
+Apply sorting
+       │
+       ▼
+Normalize aliases
+       │
+       ▼
+Build GitHub query
+       │
+       ▼
+GitHub REST API
+       │
+       ▼
+Repository results
+       │
+       ▼
+Repository cards
+       │
+       ├── Open GitHub
+       ├── View repository details
+       ├── View creator
+       └── Save repository
+```
+
+---
+
+# 🧩 Main JavaScript Modules
+
+The current project separates application responsibilities into ES modules.
+
+## `app.js`
+
+Main application controller. It initializes the application, detects the active page/context, initializes search functionality, loads technology data and updates GitHub API status information.
+
+## `github-api.js`
+
+Handles communication with the public GitHub REST API, including repository search, user search, repository information, repository languages, user information and API rate-limit checks.
+
+## `search.js`
+
+Implements the DevOps search engine.
+
+Responsibilities include:
+
+1. Reading the user's query.
+2. Applying search mode rules.
+3. Resolving technology aliases and keywords.
+4. Applying technology filters.
+5. Applying language filters.
+6. Applying GitHub sorting.
+7. Building the GitHub search request.
+8. Rendering repository results.
+
+## `filters.js`
+
+Handles search filter state and GitHub sorting mappings.
+
+## `technologies.js`
+
+Loads and searches the local technology database, renders technology cards and populates the technology filter.
+
+## `categories.js`
+
+Loads and renders the local DevOps category data.
+
+## `repository-card.js`
+
+Builds repository result cards and handles repository-related UI actions.
+
+## `creator-card.js`
+
+Builds GitHub creator/user cards.
+
+## `storage.js`
+
+Provides browser `localStorage` persistence for saved repositories, search history, recently viewed items and saved technologies.
+
+## `utils.js`
+
+Provides reusable frontend helpers such as DOM utilities, HTML escaping, URL handling, formatting and path utilities.
+
+---
+
+# 💾 Browser Storage
+
+The project uses browser `localStorage` for client-side persistence.
+
+Data can include:
+
+```text
+Saved repositories
+Search history
+Recently viewed repositories
+Saved technologies
+```
+
+No application database is required for these features.
+
+---
+
+# 🌐 GitHub REST API
+
+The project uses GitHub's public REST API for live repository and user information.
+
+The application can perform operations such as:
 
 ```text
 Search repositories
 Search users
-Get repository details
+Get repository information
 Get repository languages
 Get user information
 Get user repositories
-Get API rate-limit information
+Check GitHub API rate limits
 ```
+
+### API authentication
+
+The current frontend does **not** store a GitHub personal access token.
+
+Unauthenticated GitHub API requests are subject to GitHub's applicable rate limits. If many searches are performed in a short period, the API may temporarily reject additional requests until the rate limit resets.
+
+> **Security note:** Never hard-code private API credentials or personal access tokens into frontend JavaScript. If authenticated or higher-volume API access is added later, use a server-side/backend architecture or another secure credential-handling mechanism.
 
 ---
 
-# 📄 Local JSON Data
+# 📄 Local JSON Knowledge Base
 
-The project also uses local JSON files.
+The project maintains its own DevOps data under `data/`.
 
-### `devops-technologies.json`
+## `data/devops-technologies.json`
 
-Contains DevOps technology information.
+Contains the technology index, including fields such as:
 
-### `devops-categories.json`
+```text
+id
+name
+slug
+category
+subcategory
+icon
+skillLevel
+description
+shortDescription
+aliases
+keywords
+relatedTechnologies
+```
 
-Contains DevOps category information.
+## `data/devops-categories.json`
 
-This allows the application to maintain its own DevOps knowledge base independently from GitHub.
+Contains the DevOps category index and relationships between categories and technologies.
+
+This local knowledge base allows the frontend to provide a technology map without making a GitHub request for every technology card.
 
 ---
 
-# 💾 Browser Local Storage
+# 🎨 Frontend Design
 
-The browser's `localStorage` is used for client-side persistence.
+The current redesign uses a modern DevOps dashboard style.
 
-The application can store:
+### Main visual elements
 
-```text
-Saved repositories
-Search history
-Recently viewed resources
-Saved technologies
-```
+- Dark technical background
+- Cyan / blue / purple accent gradients
+- Grid and ambient background effects
+- Glass-style cards
+- Responsive navigation
+- Large hero typography
+- DevOps engineer illustration
+- Search-engine-first layout
+- Technology and category grids
+- Pipeline / architecture visualization
+- Security, automation and observability sections
+- Responsive mobile layouts
 
----
-
-# 🧰 Development Tools
-
-The project can be developed using:
-
-* Visual Studio Code
-* Git
-* GitHub
-* GitHub Pages
-* Browser Developer Tools
-* Python HTTP Server
-* VS Code Live Server
-
----
-
-# 🏗️ 6. Architecture Design
-
-The project follows a simple frontend architecture.
+The original frontend mockup is also included in:
 
 ```text
-                    ┌──────────────────────────┐
-                    │        User / Learner    │
-                    └────────────┬─────────────┘
-                                 │
-                                 ▼
-                    ┌──────────────────────────┐
-                    │       HTML Interface     │
-                    │                          │
-                    │ Search / Filters / UI    │
-                    └────────────┬─────────────┘
-                                 │
-                                 ▼
-                    ┌──────────────────────────┐
-                    │     JavaScript App       │
-                    │        app.js             │
-                    └────────────┬─────────────┘
-                                 │
-              ┌──────────────────┼──────────────────┐
-              │                  │                  │
-              ▼                  ▼                  ▼
-       ┌─────────────┐    ┌─────────────┐    ┌──────────────┐
-       │ Search      │    │ Technologies│    │ Categories   │
-       │ Engine      │    │ Module      │    │ Module       │
-       └──────┬──────┘    └──────┬──────┘    └──────┬───────┘
-              │                  │                  │
-              ▼                  ▼                  ▼
-       ┌─────────────┐    ┌─────────────┐    ┌──────────────┐
-       │ GitHub API  │    │ JSON Data   │    │ JSON Data    │
-       └──────┬──────┘    └─────────────┘    └──────────────┘
-              │
-              ▼
-       ┌─────────────┐
-       │ GitHub      │
-       │ Repositories│
-       └─────────────┘
-
-                         │
-                         ▼
-
-                ┌────────────────────┐
-                │ Browser Storage    │
-                │                    │
-                │ Saved Resources    │
-                │ Search History     │
-                │ Recently Viewed    │
-                └────────────────────┘
+assets/images/frontend_mockup.png
 ```
 
----
-
-# 🔄 Application Architecture
-
-The application can be viewed as several logical layers.
-
-```text
-┌──────────────────────────────────────────────┐
-│                 Presentation                 │
-│                                              │
-│ HTML + CSS + Repository Cards + UI           │
-└──────────────────────┬───────────────────────┘
-                       │
-┌──────────────────────▼───────────────────────┐
-│               Application Logic              │
-│                                              │
-│ app.js                                       │
-│ search.js                                    │
-│ filters.js                                   │
-│ technologies.js                              │
-│ categories.js                                │
-└──────────────────────┬───────────────────────┘
-                       │
-          ┌────────────┴────────────┐
-          │                         │
-          ▼                         ▼
-┌──────────────────────┐  ┌──────────────────────┐
-│ External Data        │  │ Local Data            │
-│                      │  │                      │
-│ GitHub REST API      │  │ JSON Knowledge Base  │
-└──────────────────────┘  └──────────────────────┘
-          │                         │
-          └────────────┬────────────┘
-                       ▼
-              ┌─────────────────┐
-              │ Browser Storage │
-              └─────────────────┘
-```
-
----
-
-# 📁 7. GitHub Repository Structure
-
-```text
-devops-explorer/
-│
-├── index.html
-├── README.md
-├── .gitignore
-│
-├── assets/
-│   ├── images/
-│   │   └── devops-engineer.png
-│   │
-│   └── icons/
-│
-├── css/
-│   ├── style.css
-│   ├── components.css
-│   └── responsive.css
-│
-├── js/
-│   ├── app.js
-│   ├── github-api.js
-│   ├── search.js
-│   ├── filters.js
-│   ├── technologies.js
-│   ├── categories.js
-│   ├── repository-card.js
-│   ├── creator-card.js
-│   ├── storage.js
-│   └── utils.js
-│
-├── data/
-│   ├── devops-technologies.json
-│   └── devops-categories.json
-│
-├── docs/
-│   ├── devops-roadmap.md
-│   ├── kubernetes.md
-│   ├── docker.md
-│   ├── terraform.md
-│   ├── aws.md
-│   ├── jenkins.md
-│   ├── github-actions.md
-│   └── gitops.md
-│
-└── pages/
-    ├── explorer.html
-    ├── technologies.html
-    ├── technology.html
-    ├── repository.html
-    ├── creator.html
-    ├── labs.html
-    ├── learning-path.html
-    └── saved.html
-```
-
----
-
-# 📚 Project Directory Explanation
-
-## `index.html`
-
-The main homepage of the application.
-
-It contains:
-
-* Navigation
-* Hero section
-* Search
-* Filters
-* Quick searches
-* Featured repositories
-* Technologies
-* Categories
-* Learning/architecture sections
-* Footer
-
----
-
-## `css/`
-
-Contains the application's styles.
-
-### `style.css`
-
-Main global styles.
-
-### `components.css`
-
-Reusable component styles such as:
-
-* Cards
-* Buttons
-* Repository cards
-* Technology cards
-* Category cards
-* Search components
-
-### `responsive.css`
-
-Responsive styles for:
-
-* Desktop
-* Tablet
-* Mobile
-
----
-
-# JavaScript Architecture
-
-## `app.js`
-
-Main application controller.
-
-It connects the different modules and initializes the correct functionality for each page.
-
----
-
-## `github-api.js`
-
-Responsible for communication with GitHub.
-
-It provides functions such as:
-
-```javascript
-searchRepositories()
-searchUsers()
-getRepository()
-getRepositoryLanguages()
-getUser()
-getUserRepositories()
-getRateLimit()
-```
-
----
-
-## `search.js`
-
-Responsible for the main search engine.
-
-It:
-
-1. Receives user input.
-2. Normalizes the search term.
-3. Applies aliases.
-4. Applies search mode.
-5. Builds a GitHub query.
-6. Sends the query to GitHub.
-7. Receives repositories.
-8. Renders the results.
-
----
-
-## `filters.js`
-
-Handles:
-
-* Resource type
-* Technology
-* Programming language
-* Sorting
-
----
-
-## `technologies.js`
-
-Responsible for:
-
-* Loading technology JSON
-* Finding technologies
-* Rendering technology cards
-* Populating technology filters
-
----
-
-## `categories.js`
-
-Responsible for:
-
-* Loading category JSON
-* Finding categories
-* Rendering category cards
-
----
-
-## `repository-card.js`
-
-Creates repository result cards.
-
-It handles:
-
-* Repository information
-* GitHub links
-* Internal repository pages
-* Save/bookmark functionality
-* Repository selection
-
----
-
-## `creator-card.js`
-
-Creates GitHub creator/user cards.
-
----
-
-## `storage.js`
-
-Handles browser local storage.
-
-Example storage categories:
-
-```text
-Saved repositories
-Search history
-Recently viewed
-Saved technologies
-```
-
----
-
-## `utils.js`
-
-Contains reusable helper functions.
-
-Examples:
-
-```text
-DOM selectors
-HTML escaping
-URL safety
-Slug generation
-Number formatting
-Date formatting
-Relative time
-Path handling
-```
-
----
-
-# 📊 8. How This Project Works
-
-The application workflow is approximately:
-
-```text
-User
-  │
-  ▼
-Enter Search
-  │
-  ▼
-Select Search Type
-  │
-  ▼
-Apply Filters
-  │
-  ▼
-Search Module
-  │
-  ▼
-Build GitHub Query
-  │
-  ▼
-GitHub REST API
-  │
-  ▼
-GitHub Search Results
-  │
-  ▼
-Repository Data
-  │
-  ▼
-Repository Cards
-  │
-  ├──────────────► View Repository
-  │
-  ├──────────────► View Creator
-  │
-  └──────────────► Save Repository
-```
-
----
-
-# 🔍 Example Search
-
-Suppose the user searches:
-
-```text
-Kubernetes
-```
-
-The application can transform the search into a GitHub-oriented query.
-
-Conceptually:
-
-```text
-Kubernetes
-+
-DevOps search context
-+
-Resource filters
-+
-Technology filters
-+
-Language filters
-```
-
-Then it sends the resulting query to:
-
-```text
-GitHub REST API
-```
-
-GitHub returns repository information.
-
-The application then converts those API results into repository cards.
-
----
-
-# 🧠 9. Technical Logic
-
-## Search Alias Logic
-
-The project supports common DevOps abbreviations.
-
-For example:
-
-```text
-k8s
-```
-
-can be normalized to:
-
-```text
-kubernetes
-```
-
-Similarly:
-
-```text
-tf
-```
-
-can be interpreted as:
-
-```text
-terraform
-```
-
-And:
-
-```text
-eks
-```
-
-can be interpreted as:
-
-```text
-amazon eks
-```
-
-Other examples include:
-
-```text
-cicd
-    ↓
-ci/cd
-
-argocd
-    ↓
-argo cd
-
-gha
-    ↓
-github actions
-```
-
-This allows users to search naturally without remembering exact technology names.
-
----
-
-# 🧩 Resource Type Logic
-
-Different resource types can add different search terms.
-
-For example:
-
-```text
-Labs
-```
-
-can use search terms such as:
-
-```text
-lab
-laboratory
-hands-on
-workshop
-```
-
-Tutorial searches can focus on:
-
-```text
-tutorial
-guide
-course
-```
-
-CI/CD searches can focus on:
-
-```text
-ci/cd
-cicd
-jenkins
-github actions
-gitlab ci
-```
-
-GitOps searches can focus on:
-
-```text
-gitops
-argocd
-argo cd
-flux
-```
-
-This creates a DevOps-specific search experience on top of GitHub's repository search.
-
----
-
-# 🔗 Internal + External Navigation
-
-The project separates internal application pages from external GitHub pages.
-
-For example:
-
-```text
-User clicks repository
-        │
-        ├── Internal details
-        │
-        ▼
-pages/repository.html
-```
-
-The user can also visit the actual GitHub repository:
-
-```text
-Repository Card
-      │
-      ▼
-GitHub Repository
-```
-
----
-
-# 🛡️ URL Safety
-
-The application includes URL validation logic.
-
-Only safe HTTP/HTTPS URLs should be accepted.
-
-This helps prevent unsafe URLs from being inserted into generated links.
-
----
-
-# 🔐 API Security
-
-The frontend does not require a personal GitHub access token for the basic public repository search functionality.
-
-The project uses the public GitHub API.
-
-Important:
-
-> A GitHub personal access token should **never be hard-coded into frontend JavaScript**.
-
-If authentication is added in the future, the architecture should be redesigned so sensitive credentials are not exposed in the browser.
-
----
-
-# 💾 Local Storage Logic
-
-Saved repositories are stored in browser storage.
-
-Conceptually:
-
-```text
-User clicks Save
-       │
-       ▼
-Repository Object
-       │
-       ▼
-storage.js
-       │
-       ▼
-localStorage
-       │
-       ▼
-Saved Repository
-```
-
-The same approach is used for:
-
-```text
-Search History
-Recently Viewed
-Saved Technologies
-```
-
----
-
-# 📄 Local DevOps Knowledge Base
-
-The project does not depend entirely on GitHub.
-
-It also contains its own DevOps knowledge data.
-
-```text
-data/
-│
-├── devops-technologies.json
-└── devops-categories.json
-```
-
-This means the project can provide structured DevOps information even when the user is not actively searching GitHub.
-
----
-
-# 🌐 10. Page Structure
-
-The project contains multiple pages.
-
-## Home
-
-```text
-index.html
-```
-
-Main landing page.
-
----
-
-## Explorer
-
-```text
-pages/explorer.html
-```
-
-Dedicated GitHub resource exploration page.
-
----
-
-## Technologies
-
-```text
-pages/technologies.html
-```
-
-Displays DevOps technologies.
-
----
-
-## Technology Details
-
-```text
-pages/technology.html
-```
-
-Displays detailed information about a selected technology.
-
-Example:
-
-```text
-Kubernetes
-```
-
----
-
-## Repository Details
-
-```text
-pages/repository.html
-```
-
-Displays details about a selected GitHub repository.
-
----
-
-## Creator Details
-
-```text
-pages/creator.html
-```
-
-Displays information about a GitHub creator.
-
----
-
-## Labs
-
-```text
-pages/labs.html
-```
-
-Focuses on DevOps hands-on labs and practical resources.
-
----
-
-## Learning Path
-
-```text
-pages/learning-path.html
-```
-
-Provides structured DevOps learning progression.
-
----
-
-## Saved
-
-```text
-pages/saved.html
-```
-
-Displays repositories saved by the user.
-
----
-
-# 🚀 11. How to Run the Project Locally
-
-Clone the repository:
-
-```bash
-git clone https://github.com/YOUR-GITHUB-USERNAME/YOUR-REPOSITORY-NAME.git
-```
-
-Move into the project:
-
-```bash
-cd YOUR-REPOSITORY-NAME
-```
-
-Because the application loads JSON files using `fetch()`, it should be run through an HTTP server rather than directly opening:
-
-```text
-file://
-```
-
----
-
-# 🐍 Option 1 — Python HTTP Server
-
-If Python is installed:
-
-```bash
-python -m http.server 5500
-```
-
-Then open:
-
-```text
-http://localhost:5500
-```
-
----
-
-# 💻 Option 2 — VS Code Live Server
-
-Install the **Live Server** extension in Visual Studio Code.
-
-Then:
-
-```text
-Right Click index.html
-        ↓
-Open with Live Server
-```
-
-The browser will open the project through a local HTTP server.
-
----
-
-# 🌐 12. GitHub Pages Deployment
-
-This project is suitable for GitHub Pages because it is a frontend/static application.
-
-Typical deployment flow:
-
-```text
-Local Project
-     │
-     ▼
-Git
-     │
-     ▼
-GitHub Repository
-     │
-     ▼
-GitHub Pages
-     │
-     ▼
-Live Website
-```
-
-After deployment, the live URL can be added to the **Live Demo** section at the top of this README.
-
----
-
-# 🔄 13. Development Workflow
-
-The project development workflow is:
-
-```text
-Create Feature
-     │
-     ▼
-Write HTML / CSS / JS
-     │
-     ▼
-Test Locally
-     │
-     ▼
-Git Add
-     │
-     ▼
-Git Commit
-     │
-     ▼
-Git Push
-     │
-     ▼
-GitHub
-     │
-     ▼
-GitHub Pages
-```
-
----
-
-# 🧪 14. Example DevOps Resources
-
-The project is designed to help users discover resources around technologies such as:
-
-### Operating Systems
-
-```text
-Linux
-```
-
-### Version Control
-
-```text
-Git
-GitHub
-```
-
-### Containers
-
-```text
-Docker
-containerd
-```
-
-### Container Orchestration
-
-```text
-Kubernetes
-Amazon EKS
-```
-
-### Cloud
-
-```text
-AWS
-Amazon ECR
-Amazon EKS
-```
-
-### Infrastructure as Code
-
-```text
-Terraform
-AWS CloudFormation
-```
-
-### CI/CD
-
-```text
-Jenkins
-GitHub Actions
-```
-
-### Configuration Management
-
-```text
-Ansible
-```
-
-### Kubernetes Ecosystem
-
-```text
-Helm
-Argo CD
-Flux
-```
-
-### Observability
-
-```text
-Prometheus
-Grafana
-OpenTelemetry
-```
-
-### DevSecOps
-
-```text
-Trivy
-SonarQube
-OWASP Dependency-Check
-```
-
-### Databases / Supporting Technologies
-
-```text
-Redis
-PostgreSQL
-```
-
-### Programming / Scripting
-
-```text
-Python
-Bash
-Go
-JavaScript
-Node.js
-Java
-```
-
----
-
-# 🧱 15. Future Improvements
-
-The project can be expanded with additional features in the future.
-
-Possible improvements include:
-
-* Advanced GitHub authentication
-* More advanced GitHub search operators
-* Repository quality indicators
-* Trending DevOps repositories
-* Technology dependency graphs
-* DevOps roadmap visualization
-* Kubernetes learning tracks
-* AWS learning tracks
-* Terraform learning tracks
-* Docker learning tracks
-* CI/CD pipeline examples
-* GitOps architecture examples
-* DevSecOps learning paths
-* More detailed repository analysis
-* Repository activity graphs
-* GitHub issue information
-* Pull request information
-* Release information
-* GitHub organization discovery
-* Personalized learning dashboard
-* Cloud provider comparison
-* DevOps project recommendations
-* Backend API
-* Database integration
-* User accounts
-* Cloud deployment
-* AI-assisted resource discovery
-
----
-
-# 🎓 16. Learning Goal
-
-This project is not only a web application.
-
-It is also a practical DevOps learning project.
-
-While building it, the project can be used to learn concepts such as:
-
-```text
-Git
-GitHub
-HTML
-CSS
-JavaScript
-REST APIs
-JSON
-HTTP
-GitHub Pages
-Frontend Architecture
-API Integration
-Local Storage
-Search Systems
-Filtering
-Modular JavaScript
-Responsive Design
-DevOps Technologies
-Cloud Technologies
-CI/CD Concepts
-```
-
-It also provides a foundation for gradually introducing more advanced DevOps technologies.
-
-For example:
-
-```text
-Frontend Project
-       │
-       ▼
-Git + GitHub
-       │
-       ▼
-GitHub Actions
-       │
-       ▼
-Docker
-       │
-       ▼
-Container Registry
-       │
-       ▼
-Kubernetes
-       │
-       ▼
-AWS / Amazon EKS
-       │
-       ▼
-Terraform / CloudFormation
-       │
-       ▼
-Prometheus + Grafana
-       │
-       ▼
-GitOps / Argo CD
-```
-
----
-
-# 🧑‍💻 17. Author
-
-## Charlie MJ
-
-**GitHub:** `YOUR-GITHUB-USERNAME`
-
-**Profile:**
-`https://github.com/YOUR-GITHUB-USERNAME`
-
-> Replace `YOUR-GITHUB-USERNAME` with your actual GitHub username.
-
----
-
-# 🖼️ Project Illustration
-
-The project includes a DevOps Engineer illustration representing the technologies and concepts covered by the Explorer.
+The main DevOps engineer artwork is located at:
 
 ```text
 assets/images/devops-engineer.png
@@ -1646,46 +742,438 @@ assets/images/devops-engineer.png
 
 ---
 
+# 📁 Current Repository Structure
+
+The final project currently contains the following structure:
+
+```text
+charlie-mj-devops-explorer/
+│
+├── index.html
+├── README.md
+├── .gitignore
+│
+├── assets/
+│   └── images/
+│       ├── devops-engineer.png
+│       └── frontend_mockup.png
+│
+├── css/
+│   ├── style.css
+│   ├── components.css
+│   ├── responsive.css
+│   └── theme-redesign.css
+│
+├── data/
+│   ├── devops-technologies.json
+│   └── devops-categories.json
+│
+├── doc/
+│   └── repo structure.md
+│
+└── js/
+    ├── app.js
+    ├── categories.js
+    ├── creator-card.js
+    ├── filters.js
+    ├── github-api.js
+    ├── repository-card.js
+    ├── search.js
+    ├── storage.js
+    ├── technologies.js
+    └── utils.js
+```
+
+> The README describes the **current packaged project**. Optional future pages and documentation are discussed below as possible extensions rather than being presented as files that already exist in this package.
+
+---
+
+# 📚 File / Directory Explanation
+
+## `index.html`
+
+Main application homepage containing the navigation, hero, GitHub search engine, filters, quick searches, technology map, categories, DevOps workflow sections, CTA and footer.
+
+## `css/style.css`
+
+Base/global styling and foundational layout rules.
+
+## `css/components.css`
+
+Reusable UI component styling for cards, controls, search elements and other interface components.
+
+## `css/responsive.css`
+
+Responsive behavior for different viewport sizes.
+
+## `css/theme-redesign.css`
+
+The current visual redesign layer containing the modern DevOps dashboard styling, updated color system, hero treatment, cards, controls, sections and responsive visual refinements.
+
+## `data/devops-technologies.json`
+
+Local DevOps technology database containing **148 entries**.
+
+## `data/devops-categories.json`
+
+Local DevOps category database containing **23 categories**.
+
+## `doc/repo structure.md`
+
+Project structure documentation.
+
+---
+
+# 🛠️ Technologies Used to Build This Project
+
+## Frontend
+
+- HTML5
+- CSS3
+- Modern JavaScript / ES Modules
+- JSON
+- Browser APIs
+- `localStorage`
+
+## External service
+
+- GitHub REST API
+
+## Development tools
+
+- Git
+- GitHub
+- Visual Studio Code
+- Browser Developer Tools
+- Python HTTP Server
+- VS Code Live Server
+
+## Deployment
+
+The project is compatible with static hosting platforms such as GitHub Pages because the current application is a client-side frontend.
+
+---
+
+# 💻 Run Locally
+
+Because the application loads JavaScript modules and JSON files using browser requests, it should be served through an HTTP server rather than opened directly with `file://`.
+
+## Option 1 — Python
+
+If Python is installed:
+
+```bash
+python -m http.server 8000
+```
+
+Then open:
+
+```text
+http://localhost:8000/
+```
+
+## Option 2 — VS Code Live Server
+
+1. Open the project in Visual Studio Code.
+2. Install the **Live Server** extension.
+3. Open `index.html`.
+4. Choose **Open with Live Server**.
+
+---
+
+# 🚀 GitHub Pages Deployment
+
+A typical deployment workflow is:
+
+```text
+Local project
+     │
+     ▼
+Git add
+     │
+     ▼
+Git commit
+     │
+     ▼
+Git push
+     │
+     ▼
+GitHub repository
+     │
+     ▼
+GitHub Pages
+     │
+     ▼
+Live website
+```
+
+The current live deployment is:
+
+**https://awsrmmustansarjavaid.github.io/charlie-mj-devops-explorer/**
+
+---
+
+# 🔧 Development Workflow
+
+A simple workflow for contributing changes is:
+
+```bash
+git status
+git add .
+git commit -m "Update DevOps Explorer"
+git push origin main
+```
+
+For larger changes, test the application locally before pushing the update.
+
+---
+
+# 🧪 Example DevOps Discovery Areas
+
+The Explorer is designed around the following learning and engineering areas:
+
+```text
+Linux
+  ↓
+Git / GitHub
+  ↓
+Docker / Containers
+  ↓
+Kubernetes
+  ↓
+Cloud
+  ↓
+Terraform / CloudFormation
+  ↓
+CI/CD
+  ↓
+Configuration Management
+  ↓
+GitOps
+  ↓
+DevSecOps
+  ↓
+Observability
+  ↓
+Production Automation
+```
+
+The actual path can vary depending on the learner's goals; the application is intended as a discovery tool rather than a fixed curriculum.
+
+---
+
+# 🎓 Why This Project Exists
+
+The DevOps ecosystem is broad. A single project may involve a combination of:
+
+```text
+Cloud
+Containers
+Kubernetes
+Infrastructure as Code
+Programming
+Scripting
+CI/CD
+GitOps
+Security
+Networking
+Monitoring
+Observability
+Databases
+Automation
+```
+
+GitHub contains a large amount of practical material, but finding relevant repositories can take time.
+
+Charlie MJ DevOps Explorer adds a DevOps-focused discovery layer on top of GitHub search so learners and engineers can begin with a technology, resource type or engineering topic instead of starting with an unrestricted repository search.
+
+---
+
+# 🔐 Security Considerations
+
+This is a client-side application and therefore should be treated as public frontend code.
+
+Important considerations:
+
+- Do not place secrets in HTML, CSS, JavaScript or JSON files.
+- Do not commit API tokens, passwords or private keys.
+- Do not expose cloud credentials in the browser.
+- Validate and safely handle external URLs before creating links.
+- Respect GitHub API usage limits.
+- If private/authenticated GitHub functionality is introduced, move sensitive operations behind a secure backend or server-side service.
+
+---
+
+# 🧭 Future Roadmap
+
+Possible future improvements include:
+
+### Search & Discovery
+
+- Advanced GitHub search operators
+- More search modes
+- Better repository relevance controls
+- Topic-based discovery
+- Trending DevOps repository discovery
+- More technology aliases
+- More command/tool keyword mappings
+
+### DevOps Knowledge
+
+- Interactive DevOps roadmap
+- Technology dependency graph
+- Tool comparison pages
+- Kubernetes learning tracks
+- AWS / Azure / GCP learning tracks
+- Terraform learning tracks
+- Docker learning tracks
+- CI/CD examples
+- GitOps architecture examples
+- DevSecOps learning paths
+
+### GitHub Integration
+
+- More repository metadata
+- Repository activity visualization
+- Issues and pull requests
+- Releases
+- Organizations
+- Contributor information
+- Improved rate-limit handling
+- Optional authenticated GitHub integration through a secure backend
+
+### Platform Features
+
+- Dedicated technology detail pages
+- Dedicated repository detail pages
+- Saved-resource dashboard
+- Personalized learning dashboard
+- Backend API
+- Database integration
+- User accounts
+- AI-assisted resource discovery
+
+These are **future possibilities**, not claims about functionality already included in the current static package.
+
+---
+
+# 🧑‍💻 Learning Value
+
+This project can also be used as a practical learning exercise for:
+
+```text
+HTML
+CSS
+JavaScript
+ES Modules
+JSON
+REST APIs
+HTTP
+Git
+GitHub
+GitHub Pages
+Browser Storage
+Search Systems
+Filtering
+Sorting
+Responsive Design
+Frontend Architecture
+API Integration
+DevOps Concepts
+Cloud Concepts
+CI/CD Concepts
+Infrastructure as Code
+Containers
+Kubernetes
+GitOps
+DevSecOps
+Observability
+Automation
+```
+
+A natural evolution path for the project is:
+
+```text
+Frontend
+   ↓
+Git + GitHub
+   ↓
+GitHub Actions
+   ↓
+Docker
+   ↓
+Container Registry
+   ↓
+Kubernetes
+   ↓
+AWS / EKS
+   ↓
+Terraform / CloudFormation
+   ↓
+Prometheus + Grafana
+   ↓
+GitOps / Argo CD
+```
+
+This is an example architecture for continued learning and future development, not a requirement for the current application.
+
+---
+
+# 👨‍💻 Author
+
+## Charlie MJ
+
+GitHub: **https://github.com/awsrmmustansarjavaid**
+
+Project: **https://github.com/awsrmmustansarjavaid/charlie-mj-devops-explorer**
+
+Live Demo: **https://awsrmmustansarjavaid.github.io/charlie-mj-devops-explorer/**
+
+---
+
+# 🖼️ Project Artwork
+
+The main DevOps engineer artwork is stored at:
+
+```text
+assets/images/devops-engineer.png
+```
+
+The frontend redesign reference/mockup is stored at:
+
+```text
+assets/images/frontend_mockup.png
+```
+
+---
+
 # 📜 License
 
-Add your preferred license here.
+Add the license you want to use for this repository.
 
-For example:
-
-```text
-MIT License
-```
-
-If using the MIT License, create:
-
-```text
-LICENSE
-```
-
-in the repository root.
+For example, if you choose the MIT License, add a `LICENSE` file containing the MIT license text.
 
 ---
 
 # ⭐ Support the Project
 
-If this project is useful for learning DevOps, GitHub, Kubernetes, Docker, AWS, Terraform, CI/CD, GitOps, and related technologies:
+If Charlie MJ DevOps Explorer is useful for learning or discovering DevOps resources:
 
-⭐ Star the repository
-🍴 Fork the repository
-📚 Explore the documentation
-🐛 Report issues
-💡 Suggest improvements
-🤝 Contribute
+- ⭐ Star the repository
+- 🍴 Fork the repository
+- 📚 Explore the technology map
+- 🔎 Search for practical GitHub projects
+- 🐛 Report bugs
+- 💡 Suggest improvements
+- 🤝 Contribute improvements
 
 ---
 
 # ❤️ Final Note
 
-**Charlie-MJ DevOPS Explorer** was created to solve a practical problem:
+**Charlie MJ DevOps Explorer** is built around a simple idea:
 
-> **Finding useful DevOps learning resources should not require searching through hundreds of unrelated repositories every time.**
-
-The goal of this project is to bring DevOps-related GitHub resources, technologies, categories, projects, labs, tutorials, and learning material together into one focused exploration experience.
+> **Discover useful DevOps resources faster, understand how the technologies fit together, and turn discovered repositories into practical learning and engineering experience.**
 
 ```text
 Discover
@@ -1707,8 +1195,8 @@ Improve
 
 ---
 
-## Built for DevOps Learners 🚀
+## Built for DevOps Learners & Engineers 🚀
 
-**Charlie-MJ DevOPS Explorer**
+**Charlie MJ DevOps Explorer**
 
 `Discover • Learn • Practice • Build • Automate • Deploy`
