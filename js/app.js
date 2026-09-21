@@ -1,2090 +1,2918 @@
-```javascript
-/*
-============================================================
-CHARLIE MJ DEVOPS EXPLORER
-app.js
-============================================================
+<!DOCTYPE html>
 
-MAIN APPLICATION CONTROLLER
+<html lang="en">
 
-This is the entry point of the application.
+<head>
 
-HTML loads this file:
-
-    <script
-        type="module"
-        src="js/app.js"
-    ></script>
-
-app.js connects:
-
-    Search
-       ↓
-    Filters
-       ↓
-    GitHub API
-       ↓
-    Repository Cards
-
-and:
-
-    Local JSON
-       ↓
-    Technologies
-       ↓
-    Categories
-
-and:
-
-    localStorage
-       ↓
-    Saved Resources
-       ↓
-    Search History
-
-and:
-
-    DevOps Categories
-       ↓
-    Technologies
-       ↓
-    GitHub Search
-
-============================================================
-*/
-
-
-/* ==========================================================
-   IMPORTS
-   ========================================================== */
-
-
-/*
- * General utilities.
- */
-
-import {
-
-    qs,
-    qsa,
-    getQueryParam,
-    getProjectRoot,
-    getErrorMessage,
-    showNotification
-
-} from "./utils.js";
-
-
-/*
- * GitHub API.
- */
-
-import {
-
-    getRateLimit,
-    getRepository,
-    getUser
-
-} from "./github-api.js";
-
-
-/*
- * Search system.
- */
-
-import {
-
-    initializeSearch,
-    initializeSearchModes,
-    initializeQuickSearches
-
-} from "./search.js";
-
-
-/*
- * Filters.
- */
-
-import {
-
-    getFilters,
-    initializeFilters
-
-} from "./filters.js";
-
-
-/*
- * Technology database.
- */
-
-import {
-
-    loadTechnologies,
-    renderTechnologies,
-    populateTechnologyFilter,
-    initializeTechnologyCards
-
-} from "./technologies.js";
-
-
-/*
- * Categories.
- */
-
-import {
-
-    loadCategories,
-    renderCategories,
-    initializeCategoryCards
-
-} from "./categories.js";
-
-
-/*
- * Repository rendering.
- */
-
-import {
-
-    renderRepositories
-
-} from "./repository-card.js";
-
-
-/*
- * Storage.
- */
-
-import {
-
-    getSavedRepositories
-
-} from "./storage.js";
-
-
-/*
- * Central DevOps database.
- *
- * This database connects:
- *
- * Category
- *     ↓
- * Technology
- *     ↓
- * GitHub Search
- */
-
-import {
-
-    devopsTechnologies
-
-} from "./devops-data.js";
-
-
-/* ==========================================================
-   1. APPLICATION STATE
-   ========================================================== */
-
-const appState = {
-
-    /*
-     * Current search mode.
-     */
-
-    searchMode:
-        "everything",
-
-
-    /*
-     * Last search results.
-     */
-
-    repositories:
-        [],
-
-
-    /*
-     * Categories loaded from
-     * devops-categories.json.
-     */
-
-    categories:
-        [],
-
-
-    /*
-     * Application initialized.
-     */
-
-    initialized:
-        false
-
-};
-
-
-/* ==========================================================
-   2. DETECT CURRENT PAGE
-   ========================================================== */
-
-/**
- * Determine which page is currently open.
- *
- * @returns {string}
- */
-function getCurrentPage() {
-
-    const page =
-        document.body.dataset.page;
-
-
-    if (page) {
-        return page;
-    }
-
-
-    const pathname =
-        window.location.pathname;
-
-
-    if (
-        pathname.endsWith(
-            "index.html"
-        ) ||
-        pathname.endsWith("/")
-    ) {
-
-        return "home";
-    }
-
-
-    if (
-        pathname.includes(
-            "explorer.html"
-        )
-    ) {
-
-        return "explorer";
-    }
-
-
-    if (
-        pathname.includes(
-            "technologies.html"
-        )
-    ) {
-
-        return "technologies";
-    }
-
-
-    if (
-        pathname.includes(
-            "technology.html"
-        )
-    ) {
-
-        return "technology";
-    }
-
-
-    if (
-        pathname.includes(
-            "repository.html"
-        )
-    ) {
-
-        return "repository";
-    }
-
-
-    if (
-        pathname.includes(
-            "creator.html"
-        )
-    ) {
-
-        return "creator";
-    }
-
-
-    if (
-        pathname.includes(
-            "labs.html"
-        )
-    ) {
-
-        return "labs";
-    }
-
-
-    if (
-        pathname.includes(
-            "learning-path.html"
-        )
-    ) {
-
-        return "learning-path";
-    }
-
-
-    if (
-        pathname.includes(
-            "saved.html"
-        )
-    ) {
-
-        return "saved";
-    }
-
-
-    return "unknown";
-}
-
-
-/* ==========================================================
-   3. NAVIGATION
-   ========================================================== */
-
-/**
- * Initialize navbar.
- */
-function initializeNavigation() {
-
-    const links =
-        qsa(".nav-link");
-
-
-    links.forEach(link => {
-
-        link.addEventListener(
-            "click",
-            () => {
-
-                links.forEach(
-                    item =>
-                        item.classList.remove(
-                            "active"
-                        )
-                );
-
-
-                link.classList.add(
-                    "active"
-                );
-
-            }
-        );
-
-    });
-
-
-    /*
-     * Mobile menu.
-     */
-
-    const menuButton =
-        qs(
-            ".mobile-menu-button"
-        );
-
-
-    const navLinks =
-        qs(".main-nav");
-
-
-    if (
-        menuButton &&
-        navLinks
-    ) {
-
-        menuButton.addEventListener(
-            "click",
-            () => {
-
-                const isOpen =
-                    navLinks.classList.toggle(
-                        "mobile-open"
-                    );
-
-                menuButton.classList.toggle(
-                    "active",
-                    isOpen
-                );
-
-                menuButton.setAttribute(
-                    "aria-expanded",
-                    isOpen ? "true" : "false"
-                );
-
-            }
-        );
-
-
-        /*
-         * Close the mobile menu after
-         * a navigation link is tapped.
-         */
-
-        navLinks.addEventListener(
-            "click",
-            (event) => {
-
-                if (
-                    event.target.closest(
-                        ".nav-link"
-                    )
-                ) {
-
-                    navLinks.classList.remove(
-                        "mobile-open"
-                    );
-
-                    menuButton.classList.remove(
-                        "active"
-                    );
-
-                    menuButton.setAttribute(
-                        "aria-expanded",
-                        "false"
-                    );
-
-                }
-
-            }
-        );
-
-    }
-
-}
-
-
-/* ==========================================================
-   4. GITHUB STATUS
-   ========================================================== */
-
-/**
- * Update GitHub API status indicator.
- */
-async function initializeGitHubStatus() {
-
-    const status =
-        qs(".github-status");
-
-
-    if (!status) {
-        return;
-    }
-
-
-    try {
-
-        const rate =
-            await getRateLimit();
-
-
-        const core =
-            rate.resources?.core;
-
-
-        if (!core) {
-
-            status.textContent =
-                "GitHub API online";
-
-            status.classList.add(
-                "online"
-            );
-
-            return;
-        }
-
-
-        const remaining =
-            core.remaining;
-
-
-        const limit =
-            core.limit;
-
-
-        status.textContent =
-            `GitHub API ${remaining}/${limit}`;
-
-
-        status.classList.add(
-            remaining > 100
-                ? "online"
-                : "warning"
-        );
-
-
-    } catch {
-
-        status.textContent =
-            "GitHub API unavailable";
-
-
-        status.classList.add(
-            "offline"
-        );
-
-    }
-
-}
-
-
-/* ==========================================================
-   5. CATEGORY → TECHNOLOGY
-   ========================================================== */
-
-/**
- * Open a DevOps category.
- *
- * Flow:
- *
- * devops-categories.json
- *    ↓
- * Category
- *    ↓
- * Technology IDs
- *    ↓
- * devopsTechnologies
- *    ↓
- * Technology cards
- *
- * @param {string} categoryId
- */
-function openCategory(
-    categoryId
-) {
-
-    /*
-     * Normalize the clicked category ID.
-     */
-
-    const normalizedCategoryId =
-        String(
-            categoryId || ""
-        )
-            .trim()
-            .toLowerCase();
-
-
-    /*
-     * Find the category inside the
-     * categories loaded from JSON.
-     */
-
-    const category =
-        appState.categories.find(
-            item => {
-
-                const id =
-                    String(
-                        item.id || ""
-                    )
-                        .trim()
-                        .toLowerCase();
-
-
-                const slug =
-                    String(
-                        item.slug || ""
-                    )
-                        .trim()
-                        .toLowerCase();
-
-
-                return (
-                    id ===
-                    normalizedCategoryId
-                ) || (
-                    slug ===
-                    normalizedCategoryId
-                );
-
-            }
-        );
-
-
-    /*
-     * Stop if the category
-     * cannot be found.
-     */
-
-    if (!category) {
-
-        console.warn(
-            "Category not found:",
-            categoryId
-        );
-
-        return;
-    }
-
-
-    /*
-     * Find technology grid.
-     */
-
-    const technologyGrid =
-        document.getElementById(
-            "technologyGrid"
-        );
-
-
-    if (!technologyGrid) {
-
-        console.warn(
-            "Technology grid not found."
-        );
-
-        return;
-    }
-
-
-    /*
-     * Find technology section.
-     */
-
-    const technologySection =
-        document.querySelector(
-            ".technologies-map"
-        );
-
-
-    /*
-     * Update heading.
-     */
-
-    const heading =
-        technologySection?.querySelector(
-            "h2"
-        );
-
-
-    if (heading) {
-
-        heading.textContent =
-            category.name;
-
-    }
-
-
-    /*
-     * Update description.
-     */
-
-    const description =
-        technologySection?.querySelector(
-            ".section-heading p"
-        );
-
-
-    if (description) {
-
-        description.textContent =
-            category.description ||
-            "Explore technologies in this DevOps category.";
-
-    }
-
-
-    /*
-     * Get technology IDs from JSON.
-     */
-
-    const technologyIds =
-        Array.isArray(
-            category.technologies
-        )
-            ? category.technologies
-            : [];
-
-
-    /*
-     * Build technology cards.
-     */
-
-    const technologyCards =
-        technologyIds
-            .map(
-                technologyId => {
-
-                    const technology =
-                        devopsTechnologies[
-                            technologyId
-                        ];
-
-
-                    /*
-                     * If the technology does not
-                     * exist in devops-data.js,
-                     * show a warning in console
-                     * and skip the card.
-                     */
-
-                    if (!technology) {
-
-                        console.warn(
-                            `Technology "${technologyId}" is missing from devopsTechnologies.`
-                        );
-
-                        return "";
-
-                    }
-
-
-                    return `
-
-                        <article
-                            class="technology-card"
-                            data-technology="${technologyId}"
-                            tabindex="0"
-                            role="button"
-                            aria-label="Explore ${technology.name}"
-                        >
-
-                            <h3>
-                                ${technology.name}
-                            </h3>
-
-
-                            <p>
-                                ${technology.description}
-                            </p>
-
-
-                            <span>
-                                ${technology.category}
-                            </span>
-
-
-                            <strong>
-                                Explore →
-                            </strong>
-
-                        </article>
-
-                    `;
-
-                }
-            )
-            .join("");
-
-
-    /*
-     * Display the technology cards.
-     */
-
-    technologyGrid.innerHTML =
-        technologyCards ||
-        `
-
-            <div class="empty-state no-results">
-
-                <div class="empty-state-icon">
-                    &gt;_
-                </div>
-
-                <div class="empty-state-title">
-                    No technologies found
-                </div>
-
-                <p class="empty-state-description">
-                    No technologies are currently configured
-                    for this category.
-                </p>
-
-            </div>
-
-        `;
-
-
-    /*
-     * Highlight the selected category.
-     */
-
-    qsa(
-        "[data-category]"
-    ).forEach(
-        card => {
-
-            const cardCategory =
-                String(
-                    card.dataset.category || ""
-                )
-                    .trim()
-                    .toLowerCase();
-
-
-            card.classList.toggle(
-                "active",
-                cardCategory ===
-                    normalizedCategoryId
-            );
-
-        }
-    );
-
-
-    /*
-     * Scroll to technology section.
-     */
-
-    technologySection?.scrollIntoView({
-
-        behavior:
-            "smooth",
-
-        block:
-            "start"
-
-    });
-
-}
-
-
-/* ==========================================================
-   6. HOME PAGE
-   ========================================================== */
-
-/**
- * Initialize homepage.
- */
-async function initializeHomePage() {
-
-    const searchInput =
-        qs("#searchInput");
-
-
-    const searchButton =
-        qs("#searchButton");
-
-
-    const repositoryContainer =
-        qs("#repositoryResults");
-
-
-    const technologyContainer =
-        qs("#technologyGrid");
-
-
-    const categoryContainer =
-        qs("#categoryGrid");
-
-
-    /* ------------------------------------------------------
-       Category / Technology interactions
-       ------------------------------------------------------ */
-
-    initializeCategoryTechnologyInteractions(
-        categoryContainer,
-        technologyContainer
-    );
-
-
-    /* ------------------------------------------------------
-       Technologies
-       ------------------------------------------------------ */
-
-    try {
-
-        const technologies =
-            await loadTechnologies();
-
-
-        if (
-            technologyContainer
-        ) {
-
-            /*
-             * Display the first 24 technologies
-             * on the homepage.
-             */
-
-            renderTechnologies(
-                technologies.slice(0, 24),
-                technologyContainer
-            );
-
-
-            initializeTechnologyCards(
-                technologyContainer
-            );
-
-        }
-
-
-        await populateTechnologyFilter();
-
-    } catch (error) {
-
-        console.error(
-            "Technology loading failed:",
-            error
-        );
-
-    }
-
-
-    /* ------------------------------------------------------
-       Categories
-       ------------------------------------------------------ */
-
-    try {
-
-    const categories =
-        await loadCategories();          
-
-
-    /*
-     * Store the categories loaded from
-     * devops-categories.json.
-     *
-     * openCategory() will use this data.
-     */
-
-    appState.categories =
-        categories;
-
-
-    if (
-        categoryContainer
-    ) {
-
-        renderCategories(
-            categories.slice(0, 12),
-            categoryContainer
-        );
-
-
-        initializeCategoryCards(
-            categoryContainer,
-            searchInput
-        );
-
-    }
-
-} catch (error) {
-
-        console.error(
-            "Category loading failed:",
-            error
-        );
-
-    }
-
-
-    /* ------------------------------------------------------
-       Search modes
-       ------------------------------------------------------ */
-
-    const getSearchMode =
-        initializeSearchModes(
-            mode => {
-
-                appState.searchMode =
-                    mode;
-
-            }
-        );
-
-
-    /* ------------------------------------------------------
-       Filters
-       ------------------------------------------------------ */
-
-    initializeFilters(
-        () => {
-
-            /*
-             * If there are already results,
-             * search again automatically.
-             */
-
-            if (
-                searchInput?.value.trim()
-            ) {
-
-                executeSearch();
-
-            }
-
-        }
-    );
-
-
-    /* ------------------------------------------------------
-       Search
-       ------------------------------------------------------ */
-
-    const searchController =
-        initializeSearch({
-
-            input:
-                searchInput,
-
-            button:
-                searchButton,
-
-            container:
-                repositoryContainer,
-
-            getMode:
-                getSearchMode,
-
-            getFilters,
-
-            onResults:
-                state => {
-
-                    if (
-                        state.state ===
-                        "success"
-                    ) {
-
-                        appState.repositories =
-                            state.items || [];
-
-
-                        updateResultUI(
-                            state
-                        );
-
-                    }
-
-                }
-
-        });
-
-
-    /*
-     * Store search function.
-     */
-
-    function executeSearch() {
-
-        if (
-            searchController?.search
-        ) {
-
-            return searchController.search();
-
-        }
-
-    }
-
-
-    /* ------------------------------------------------------
-       Quick searches
-       ------------------------------------------------------ */
-
-    initializeQuickSearches(
-        searchInput,
-        executeSearch
-    );
-
-
-    /* ------------------------------------------------------
-       Optional initial search
-       ------------------------------------------------------ */
-
-    const query =
-        getQueryParam("q");
-
-
-    if (
-        query &&
-        searchInput
-    ) {
-
-        searchInput.value =
-            query;
-
-
-        executeSearch();
-
-    }
-
-
-    /*
-     * If no query exists,
-     * show initial empty state.
-     */
-
-    if (
-        repositoryContainer &&
-        !query
-    ) {
-
-        repositoryContainer.innerHTML = `
-
-            <div class="
-                empty-state
-                no-results
-            ">
-
-                <div class="empty-state-icon">
-                    &gt;_
-                </div>
-
-                <div class="empty-state-title">
-                    Ready to explore GitHub
-                </div>
-
-                <p class="empty-state-description">
-                    Search for Kubernetes, AWS,
-                    Terraform, Jenkins, Docker,
-                    Argo CD, DevSecOps and more.
-                </p>
-
-            </div>
-
-        `;
-
-    }
-
-}
-
-
-/* ==========================================================
-   7. UPDATE SEARCH UI
-   ========================================================== */
-
-/**
- * Update search result count/status.
- *
- * @param {object} state
- */
-function updateResultUI(
-    state
-) {
-
-    const resultCount =
-        qs("#resultCount");
-
-
-    const resultStatus =
-        qs("#resultsStatus");
-
-
-    if (resultCount) {
-
-        resultCount.textContent =
-            Number(
-                state.total || 0
-            ).toLocaleString();
-
-    }
-
-
-    if (resultStatus) {
-
-        resultStatus.textContent =
-            state.incomplete
-                ? "GitHub returned an incomplete result set."
-                : "GitHub search complete.";
-
-    }
-
-}
-
-
-/* ==========================================================
-   8. TECHNOLOGIES PAGE
-   ========================================================== */
-
-/**
- * Initialize technologies listing page.
- */
-async function initializeTechnologiesPage() {
-
-    const container =
-        qs("#technologyGrid");
-
-
-    if (!container) {
-        return;
-    }
-
-
-    const searchInput =
-        qs("#technologySearch");
-
-
-    try {
-
-        const technologies =
-            await loadTechnologies();
-
-
-        renderTechnologies(
-            technologies,
-            container
-        );
-
-
-        initializeTechnologyCards(
-            container
-        );
-
-
-        /*
-         * Local technology search.
-         */
-
-        if (searchInput) {
-
-            searchInput.addEventListener(
-                "input",
-                () => {
-
-                    const query =
-                        searchInput.value
-                            .trim()
-                            .toLowerCase();
-
-
-                    const filtered =
-                        technologies.filter(
-                            technology => {
-
-                                const text = [
-
-                                    technology.name,
-
-                                    technology.category,
-
-                                    technology.subcategory,
-
-                                    technology.description,
-
-                                    ...(technology.aliases || []),
-
-                                    ...(technology.keywords || [])
-
-                                ]
-                                    .filter(Boolean)
-                                    .join(" ")
-                                    .toLowerCase();
-
-
-                                return text.includes(
-                                    query
-                                );
-
-                            }
-                        );
-
-
-                    renderTechnologies(
-                        filtered,
-                        container
-                    );
-
-                }
-            );
-
-        }
-
-    } catch (error) {
-
-        container.innerHTML = `
-
-            <div class="error-message">
-
-                ${getErrorMessage(error)}
-
-            </div>
-
-        `;
-
-    }
-
-}
-
-
-/* ==========================================================
-   9. TECHNOLOGY DETAIL PAGE
-   ========================================================== */
-
-/**
- * Initialize technology detail page.
- */
-async function initializeTechnologyPage() {
-
-    const name =
-        getQueryParam("name");
-
-
-    if (!name) {
-        return;
-    }
-
-
-    try {
-
-        const technology =
-            await import(
-                "./technologies.js"
-            );
-
-
-        const data =
-            await technology.getTechnology(
-                name
-            );
-
-
-        if (!data) {
-
-            showNotification(
-                "Technology not found.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        /*
-         * Populate generic elements
-         * when they exist.
-         */
-
-        const title =
-            qs("#technologyName");
-
-
-        const description =
-            qs("#technologyDescription");
-
-
-        const category =
-            qs("#technologyCategory");
-
-
-        if (title) {
-
-            title.textContent =
-                data.name;
-
-        }
-
-
-        if (description) {
-
-            description.textContent =
-                data.description ||
-                "DevOps technology.";
-
-        }
-
-
-        if (category) {
-
-            category.textContent =
-                data.category ||
-                "DevOps";
-
-        }
-
-
-        /*
-         * Render keywords.
-         */
-
-        const keywordContainer =
-            qs("#technologyKeywords");
-
-
-        if (
-            keywordContainer &&
-            Array.isArray(
-                data.keywords
-            )
-        ) {
-
-            keywordContainer.innerHTML =
-                data.keywords
-                    .map(
-                        keyword => `
-
-                            <span class="tag">
-                                ${keyword}
-                            </span>
-
-                        `
-                    )
-                    .join("");
-
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Technology detail failed:",
-            error
-        );
-
-    }
-
-}
-
-
-/* ==========================================================
-   10. REPOSITORY DETAIL PAGE
-   ========================================================== */
-
-/**
- * Initialize repository detail page.
- */
-async function initializeRepositoryPage() {
-
-    const owner =
-        getQueryParam("owner");
-
-
-    const repo =
-        getQueryParam("repo");
-
-
-    if (
-        !owner ||
-        !repo
-    ) {
-
-        return;
-    }
-
-
-    try {
-
-        const repository =
-            await getRepository(
-                owner,
-                repo
-            );
-
-
-        /*
-         * Populate elements.
-         */
-
-        const title =
-            qs("#repositoryName");
-
-
-        const description =
-            qs("#repositoryDescription");
-
-
-        const stars =
-            qs("#repositoryStars");
-
-
-        const forks =
-            qs("#repositoryForks");
-
-
-        const language =
-            qs("#repositoryLanguage");
-
-
-        const updated =
-            qs("#repositoryUpdated");
-
-
-        const githubLink =
-            qs("#repositoryGithub");
-
-
-        if (title) {
-
-            title.textContent =
-                repository.full_name;
-
-        }
-
-
-        if (description) {
-
-            description.textContent =
-                repository.description ||
-                "No description available.";
-
-        }
-
-
-        if (stars) {
-
-            stars.textContent =
-                Number(
-                    repository.stargazers_count ||
-                    0
-                ).toLocaleString();
-
-        }
-
-
-        if (forks) {
-
-            forks.textContent =
-                Number(
-                    repository.forks_count ||
-                    0
-                ).toLocaleString();
-
-        }
-
-
-        if (language) {
-
-            language.textContent =
-                repository.language ||
-                "Unknown";
-
-        }
-
-
-        if (updated) {
-
-            updated.textContent =
-                repository.updated_at ||
-                "Unknown";
-
-        }
-
-
-        if (githubLink) {
-
-            githubLink.href =
-                repository.html_url;
-
-        }
-
-
-        /*
-         * Render topics.
-         */
-
-        const topics =
-            qs("#repositoryTopics");
-
-
-        if (
-            topics &&
-            Array.isArray(
-                repository.topics
-            )
-        ) {
-
-            topics.innerHTML =
-                repository.topics
-                    .map(
-                        topic => `
-
-                            <span class="tag">
-                                ${topic}
-                            </span>
-
-                        `
-                    )
-                    .join("");
-
-        }
-
-    } catch (error) {
-
-        const container =
-            qs("#repositoryDetail");
-
-
-        if (container) {
-
-            container.innerHTML = `
-
-                <div class="error-message">
-                    ${getErrorMessage(error)}
-                </div>
-
-            `;
-
-        }
-
-    }
-
-}
-
-
-/* ==========================================================
-   11. CREATOR DETAIL PAGE
-   ========================================================== */
-
-/**
- * Initialize creator page.
- */
-async function initializeCreatorPage() {
-
-    const username =
-        getQueryParam(
-            "username"
-        );
-
-
-    if (!username) {
-        return;
-    }
-
-
-    try {
-
-        const user =
-            await getUser(
-                username
-            );
-
-
-        const name =
-            qs("#creatorName");
-
-
-        const bio =
-            qs("#creatorBio");
-
-
-        const avatar =
-            qs("#creatorAvatar");
-
-
-        const repos =
-            qs("#creatorRepos");
-
-
-        const followers =
-            qs("#creatorFollowers");
-
-
-        const github =
-            qs("#creatorGithub");
-
-
-        if (name) {
-
-            name.textContent =
-                user.name ||
-                user.login;
-
-        }
-
-
-        if (bio) {
-
-            bio.textContent =
-                user.bio ||
-                "GitHub developer.";
-
-        }
-
-
-        if (avatar) {
-
-            avatar.src =
-                user.avatar_url;
-
-            avatar.alt =
-                user.login;
-
-        }
-
-
-        if (repos) {
-
-            repos.textContent =
-                user.public_repos;
-
-        }
-
-
-        if (followers) {
-
-            followers.textContent =
-                user.followers;
-
-        }
-
-
-        if (github) {
-
-            github.href =
-                user.html_url;
-
-        }
-
-    } catch (error) {
-
-        showNotification(
-            getErrorMessage(error),
-            "error"
-        );
-
-    }
-
-}
-
-
-/* ==========================================================
-   12. SAVED PAGE
-   ========================================================== */
-
-/**
- * Render locally saved repositories.
- */
-function initializeSavedPage() {
-
-    const container =
-        qs("#savedRepositoryResults");
-
-
-    if (!container) {
-        return;
-    }
-
-
-    const saved =
-        getSavedRepositories();
-
-
-    renderRepositories(
-        saved,
-        container
-    );
-
-
-    const count =
-        qs("#savedCount");
-
-
-    if (count) {
-
-        count.textContent =
-            saved.length;
-
-    }
-
-}
-
-
-/* ==========================================================
-   13. LAB PAGE
-   ========================================================== */
-
-/**
- * Labs page simply initializes the normal search system,
- * but defaults the mode to labs.
- */
-async function initializeLabsPage() {
-
-    const input =
-        qs("#searchInput");
-
-
-    const button =
-        qs("#searchButton");
-
-
-    const container =
-        qs("#repositoryResults");
-
-
-    if (!input) {
-        return;
-    }
-
-
-    const getSearchMode =
-        initializeSearchModes(
-            mode => {
-
-                appState.searchMode =
-                    mode;
-
-            }
-        );
-
-
-    appState.searchMode =
-        "labs";
-
-
-    const searchController =
-        initializeSearch({
-
-            input,
-
-            button,
-
-            container,
-
-            getMode:
-                () =>
-                    "labs",
-
-            getFilters,
-
-            onResults:
-                updateResultUI
-
-        });
-
-
-    initializeFilters(
-        () => {
-
-            searchController.search();
-
-        }
-    );
-
-
-    initializeQuickSearches(
-        input,
-        () =>
-            searchController.search()
-    );
-
-
-    /*
-     * Automatically search for DevOps labs.
-     */
-
-    input.value =
-        input.value ||
-        "DevOps Kubernetes";
-
-
-    searchController.search();
-
-}
-
-
-/* ==========================================================
-   14. GLOBAL BACK TO TOP
-   ========================================================== */
-
-/**
- * Initialize back-to-top button.
- */
-function initializeBackToTop() {
-
-    const button =
-        qs(".back-to-top");
-
-
-    if (!button) {
-        return;
-    }
-
-
-    window.addEventListener(
-        "scroll",
-        () => {
-
-            button.classList.toggle(
-                "visible",
-                window.scrollY > 500
-            );
-
-        }
-    );
-
-
-    button.addEventListener(
-        "click",
-        () => {
-
-            window.scrollTo({
-
-                top: 0,
-
-                behavior:
-                    "smooth"
-
-            });
-
-        }
-    );
-
-}
-
-
-/* ==========================================================
-   15. PAGE INITIALIZATION
-   ========================================================== */
-
-/**
- * Start application.
- */
-async function initializeApp() {
-
-    /*
-     * Prevent duplicate initialization.
-     */
-
-    if (
-        appState.initialized
-    ) {
-
-        return;
-    }
-
-
-    appState.initialized =
-        true;
-
-
-    const page =
-        getCurrentPage();
-
-
-    /*
-     * Global components.
-     */
-
-    initializeNavigation();
-
-    initializeBackToTop();
-
-
-    /*
-     * GitHub API status can run on pages
-     * where the status element exists.
-     */
-
-    initializeGitHubStatus();
-
-
-    /*
-     * Page-specific initialization.
-     */
-
-    switch (page) {
-
-        case "home":
-
-            await initializeHomePage();
-
-            break;
-
-
-        case "explorer":
-
-            await initializeHomePage();
-
-            break;
-
-
-        case "technologies":
-
-            await initializeTechnologiesPage();
-
-            break;
-
-
-        case "technology":
-
-            await initializeTechnologyPage();
-
-            break;
-
-
-        case "repository":
-
-            await initializeRepositoryPage();
-
-            break;
-
-
-        case "creator":
-
-            await initializeCreatorPage();
-
-            break;
-
-
-        case "labs":
-
-            await initializeLabsPage();
-
-            break;
-
-
-        case "saved":
-
-            initializeSavedPage();
-
-            break;
-
-
-        case "learning-path":
-
-            /*
-             * Learning path is primarily populated by
-             * the page's HTML/data in the current V1.
-             */
-
-            break;
-
-
-        default:
-
-            /*
-             * Unknown page.
-             */
-
-            break;
-
-    }
-
-
-    /*
-     * Global page-enter animation.
-     */
-
-    document.body.classList.add(
-        "page-enter"
-    );
-
-}
-
-
-/* ==========================================================
-   16. START APPLICATION
-   ========================================================== */
-
-/*
- * Wait until the DOM is ready.
- */
-
-if (
-    document.readyState ===
-    "loading"
-) {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        initializeApp
-    );
-
-} else {
-
-    initializeApp();
-
-}
-
-
-/* ==========================================================
-   END OF app.js
-   ========================================================== */
 ```
+<!-- =========================================================
+     CHARLIE MJ DEVOPS EXPLORER
+     MAIN HOMEPAGE
+     ========================================================= -->
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<meta
+    name="description"
+    content="Charlie MJ DevOps Explorer — search GitHub for DevOps projects, labs, Kubernetes, cloud, CI/CD, IaC, automation, security and observability resources."
+>
+
+<meta
+    name="keywords"
+    content="DevOps, GitHub, Kubernetes, Docker, AWS, Azure, GCP, Terraform, CloudFormation, Pulumi, Jenkins, Ansible, GitOps, CI/CD, DevSecOps"
+>
+
+<meta
+    name="author"
+    content="Charlie MJ"
+>
+
+<meta
+    name="theme-color"
+    content="#061126"
+>
+
+<title>
+    Charlie MJ DevOps Explorer
+</title>
+
+
+<!-- =========================================================
+     GOOGLE FONTS
+     ========================================================= -->
+
+<link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+>
+
+<link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+>
+
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet"
+>
+
+
+<!-- =========================================================
+     IMAGE PRELOAD
+     ========================================================= -->
+
+<link
+    rel="preload"
+    as="image"
+    href="assets/images/devops-engineer.png"
+>
+
+
+<!-- =========================================================
+     STYLESHEETS
+     ========================================================= -->
+
+<link
+    rel="stylesheet"
+    href="css/style.css"
+>
+
+<link
+    rel="stylesheet"
+    href="css/components.css"
+>
+
+<link
+    rel="stylesheet"
+    href="css/responsive.css"
+>
+
+<link
+    rel="stylesheet"
+    href="css/theme-redesign.css"
+>
+```
+
+</head>
+
+<body
+    class="devops-explorer-page"
+    data-page="home"
+>
+
+<!-- =============================================================
+     GLOBAL VISUAL BACKGROUND
+     ============================================================= -->
+
+<div
+    class="site-noise"
+    aria-hidden="true"
+></div>
+
+<div
+    class="site-glow glow-a"
+    aria-hidden="true"
+></div>
+
+<div
+    class="site-glow glow-b"
+    aria-hidden="true"
+></div>
+
+<!-- =============================================================
+     TOP STATUS BAR
+     ============================================================= -->
+
+<div class="top-status-bar">
+
+```
+<div class="container status-inner">
+
+    <div>
+
+        <span class="status-indicator"></span>
+
+        CHARLIE MJ DEVOPS EXPLORER
+
+        <span class="status-separator">
+            //
+        </span>
+
+        SYSTEM ONLINE
+
+    </div>
+
+    <div>
+
+        GITHUB RESOURCE DISCOVERY
+
+        <span class="status-version">
+            v2.0
+        </span>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<!-- =============================================================
+     MAIN NAVIGATION
+     ============================================================= -->
+
+<header class="main-header">
+
+```
+<div class="container nav-container">
+
+
+    <!-- -----------------------------------------------------
+         BRAND
+         ----------------------------------------------------- -->
+
+    <a
+        class="brand"
+        href="#explore"
+        aria-label="Charlie MJ DevOps Explorer"
+    >
+
+        <span class="brand-mark">
+            ∞
+        </span>
+
+        <span class="brand-wordmark">
+
+            <strong>
+                Charlie MJ
+            </strong>
+
+            <small>
+                DevOps Explorer
+            </small>
+
+        </span>
+
+    </a>
+
+
+    <!-- -----------------------------------------------------
+         NAVIGATION LINKS
+         ----------------------------------------------------- -->
+
+    <nav
+        class="main-nav"
+        id="mainNav"
+        aria-label="Primary navigation"
+    >
+
+        <div class="nav-links-group">
+
+            <a
+                href="#explore"
+                class="nav-link active"
+            >
+                Home
+            </a>
+
+            <a
+                href="#cloud"
+                class="nav-link"
+            >
+                Cloud
+            </a>
+
+            <a
+                href="#technologies"
+                class="nav-link"
+            >
+                DevOps Tools
+            </a>
+
+            <a
+                href="#containers"
+                class="nav-link"
+            >
+                Containers
+            </a>
+
+            <a
+                href="#categories"
+                class="nav-link"
+            >
+                Kubernetes
+            </a>
+
+            <a
+                href="#iac"
+                class="nav-link"
+            >
+                IaC
+            </a>
+
+            <a
+                href="#automation"
+                class="nav-link"
+            >
+                Automation
+            </a>
+
+            <a
+                href="#security"
+                class="nav-link"
+            >
+                Security
+            </a>
+
+            <a
+                href="#observability"
+                class="nav-link"
+            >
+                Monitoring
+            </a>
+
+        </div>
+
+
+        <!-- GitHub external link -->
+
+        <a
+            class="nav-github"
+            href="https://github.com/"
+            target="_blank"
+            rel="noopener"
+        >
+            GitHub ↗
+        </a>
+
+    </nav>
+
+
+    <!-- -----------------------------------------------------
+         MOBILE MENU BUTTON
+         ----------------------------------------------------- -->
+
+    <button
+        class="mobile-menu-button"
+        id="mobileMenuButton"
+        type="button"
+        aria-label="Open navigation"
+        aria-expanded="false"
+    >
+        ☰
+    </button>
+
+</div>
+```
+
+</header>
+
+<!-- =============================================================
+     MAIN CONTENT
+     ============================================================= -->
+
+<main>
+
+<!-- =============================================================
+     HERO SECTION
+     ============================================================= -->
+
+<section
+    id="explore"
+    class="hero-section"
+>
+
+```
+<div
+    class="hero-backdrop"
+    aria-hidden="true"
+></div>
+
+
+<div class="container hero-container">
+
+
+    <!-- -----------------------------------------------------
+         HERO TEXT
+         ----------------------------------------------------- -->
+
+    <div class="hero-content">
+
+        <div class="eyebrow">
+
+            <span></span>
+
+            WELCOME TO THE DEVOPS ECOSYSTEM
+
+        </div>
+
+
+        <h1>
+
+            CHARLIE MJ
+
+            <br>
+
+            <span>
+                DEVOPS EXPLORER
+            </span>
+
+        </h1>
+
+
+        <p class="hero-lead">
+
+            Explore <b>•</b>
+            Learn <b>•</b>
+            Build <b>•</b>
+            Grow
+
+        </p>
+
+
+        <p class="hero-description">
+
+            Your complete GitHub discovery engine for
+            cloud platforms, containers, Kubernetes,
+            CI/CD, automation, security,
+            infrastructure as code, scripting
+            and observability.
+
+        </p>
+
+
+        <!-- Hero actions -->
+
+        <div class="hero-actions">
+
+            <a
+                href="#technologies"
+                class="primary-btn"
+            >
+                Explore Technologies
+                <span>→</span>
+            </a>
+
+            <a
+                href="https://github.com/"
+                target="_blank"
+                rel="noopener"
+                class="secondary-btn"
+            >
+                View on GitHub
+                <span>↗</span>
+            </a>
+
+        </div>
+
+
+        <!-- Hero statistics -->
+
+        <div class="hero-capabilities">
+
+            <span>
+                148+ technologies
+            </span>
+
+            <span>
+                23 categories
+            </span>
+
+            <span>
+                GitHub API search
+            </span>
+
+            <span>
+                Open source
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- -----------------------------------------------------
+         HERO ART
+         ----------------------------------------------------- -->
+
+    <div
+        class="hero-art"
+        aria-label="DevOps engineer illustration"
+    >
+
+        <div
+            class="hero-orbit orbit-one"
+        ></div>
+
+        <div
+            class="hero-orbit orbit-two"
+        ></div>
+
+
+        <div class="hero-image-card">
+
+            <img
+                src="assets/images/devops-engineer.png"
+                alt="DevOps engineer illustration"
+            >
+
+        </div>
+
+
+        <span class="floating-badge badge-aws">
+            AWS
+        </span>
+
+        <span class="floating-badge badge-k8s">
+            K8S
+        </span>
+
+        <span class="floating-badge badge-docker">
+            DOCKER
+        </span>
+
+        <span class="floating-badge badge-tf">
+            TF
+        </span>
+
+        <span class="floating-badge badge-cli">
+            $_
+        </span>
+
+    </div>
+
+</div>
+```
+
+</section>
+
+<!-- =============================================================
+     GITHUB SEARCH SECTION
+     ============================================================= -->
+
+<section class="search-section">
+
+```
+<div class="container">
+
+    <div class="section-kicker">
+        GITHUB DISCOVERY ENGINE
+    </div>
+
+
+    <div class="search-shell">
+
+
+        <!-- -------------------------------------------------
+             MAIN SEARCH BOX
+             ------------------------------------------------- -->
+
+        <div class="search-box">
+
+            <div class="search-input-wrapper">
+
+                <span class="search-icon">
+                    ⌕
+                </span>
+
+                <input
+                    id="searchInput"
+                    class="search-input"
+                    type="search"
+                    placeholder="Search Kubernetes, Bash, Terraform, CloudFormation, Jenkins, AWS..."
+                    autocomplete="off"
+                    aria-label="Search DevOps repositories on GitHub"
+                >
+
+            </div>
+
+
+            <button
+                id="searchButton"
+                class="search-button"
+                type="button"
+            >
+                SEARCH
+                <span>→</span>
+            </button>
+
+        </div>
+
+
+        <!-- -------------------------------------------------
+             SEARCH TYPE SELECTOR
+             ------------------------------------------------- -->
+
+        <div
+            class="search-type-selector"
+            aria-label="Search type"
+        >
+
+            <button
+                class="search-type active"
+                data-search="everything"
+                type="button"
+            >
+                Everything
+            </button>
+
+            <button
+                class="search-type"
+                data-search="labs"
+                type="button"
+            >
+                Labs
+            </button>
+
+            <button
+                class="search-type"
+                data-search="projects"
+                type="button"
+            >
+                Projects
+            </button>
+
+            <button
+                class="search-type"
+                data-search="tutorials"
+                type="button"
+            >
+                Tutorials
+            </button>
+
+            <button
+                class="search-type"
+                data-search="notes"
+                type="button"
+            >
+                Notes
+            </button>
+
+            <button
+                class="search-type"
+                data-search="cicd"
+                type="button"
+            >
+                CI/CD
+            </button>
+
+            <button
+                class="search-type"
+                data-search="gitops"
+                type="button"
+            >
+                GitOps
+            </button>
+
+        </div>
+
+
+        <!-- -------------------------------------------------
+             QUICK SEARCH
+             ------------------------------------------------- -->
+
+        <div class="quick-search-section">
+
+            <span class="quick-search-label">
+                QUICK SEARCH
+            </span>
+
+
+            <div class="quick-search-list">
+
+                <button
+                    class="quick-search"
+                    data-query="kubernetes labs"
+                    type="button"
+                >
+                    Kubernetes
+                </button>
+
+                <button
+                    class="quick-search"
+                    data-query="aws eks"
+                    type="button"
+                >
+                    AWS EKS
+                </button>
+
+                <button
+                    class="quick-search"
+                    data-query="terraform aws"
+                    type="button"
+                >
+                    Terraform
+                </button>
+
+                <button
+                    class="quick-search"
+                    data-query="bash shell scripting"
+                    type="button"
+                >
+                    Bash / Shell
+                </button>
+
+                <button
+                    class="quick-search"
+                    data-query="cloudformation infrastructure as code"
+                    type="button"
+                >
+                    CloudFormation
+                </button>
+
+                <button
+                    class="quick-search"
+                    data-query="jenkins cicd"
+                    type="button"
+                >
+                    Jenkins CI/CD
+                </button>
+
+                <button
+                    class="quick-search"
+                    data-query="ansible automation"
+                    type="button"
+                >
+                    Ansible
+                </button>
+
+                <button
+                    class="quick-search"
+                    data-query="argocd gitops"
+                    type="button"
+                >
+                    Argo CD
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- -------------------------------------------------
+             SEARCH FILTERS
+             ------------------------------------------------- -->
+
+        <div class="filters">
+
+
+            <!-- Resource type -->
+
+            <div class="filter-group">
+
+                <label for="resourceTypeFilter">
+                    RESOURCE TYPE
+                </label>
+
+                <select id="resourceTypeFilter">
+
+                    <option value="everything">
+                        Everything
+                    </option>
+
+                    <option value="labs">
+                        DevOps Labs
+                    </option>
+
+                    <option value="projects">
+                        Projects
+                    </option>
+
+                    <option value="tutorials">
+                        Tutorials
+                    </option>
+
+                    <option value="notes">
+                        Study Material
+                    </option>
+
+                    <option value="cheatsheets">
+                        Cheat Sheets
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Technology filter -->
+
+            <div class="filter-group">
+
+                <label for="technologyFilter">
+                    TECHNOLOGY
+                </label>
+
+                <select id="technologyFilter">
+
+                    <option value="any">
+                        Any Technology
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Language filter -->
+
+            <div class="filter-group">
+
+                <label for="languageFilter">
+                    LANGUAGE
+                </label>
+
+                <select id="languageFilter">
+
+                    <option value="any">
+                        Any Language
+                    </option>
+
+                    <option value="Shell">
+                        Bash / Shell
+                    </option>
+
+                    <option value="PowerShell">
+                        PowerShell
+                    </option>
+
+                    <option value="Python">
+                        Python
+                    </option>
+
+                    <option value="Go">
+                        Go
+                    </option>
+
+                    <option value="JavaScript">
+                        JavaScript
+                    </option>
+
+                    <option value="TypeScript">
+                        TypeScript
+                    </option>
+
+                    <option value="Java">
+                        Java
+                    </option>
+
+                    <option value="C#">
+                        C#
+                    </option>
+
+                    <option value="Ruby">
+                        Ruby
+                    </option>
+
+                    <option value="Rust">
+                        Rust
+                    </option>
+
+                    <option value="HCL">
+                        HCL
+                    </option>
+
+                    <option value="YAML">
+                        YAML
+                    </option>
+
+                    <option value="JSON">
+                        JSON
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Sort -->
+
+            <div class="filter-group">
+
+                <label for="sortFilter">
+                    SORT
+                </label>
+
+                <select id="sortFilter">
+
+                    <option value="best">
+                        Best Match
+                    </option>
+
+                    <option value="stars">
+                        Most Stars
+                    </option>
+
+                    <option value="forks">
+                        Most Forks
+                    </option>
+
+                    <option value="updated">
+                        Recently Updated
+                    </option>
+
+                    <option value="created">
+                        Recently Created
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+```
+
+</section>
+
+<!-- =============================================================
+     SEARCH RESULTS
+     ============================================================= -->
+
+<section
+    id="searchResults"
+    class="results-section"
+>
+
+```
+<div class="container">
+
+    <div class="section-heading-inline">
+
+
+        <div>
+
+            <span class="section-number">
+                SEARCH RESULTS
+            </span>
+
+            <h2>
+                Discover GitHub Resources
+            </h2>
+
+        </div>
+
+
+        <div class="result-meta">
+
+            <strong id="resultCount">
+                0
+            </strong>
+
+            results
+
+            <span id="resultsStatus">
+                Ready to explore GitHub.
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- Repository results are populated by app.js -->
+
+    <div
+        id="repositoryResults"
+        class="repository-grid"
+    >
+
+        <div class="empty-state no-results">
+
+            <div class="empty-state-icon">
+                &gt;_
+            </div>
+
+            <div class="empty-state-title">
+                Ready to explore GitHub
+            </div>
+
+            <p class="empty-state-description">
+
+                Search for Kubernetes, AWS,
+                Terraform, Bash, Jenkins,
+                Docker, Argo CD, DevSecOps
+                and more.
+
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+```
+
+</section>
+
+<!-- =============================================================
+     01 / CLOUD PLATFORMS
+     ============================================================= -->
+
+<section
+    id="cloud"
+    class="feature-section"
+>
+
+```
+<div class="container">
+
+    <div class="feature-layout">
+
+
+        <!-- Cloud description -->
+
+        <div class="feature-copy">
+
+            <span class="section-number">
+                01 / CLOUD PLATFORMS
+            </span>
+
+            <h2>
+                Cloud Infrastructure
+            </h2>
+
+            <p>
+
+                Explore the major cloud providers
+                and the services that power modern
+                applications and infrastructure.
+
+            </p>
+
+            <a
+                class="outline-btn"
+                href="#technologies"
+            >
+                Explore Cloud Providers →
+            </a>
+
+        </div>
+
+
+        <!-- -------------------------------------------------
+             CLOUD TECHNOLOGY CARDS
+             
+             IMPORTANT:
+             data-technology connects these static cards
+             to devops-data.js and openTechnology().
+             ------------------------------------------------- -->
+
+        <div class="feature-cards four">
+
+
+            <!-- AWS -->
+
+            <article
+                class="feature-card"
+                data-technology="aws"
+                tabindex="0"
+                role="button"
+                aria-label="Explore Amazon Web Services"
+            >
+
+                <span class="provider-icon">
+                    aws
+                </span>
+
+                <h3>
+                    Amazon Web Services
+                </h3>
+
+                <p>
+                    Compute, storage, database,
+                    networking and more.
+                </p>
+
+            </article>
+
+
+            <!-- Azure -->
+
+            <article
+                class="feature-card"
+                data-technology="microsoft-azure"
+                tabindex="0"
+                role="button"
+                aria-label="Explore Microsoft Azure"
+            >
+
+                <span class="provider-icon azure">
+                    △
+                </span>
+
+                <h3>
+                    Microsoft Azure
+                </h3>
+
+                <p>
+                    Virtual machines, containers,
+                    AI and more.
+                </p>
+
+            </article>
+
+
+            <!-- Google Cloud -->
+
+            <article
+                class="feature-card"
+                data-technology="google-cloud"
+                tabindex="0"
+                role="button"
+                aria-label="Explore Google Cloud"
+            >
+
+                <span class="provider-icon gcp">
+                    ●
+                </span>
+
+                <h3>
+                    Google Cloud
+                </h3>
+
+                <p>
+                    Compute, storage, BigQuery,
+                    AI and more.
+                </p>
+
+            </article>
+
+
+            <!-- Other cloud providers -->
+
+            <article
+                class="feature-card"
+                data-technology="cloudflare"
+                tabindex="0"
+                role="button"
+                aria-label="Explore Cloudflare and other cloud providers"
+            >
+
+                <span class="provider-icon other">
+                    OCI
+                </span>
+
+                <h3>
+                    Other Providers
+                </h3>
+
+                <p>
+                    Oracle, IBM, DigitalOcean
+                    and Cloudflare.
+                </p>
+
+            </article>
+
+        </div>
+
+    </div>
+
+</div>
+```
+
+</section>
+
+<!-- =============================================================
+     02 / DEVOPS TOOLS
+     ============================================================= -->
+
+<section
+    id="technologies"
+    class="feature-section alt"
+>
+
+```
+<div class="container">
+
+    <div class="feature-layout">
+
+
+        <!-- Section description -->
+
+        <div class="feature-copy">
+
+            <span class="section-number">
+                02 / DEVOPS TOOLS
+            </span>
+
+            <h2>
+                Tools & Technologies
+            </h2>
+
+            <p>
+
+                Browse the growing DevOps
+                technology map covering development,
+                operations, security, monitoring
+                and collaboration.
+
+            </p>
+
+            <div class="tool-stat">
+
+                148+
+
+                <small>
+                    technologies indexed
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <!-- -------------------------------------------------
+             STATIC DEVOPS TOOL CARDS
+             
+             Each data-technology value must match an ID
+             from devops-data.js.
+             ------------------------------------------------- -->
+
+        <div class="feature-cards four compact">
+
+
+            <!-- CI/CD -->
+
+            <article
+                class="feature-card"
+                data-technology="jenkins"
+                tabindex="0"
+                role="button"
+                aria-label="Explore Jenkins"
+            >
+
+                <span class="mini-icon">
+                    ∞
+                </span>
+
+                <h3>
+                    CI/CD
+                </h3>
+
+                <p>
+                    Jenkins, GitHub Actions,
+                    GitLab, CircleCI...
+                </p>
+
+            </article>
+
+
+            <!-- Configuration Management -->
+
+            <article
+                class="feature-card"
+                data-technology="ansible"
+                tabindex="0"
+                role="button"
+                aria-label="Explore Ansible"
+            >
+
+                <span class="mini-icon">
+                    ⚙
+                </span>
+
+                <h3>
+                    Configuration Mgmt
+                </h3>
+
+                <p>
+                    Ansible, Chef, Puppet,
+                    SaltStack...
+                </p>
+
+            </article>
+
+
+            <!-- Monitoring -->
+
+            <article
+                class="feature-card"
+                data-technology="prometheus"
+                tabindex="0"
+                role="button"
+                aria-label="Explore Prometheus"
+            >
+
+                <span class="mini-icon">
+                    ▥
+                </span>
+
+                <h3>
+                    Monitoring
+                </h3>
+
+                <p>
+                    Prometheus, Grafana,
+                    Datadog...
+                </p>
+
+            </article>
+
+
+            <!-- Security -->
+
+            <article
+                class="feature-card"
+                data-technology="sonarqube"
+                tabindex="0"
+                role="button"
+                aria-label="Explore SonarQube"
+            >
+
+                <span class="mini-icon">
+                    ◆
+                </span>
+
+                <h3>
+                    Security
+                </h3>
+
+                <p>
+                    SonarQube, Trivy,
+                    OWASP, Snyk...
+                </p>
+
+            </article>
+
+
+            <!-- Container Registry -->
+
+            <article
+                class="feature-card"
+                data-technology="amazon-ecr"
+                tabindex="0"
+                role="button"
+                aria-label="Explore Amazon ECR"
+            >
+
+                <span class="mini-icon">
+                    □
+                </span>
+
+                <h3>
+                    Container Registry
+                </h3>
+
+                <p>
+                    Docker Hub, ECR,
+                    Harbor...
+                </p>
+
+            </article>
+
+
+            <!-- Version Control -->
+
+            <article
+                class="feature-card"
+                data-technology="git"
+                tabindex="0"
+                role="button"
+                aria-label="Explore Git"
+            >
+
+                <span class="mini-icon">
+                    ⌘
+                </span>
+
+                <h3>
+                    Version Control
+                </h3>
+
+                <p>
+                    Git, GitHub, GitLab...
+                </p>
+
+            </article>
+
+
+            <!-- Project Management -->
+
+            <article
+                class="feature-card"
+                data-technology="github"
+                tabindex="0"
+                role="button"
+                aria-label="Explore GitHub"
+            >
+
+                <span class="mini-icon">
+                    ▣
+                </span>
+
+                <h3>
+                    Project Management
+                </h3>
+
+                <p>
+                    GitHub, Jira, Confluence
+                    and documentation.
+                </p>
+
+            </article>
+
+
+            <!-- Logging -->
+
+            <article
+                class="feature-card"
+                data-technology="loki"
+                tabindex="0"
+                role="button"
+                aria-label="Explore Grafana Loki"
+            >
+
+                <span class="mini-icon">
+                    ≋
+                </span>
+
+                <h3>
+                    Logging
+                </h3>
+
+                <p>
+                    Elastic Stack,
+                    Fluent Bit, Loki...
+                </p>
+
+            </article>
+
+        </div>
+
+    </div>
+
+</div>
+```
+
+</section>
+
+<!-- =============================================================
+     03 / CI/CD PIPELINE
+     ============================================================= -->
+
+<section
+    id="automation"
+    class="pipeline-section"
+>
+
+```
+<div class="container">
+
+    <div class="feature-layout pipeline-layout">
+
+
+        <div class="feature-copy">
+
+            <span class="section-number">
+                03 / CI/CD PIPELINE
+            </span>
+
+            <h2>
+                Automate Your Workflow
+            </h2>
+
+            <p>
+
+                From source code to production,
+                understand the complete delivery
+                pipeline and the tools behind
+                every stage.
+
+            </p>
+
+            <a
+                class="primary-btn"
+                href="#categories"
+            >
+                Explore CI/CD →
+            </a>
+
+        </div>
+
+
+        <!-- Pipeline visual -->
+
+        <div class="pipeline-card">
+
+
+            <!-- Git -->
+
+            <div
+                class="pipeline-step"
+                data-technology="git"
+                tabindex="0"
+                role="button"
+            >
+
+                <b>01</b>
+
+                <span class="pipeline-icon">
+                    &lt;/&gt;
+                </span>
+
+                <strong>
+                    Code
+                </strong>
+
+                <small>
+                    Push to GitHub
+                </small>
+
+            </div>
+
+
+            <i>→</i>
+
+
+            <!-- Docker -->
+
+            <div
+                class="pipeline-step"
+                data-technology="docker"
+                tabindex="0"
+                role="button"
+            >
+
+                <b>02</b>
+
+                <span class="pipeline-icon">
+                    ◆
+                </span>
+
+                <strong>
+                    Build
+                </strong>
+
+                <small>
+                    Docker Build
+                </small>
+
+            </div>
+
+
+            <i>→</i>
+
+
+            <!-- Security -->
+
+            <div
+                class="pipeline-step"
+                data-technology="trivy"
+                tabindex="0"
+                role="button"
+            >
+
+                <b>03</b>
+
+                <span class="pipeline-icon">
+                    ✓
+                </span>
+
+                <strong>
+                    Test
+                </strong>
+
+                <small>
+                    Quality & Security
+                </small>
+
+            </div>
+
+
+            <i>→</i>
+
+
+            <!-- Registry -->
+
+            <div
+                class="pipeline-step"
+                data-technology="amazon-ecr"
+                tabindex="0"
+                role="button"
+            >
+
+                <b>04</b>
+
+                <span class="pipeline-icon">
+                    ▣
+                </span>
+
+                <strong>
+                    Registry
+                </strong>
+
+                <small>
+                    Push Image
+                </small>
+
+            </div>
+
+
+            <i>→</i>
+
+
+            <!-- Kubernetes -->
+
+            <div
+                class="pipeline-step"
+                data-technology="kubernetes"
+                tabindex="0"
+                role="button"
+            >
+
+                <b>05</b>
+
+                <span class="pipeline-icon">
+                    🚀
+                </span>
+
+                <strong>
+                    Deploy
+                </strong>
+
+                <small>
+                    Kubernetes / EKS
+                </small>
+
+            </div>
+
+
+            <i>→</i>
+
+
+            <!-- Prometheus -->
+
+            <div
+                class="pipeline-step"
+                data-technology="prometheus"
+                tabindex="0"
+                role="button"
+            >
+
+                <b>06</b>
+
+                <span class="pipeline-icon">
+                    ⌁
+                </span>
+
+                <strong>
+                    Monitor
+                </strong>
+
+                <small>
+                    Observe & Alert
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+```
+
+</section>
+
+<!-- =============================================================
+     04 / CONTAINERS & KUBERNETES
+     ============================================================= -->
+
+<section
+    id="containers"
+    class="feature-section"
+>
+
+```
+<div class="container">
+
+    <div class="feature-layout">
+
+
+        <div class="feature-copy">
+
+            <span class="section-number">
+                04 / CONTAINERS & KUBERNETES
+            </span>
+
+            <h2>
+                Container Orchestration
+            </h2>
+
+            <p>
+
+                Learn how containers work and
+                how Kubernetes manages your
+                applications at scale.
+
+            </p>
+
+            <a
+                class="outline-btn"
+                href="#categories"
+            >
+                Explore Kubernetes →
+            </a>
+
+        </div>
+
+
+        <!-- -------------------------------------------------
+             KUBERNETES CLUSTER VISUAL
+             ------------------------------------------------- -->
+
+        <div class="cluster-panel">
+
+
+            <div class="cluster-title">
+
+                <span class="k8s-logo">
+                    K8S
+                </span>
+
+                <div>
+
+                    <strong>
+                        Kubernetes Cluster
+                    </strong>
+
+                    <small>
+                        Control plane + worker nodes
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="cluster-nodes">
+
+                <span
+                    data-technology="kubernetes"
+                    tabindex="0"
+                    role="button"
+                >
+                    Control Plane
+                </span>
+
+
+                <div
+                    class="worker"
+                    data-technology="kubernetes"
+                    tabindex="0"
+                    role="button"
+                >
+
+                    <b>
+                        Worker Node
+                    </b>
+
+                    <em>
+                        Pods
+                    </em>
+
+                </div>
+
+
+                <div
+                    class="worker"
+                    data-technology="kubernetes"
+                    tabindex="0"
+                    role="button"
+                >
+
+                    <b>
+                        Worker Node
+                    </b>
+
+                    <em>
+                        Pods
+                    </em>
+
+                </div>
+
+
+                <div
+                    class="worker"
+                    data-technology="kubernetes"
+                    tabindex="0"
+                    role="button"
+                >
+
+                    <b>
+                        Worker Node
+                    </b>
+
+                    <em>
+                        Pods
+                    </em>
+
+                </div>
+
+            </div>
+
+
+            <!-- Container technologies -->
+
+            <div class="cluster-stack">
+
+                <span
+                    data-technology="docker"
+                    tabindex="0"
+                    role="button"
+                >
+                    Docker / Podman
+                </span>
+
+                <span
+                    data-technology="kubernetes"
+                    tabindex="0"
+                    role="button"
+                >
+                    Kubernetes
+                </span>
+
+                <span>
+                    containerd / CRI-O
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+```
+
+</section>
+
+<!-- =============================================================
+     05 / INFRASTRUCTURE AS CODE
+     ============================================================= -->
+
+<section
+    id="iac"
+    class="split-section"
+>
+
+```
+<div class="container split-grid">
+
+
+    <!-- -----------------------------------------------------
+         IaC CARD
+         ----------------------------------------------------- -->
+
+    <article class="split-card iac-card">
+
+        <span class="section-number">
+            05 / INFRASTRUCTURE AS CODE
+        </span>
+
+        <h2>
+            Provision & Manage
+        </h2>
+
+        <p>
+
+            Define and manage infrastructure
+            using code, not manual steps.
+
+        </p>
+
+
+        <!-- Clickable technology pills -->
+
+        <div class="tool-pills">
+
+
+            <span
+                data-technology="terraform"
+                tabindex="0"
+                role="button"
+            >
+                Terraform
+            </span>
+
+
+            <span
+                data-technology="aws-cloudformation"
+                tabindex="0"
+                role="button"
+            >
+                CloudFormation
+            </span>
+
+
+            <span
+                data-technology="aws-cdk"
+                tabindex="0"
+                role="button"
+            >
+                CDK
+            </span>
+
+
+            <span
+                data-technology="pulumi"
+                tabindex="0"
+                role="button"
+            >
+                Pulumi
+            </span>
+
+
+            <span
+                data-technology="opentofu"
+                tabindex="0"
+                role="button"
+            >
+                OpenTofu
+            </span>
+
+        </div>
+
+
+        <a
+            class="outline-btn"
+            href="#technologies"
+        >
+            Explore IaC →
+        </a>
+
+    </article>
+
+
+    <!-- -----------------------------------------------------
+         AUTOMATION & SCRIPTING CARD
+         ----------------------------------------------------- -->
+
+    <article class="split-card script-card">
+
+        <span class="section-number">
+            06 / AUTOMATION & SCRIPTING
+        </span>
+
+        <h2>
+            Write Scripts, Save Time
+        </h2>
+
+        <p>
+
+            Automate repetitive tasks with
+            Bash, PowerShell, Python, Go
+            and command-line tools.
+
+        </p>
+
+
+        <div class="terminal-window">
+
+            <code>
+
+                <span>$</span>
+                #!/usr/bin/env bash
+                <br>
+
+                <span>$</span>
+                echo "Automate Everything"
+                <br>
+
+                <span>$</span>
+                kubectl get pods -A
+
+            </code>
+
+        </div>
+
+
+        <!-- Language pills -->
+
+        <div class="language-pills">
+
+            <span
+                data-technology="bash"
+                tabindex="0"
+                role="button"
+            >
+                Bash
+            </span>
+
+            <span
+                data-technology="python"
+                tabindex="0"
+                role="button"
+            >
+                Python
+            </span>
+
+            <span
+                data-technology="powershell"
+                tabindex="0"
+                role="button"
+            >
+                PowerShell
+            </span>
+
+            <span
+                data-technology="go"
+                tabindex="0"
+                role="button"
+            >
+                Go
+            </span>
+
+            <span>
+                YAML
+            </span>
+
+            <span
+                data-technology="javascript"
+                tabindex="0"
+                role="button"
+            >
+                JavaScript
+            </span>
+
+        </div>
+
+    </article>
+
+</div>
+```
+
+</section>
+
+<!-- =============================================================
+     07 / SECURITY
+     ============================================================= -->
+
+<section
+    id="security"
+    class="split-section"
+>
+
+```
+<div class="container split-grid">
+
+
+    <!-- Security -->
+
+    <article class="split-card security-card">
+
+        <span class="section-number">
+            07 / SECURITY
+        </span>
+
+        <h2>
+            Secure Everything
+        </h2>
+
+        <p>
+
+            Protect applications,
+            infrastructure and software
+            supply chains with DevSecOps
+            practices.
+
+        </p>
+
+
+        <!-- -------------------------------------------------
+             SECURITY TECHNOLOGY PILLS
+             ------------------------------------------------- -->
+
+        <div class="tool-pills">
+
+
+            <span
+                data-technology="sonarqube"
+                tabindex="0"
+                role="button"
+            >
+                SonarQube
+            </span>
+
+
+            <span
+                data-technology="trivy"
+                tabindex="0"
+                role="button"
+            >
+                Trivy
+            </span>
+
+
+            <span
+                data-technology="snyk"
+                tabindex="0"
+                role="button"
+            >
+                Snyk
+            </span>
+
+
+            <span
+                data-technology="owasp-dependency-check"
+                tabindex="0"
+                role="button"
+            >
+                OWASP
+            </span>
+
+
+            <span
+                data-technology="gitleaks"
+                tabindex="0"
+                role="button"
+            >
+                Gitleaks
+            </span>
+
+
+            <span
+                data-technology="checkov"
+                tabindex="0"
+                role="button"
+            >
+                Checkov
+            </span>
+
+        </div>
+
+    </article>
+
+
+    <!-- -----------------------------------------------------
+         OBSERVABILITY
+         ----------------------------------------------------- -->
+
+    <article
+        id="observability"
+        class="split-card observe-card"
+    >
+
+        <span class="section-number">
+            08 / MONITORING & OBSERVABILITY
+        </span>
+
+        <h2>
+            See What's Happening
+        </h2>
+
+        <p>
+
+            Gain insights with metrics,
+            logs and traces for better
+            performance and reliability.
+
+        </p>
+
+
+        <!-- Observability tools -->
+
+        <div class="tool-pills">
+
+
+            <span
+                data-technology="prometheus"
+                tabindex="0"
+                role="button"
+            >
+                Prometheus
+            </span>
+
+
+            <span
+                data-technology="grafana"
+                tabindex="0"
+                role="button"
+            >
+                Grafana
+            </span>
+
+
+            <span
+                data-technology="elastic-stack"
+                tabindex="0"
+                role="button"
+            >
+                Elastic Stack
+            </span>
+
+
+            <span
+                data-technology="loki"
+                tabindex="0"
+                role="button"
+            >
+                Loki
+            </span>
+
+
+            <span
+                data-technology="jaeger"
+                tabindex="0"
+                role="button"
+            >
+                Jaeger
+            </span>
+
+
+            <span
+                data-technology="opentelemetry"
+                tabindex="0"
+                role="button"
+            >
+                OpenTelemetry
+            </span>
+
+        </div>
+
+    </article>
+
+</div>
+```
+
+</section>
+
+<!-- =============================================================
+     DEVOPS CATEGORIES
+     
+     categoryGrid is dynamically populated by categories.js.
+     app.js then connects category clicks to openCategory().
+     ============================================================= -->
+
+<section
+    id="categories"
+    class="categories-section"
+>
+
+```
+<div class="container">
+
+
+    <div class="section-heading">
+
+        <span class="section-number">
+            DEVOPS ECOSYSTEM
+        </span>
+
+        <h2>
+            Explore DevOps Categories
+        </h2>
+
+        <p>
+
+            Navigate the DevOps ecosystem by
+            technology area and discover
+            related GitHub resources.
+
+        </p>
+
+    </div>
+
+
+    <!-- Dynamic category cards -->
+
+    <div
+        id="categoryGrid"
+        class="category-grid"
+    ></div>
+
+</div>
+```
+
+</section>
+
+<!-- =============================================================
+     TECHNOLOGY MAP
+     
+     technologyGrid is dynamically populated by technologies.js
+     and also by openCategory() in app.js.
+     
+     Technology cards receive:
+     
+         data-technology="kubernetes"
+     
+     and app.js handles the click.
+     ============================================================= -->
+
+<section class="technologies-map">
+
+```
+<div class="container">
+
+
+    <div class="section-heading">
+
+        <span class="section-number">
+            TECHNOLOGY MAP
+        </span>
+
+        <h2>
+            Explore Technologies
+        </h2>
+
+        <p>
+
+            Search and browse the tools,
+            platforms, languages and
+            automation technologies used
+            across modern DevOps teams.
+
+        </p>
+
+    </div>
+
+
+    <div class="technology-toolbar">
+
+        <span>
+            Core DevOps technology index
+        </span>
+
+        <a href="#explore">
+            Search GitHub ↑
+        </a>
+
+    </div>
+
+
+    <!-- Dynamic technology cards -->
+
+    <div
+        id="technologyGrid"
+        class="technology-grid"
+    ></div>
+
+</div>
+```
+
+</section>
+
+<!-- =============================================================
+     DEVOPS IMPLEMENTATION PIPELINE
+     ============================================================= -->
+
+<section
+    id="stack"
+    class="stack-section"
+>
+
+```
+<div class="container">
+
+
+    <div class="section-heading">
+
+        <span class="section-number">
+            DEVOPS IMPLEMENTATION PIPELINE
+        </span>
+
+        <h2>
+            Build Your DevOps Stack
+        </h2>
+
+        <p>
+
+            Connect technologies into a
+            practical delivery workflow
+            from source control to production
+            observability.
+
+        </p>
+
+    </div>
+
+
+    <!-- -----------------------------------------------------
+         STACK FLOW
+         ----------------------------------------------------- -->
+
+    <div class="stack-flow">
+
+
+        <div
+            data-technology="git"
+            tabindex="0"
+            role="button"
+        >
+            01
+            <br>
+            <b>Git</b>
+            <small>
+                Source Control
+            </small>
+        </div>
+
+
+        <i>→</i>
+
+
+        <div
+            data-technology="jenkins"
+            tabindex="0"
+            role="button"
+        >
+            02
+            <br>
+            <b>Jenkins</b>
+            <small>
+                CI Pipeline
+            </small>
+        </div>
+
+
+        <i>→</i>
+
+
+        <div
+            data-technology="docker"
+            tabindex="0"
+            role="button"
+        >
+            03
+            <br>
+            <b>Docker</b>
+            <small>
+                Container
+            </small>
+        </div>
+
+
+        <i>→</i>
+
+
+        <div
+            data-technology="trivy"
+            tabindex="0"
+            role="button"
+        >
+            04
+            <br>
+            <b>Trivy</b>
+            <small>
+                Security
+            </small>
+        </div>
+
+
+        <i>→</i>
+
+
+        <div
+            data-technology="amazon-ecr"
+            tabindex="0"
+            role="button"
+        >
+            05
+            <br>
+            <b>ECR</b>
+            <small>
+                Registry
+            </small>
+        </div>
+
+
+        <i>→</i>
+
+
+        <div
+            data-technology="kubernetes"
+            tabindex="0"
+            role="button"
+        >
+            06
+            <br>
+            <b>Kubernetes</b>
+            <small>
+                Deploy
+            </small>
+        </div>
+
+
+        <i>→</i>
+
+
+        <div
+            data-technology="prometheus"
+            tabindex="0"
+            role="button"
+        >
+            07
+            <br>
+            <b>Prometheus</b>
+            <small>
+                Observe
+            </small>
+        </div>
+
+    </div>
+
+</div>
+```
+
+</section>
+
+<!-- =============================================================
+     LEARNING APPROACH
+     ============================================================= -->
+
+<section
+    id="architecture"
+    class="architecture-section"
+>
+
+```
+<div class="container">
+
+
+    <div class="section-heading">
+
+        <span class="section-number">
+            LEARNING APPROACH
+        </span>
+
+        <h2>
+            Discover. Understand. Build.
+        </h2>
+
+        <p>
+
+            The goal is not just to collect
+            tools. Understand how they connect
+            to build real DevOps workflows.
+
+        </p>
+
+    </div>
+
+
+    <div class="learn-grid">
+
+
+        <article>
+
+            <span>
+                01
+            </span>
+
+            <h3>
+                Discover
+            </h3>
+
+            <p>
+
+                Find GitHub repositories,
+                labs, projects and examples
+                from the ecosystem.
+
+            </p>
+
+        </article>
+
+
+        <article>
+
+            <span>
+                02
+            </span>
+
+            <h3>
+                Understand
+            </h3>
+
+            <p>
+
+                Learn what each technology
+                does and where it fits in
+                the delivery lifecycle.
+
+            </p>
+
+        </article>
+
+
+        <article>
+
+            <span>
+                03
+            </span>
+
+            <h3>
+                Build
+            </h3>
+
+            <p>
+
+                Combine tools into practical
+                projects, pipelines and
+                infrastructure environments.
+
+            </p>
+
+        </article>
+
+    </div>
+
+</div>
+```
+
+</section>
+
+<!-- =============================================================
+     CALL TO ACTION
+     ============================================================= -->
+
+<section class="cta-section">
+
+```
+<div class="container">
+
+    <div class="cta-card">
+
+
+        <div>
+
+            <span class="section-number">
+                READY TO EXPLORE?
+            </span>
+
+            <h2>
+                Start building your
+                DevOps knowledge base.
+            </h2>
+
+            <p>
+
+                Search GitHub, explore
+                technologies and discover
+                hands-on projects for your
+                next DevOps lab.
+
+            </p>
+
+        </div>
+
+
+        <div class="cta-actions">
+
+            <a
+                class="primary-btn"
+                href="#explore"
+            >
+                Start Exploring →
+            </a>
+
+            <a
+                class="secondary-btn"
+                href="https://github.com/"
+                target="_blank"
+                rel="noopener"
+            >
+                View GitHub ↗
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+```
+
+</section>
+
+</main>
+
+<!-- =============================================================
+     TECHNOLOGY DETAILS MODAL
+     
+     app.js can use this modal later for technology details.
+     ============================================================= -->
+
+<div
+    id="technologyModal"
+    class="technology-modal"
+    hidden
+    aria-hidden="true"
+>
+
+```
+<!-- Modal backdrop -->
+
+<div
+    class="technology-modal-backdrop"
+    data-modal-close
+></div>
+
+
+<!-- Modal content -->
+
+<div
+    class="technology-modal-content"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="technologyModalTitle"
+>
+
+
+    <!-- Close button -->
+
+    <button
+        id="technologyModalClose"
+        class="technology-modal-close"
+        type="button"
+        aria-label="Close technology details"
+    >
+        ×
+    </button>
+
+
+    <!-- Technology category -->
+
+    <span
+        id="technologyModalCategory"
+        class="section-number"
+    ></span>
+
+
+    <!-- Technology name -->
+
+    <h2 id="technologyModalTitle"></h2>
+
+
+    <!-- Technology description -->
+
+    <p id="technologyModalDescription"></p>
+
+
+    <!-- Technology actions -->
+
+    <div class="technology-modal-actions">
+
+
+        <!-- Official repository -->
+
+        <a
+            id="technologyOfficialLink"
+            class="primary-btn"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            hidden
+        >
+            Official Repository ↗
+        </a>
+
+
+        <!-- GitHub search -->
+
+        <a
+            id="technologyGithubSearch"
+            class="secondary-btn"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            Find GitHub Repositories ↗
+        </a>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<!-- =============================================================
+     FOOTER
+     ============================================================= -->
+
+<footer class="site-footer">
+
+```
+<div class="container footer-grid">
+
+
+    <!-- Footer brand -->
+
+    <div>
+
+        <a
+            class="brand footer-brand"
+            href="#explore"
+        >
+
+            <span class="brand-mark">
+                ∞
+            </span>
+
+            <span class="brand-wordmark">
+
+                <strong>
+                    Charlie MJ
+                </strong>
+
+                <small>
+                    DevOps Explorer
+                </small>
+
+            </span>
+
+        </a>
+
+
+        <p>
+            GitHub discovery for DevOps
+            learners, builders and engineers.
+        </p>
+
+    </div>
+
+
+    <!-- Explore -->
+
+    <div>
+
+        <b>
+            Explore
+        </b>
+
+        <a href="#cloud">
+            Cloud
+        </a>
+
+        <a href="#technologies">
+            Tools
+        </a>
+
+        <a href="#containers">
+            Kubernetes
+        </a>
+
+    </div>
+
+
+    <!-- Build -->
+
+    <div>
+
+        <b>
+            Build
+        </b>
+
+        <a href="#automation">
+            CI/CD
+        </a>
+
+        <a href="#iac">
+            IaC
+        </a>
+
+        <a href="#security">
+            Security
+        </a>
+
+    </div>
+
+
+    <!-- Observe -->
+
+    <div>
+
+        <b>
+            Observe
+        </b>
+
+        <a href="#observability">
+            Monitoring
+        </a>
+
+        <a href="#categories">
+            Categories
+        </a>
+
+        <a href="#explore">
+            GitHub Search
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- Footer bottom -->
+
+<div class="container footer-bottom">
+
+    <span>
+        © 2026 Charlie MJ DevOps Explorer
+    </span>
+
+    <span>
+        Made for DevOps learning & discovery.
+    </span>
+
+</div>
+```
+
+</footer>
+
+<!-- =============================================================
+     APPLICATION JAVASCRIPT
+     
+     IMPORTANT:
+     
+     app.js is the main application controller.
+     
+     Do NOT add another clickable-card JavaScript file.
+     
+     The architecture remains:
+     
+         index.html
+              ↓
+         app.js
+              ↓
+         devops-data.js
+              ↓
+         Technology
+              ↓
+         Existing GitHub search
+              ↓
+         Repository cards
+     
+     app.js already contains:
+     
+         openCategory()
+         openTechnology()
+         initializeCategoryTechnologyInteractions()
+         initializeStaticTechnologyCards()
+     
+     Therefore this HTML only needs to provide:
+     
+         data-category
+         data-technology
+     
+     where appropriate.
+     ============================================================= -->
+
+<script
+    type="module"
+    src="js/app.js"
+></script>
+
+</body>
+
+</html>
