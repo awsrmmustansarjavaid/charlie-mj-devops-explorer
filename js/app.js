@@ -1,3 +1,4 @@
+```javascript
 /*
 ============================================================
 CHARLIE MJ DEVOPS EXPLORER
@@ -40,6 +41,14 @@ and:
     Saved Resources
        ↓
     Search History
+
+and:
+
+    DevOps Categories
+       ↓
+    Technologies
+       ↓
+    GitHub Search
 
 ============================================================
 */
@@ -151,6 +160,26 @@ import {
     getSavedRepositories
 
 } from "./storage.js";
+
+
+/*
+ * Central DevOps database.
+ *
+ * This database connects:
+ *
+ * Category
+ *     ↓
+ * Technology
+ *     ↓
+ * GitHub Search
+ */
+
+import {
+
+    devopsCategories,
+    devopsTechnologies
+
+} from "./devops-data.js";
 
 
 /* ==========================================================
@@ -383,7 +412,11 @@ function initializeNavigation() {
         );
 
 
-        /* Close the mobile menu after a nav link is tapped. */
+        /*
+         * Close the mobile menu after
+         * a navigation link is tapped.
+         */
+
         navLinks.addEventListener(
             "click",
             (event) => {
@@ -486,12 +519,581 @@ async function initializeGitHubStatus() {
         status.classList.add(
             "offline"
         );
+
     }
+
 }
 
 
 /* ==========================================================
-   5. HOME PAGE
+   5. CATEGORY → TECHNOLOGY
+   ========================================================== */
+
+/**
+ * Open a DevOps category.
+ *
+ * Flow:
+ *
+ * Category
+ *    ↓
+ * Find category in devops-data.js
+ *    ↓
+ * Get technology IDs
+ *    ↓
+ * Find technology details
+ *    ↓
+ * Render technology cards
+ *    ↓
+ * Scroll to technology section
+ *
+ * @param {string} categoryId
+ */
+function openCategory(
+    categoryId
+) {
+
+    /*
+     * Find selected category.
+     */
+
+    const category =
+        devopsCategories.find(
+            item =>
+                item.id === categoryId
+        );
+
+
+    /*
+     * Stop if category does not exist.
+     */
+
+    if (!category) {
+
+        console.warn(
+            "Category not found:",
+            categoryId
+        );
+
+        return;
+    }
+
+
+    /*
+     * Find technology grid.
+     */
+
+    const technologyGrid =
+        document.getElementById(
+            "technologyGrid"
+        );
+
+
+    if (!technologyGrid) {
+
+        console.warn(
+            "Technology grid not found."
+        );
+
+        return;
+    }
+
+
+    /*
+     * Update section heading if
+     * a category heading exists.
+     */
+
+    const technologySection =
+        document.querySelector(
+            ".technologies-map"
+        );
+
+
+    const heading =
+        technologySection?.querySelector(
+            "h2"
+        );
+
+
+    const description =
+        technologySection?.querySelector(
+            ".section-heading p"
+        );
+
+
+    if (heading) {
+
+        heading.textContent =
+            category.name;
+    }
+
+
+    if (description) {
+
+        description.textContent =
+            category.description ||
+            "Explore technologies in this DevOps category.";
+    }
+
+
+    /*
+     * Build technology cards.
+     */
+
+    const technologyCards =
+        category.technologies
+            .map(
+                id => {
+
+                    const technology =
+                        devopsTechnologies[id];
+
+
+                    /*
+                     * Skip technologies that
+                     * do not exist in the database.
+                     */
+
+                    if (!technology) {
+
+                        console.warn(
+                            `Technology "${id}" is missing from devopsTechnologies.`
+                        );
+
+                        return "";
+                    }
+
+
+                    return `
+
+                        <article
+                            class="technology-card"
+                            data-technology="${id}"
+                            tabindex="0"
+                            role="button"
+                            aria-label="Explore ${technology.name}"
+                        >
+
+                            <h3>
+                                ${technology.name}
+                            </h3>
+
+
+                            <p>
+                                ${technology.description}
+                            </p>
+
+
+                            <span>
+                                ${technology.category}
+                            </span>
+
+
+                            <strong>
+                                Explore →
+                            </strong>
+
+                        </article>
+
+                    `;
+
+                }
+            )
+            .join("");
+
+
+    /*
+     * Render cards.
+     */
+
+    technologyGrid.innerHTML =
+        technologyCards ||
+        `
+
+            <div class="empty-state no-results">
+
+                <div class="empty-state-icon">
+                    &gt;_
+                </div>
+
+                <div class="empty-state-title">
+                    No technologies found
+                </div>
+
+                <p class="empty-state-description">
+                    No technologies are currently configured
+                    for this category.
+                </p>
+
+            </div>
+
+        `;
+
+
+    /*
+     * Add active state to the
+     * selected category card.
+     */
+
+    qsa(
+        "[data-category]"
+    ).forEach(
+        card => {
+
+            card.classList.toggle(
+                "active",
+                card.dataset.category ===
+                    categoryId
+            );
+
+        }
+    );
+
+
+    /*
+     * Scroll to technology section.
+     */
+
+    technologySection?.scrollIntoView({
+
+        behavior:
+            "smooth",
+
+        block:
+            "start"
+
+    });
+
+}
+
+
+/**
+ * Open a technology.
+ *
+ * The technology is converted into a
+ * GitHub search query.
+ *
+ * Example:
+ *
+ * Kubernetes
+ *     ↓
+ * Search GitHub
+ *
+ * @param {string} technologyId
+ */
+function openTechnology(
+    technologyId
+) {
+
+    const technology =
+        devopsTechnologies[
+            technologyId
+        ];
+
+
+    if (!technology) {
+
+        console.warn(
+            "Technology not found:",
+            technologyId
+        );
+
+        return;
+    }
+
+
+    /*
+     * Find homepage search input.
+     */
+
+    const searchInput =
+        qs("#searchInput");
+
+
+    /*
+     * If the homepage search exists,
+     * use the existing search system.
+     */
+
+    if (searchInput) {
+
+        searchInput.value =
+            technology.githubSearch ||
+            technology.name;
+
+
+        /*
+         * Scroll to search section.
+         */
+
+        const exploreSection =
+            qs("#explore");
+
+
+        if (exploreSection) {
+
+            exploreSection.scrollIntoView({
+
+                behavior:
+                    "smooth",
+
+                block:
+                    "start"
+
+            });
+
+        }
+
+
+        /*
+         * Trigger the existing search button.
+         */
+
+        const searchButton =
+            qs("#searchButton");
+
+
+        if (searchButton) {
+
+            setTimeout(
+                () => {
+
+                    searchButton.click();
+
+                },
+                300
+            );
+
+            return;
+        }
+
+    }
+
+
+    /*
+     * Fallback:
+     *
+     * If the search system is not available,
+     * open the explorer page with the query.
+     */
+
+    const query =
+        encodeURIComponent(
+            technology.githubSearch ||
+            technology.name
+        );
+
+
+    const root =
+        getProjectRoot();
+
+
+    window.location.href =
+        `${root}explorer.html?q=${query}`;
+
+}
+
+
+/**
+ * Initialize category and technology
+ * interaction.
+ *
+ * This uses event delegation so it also
+ * works after the technology grid is
+ * replaced dynamically.
+ *
+ * @param {HTMLElement|null} categoryContainer
+ * @param {HTMLElement|null} technologyContainer
+ */
+function initializeCategoryTechnologyInteractions(
+    categoryContainer,
+    technologyContainer
+) {
+
+    /*
+     * Category click handling.
+     */
+
+    if (categoryContainer) {
+
+        categoryContainer.addEventListener(
+            "click",
+            event => {
+
+                const card =
+                    event.target.closest(
+                        "[data-category]"
+                    );
+
+
+                if (!card) {
+                    return;
+                }
+
+
+                const categoryId =
+                    card.dataset.category;
+
+
+                if (!categoryId) {
+                    return;
+                }
+
+
+                openCategory(
+                    categoryId
+                );
+
+            }
+        );
+
+
+        /*
+         * Keyboard accessibility.
+         */
+
+        categoryContainer.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    event.key !== "Enter" &&
+                    event.key !== " "
+                ) {
+
+                    return;
+                }
+
+
+                const card =
+                    event.target.closest(
+                        "[data-category]"
+                    );
+
+
+                if (!card) {
+                    return;
+                }
+
+
+                event.preventDefault();
+
+
+                const categoryId =
+                    card.dataset.category;
+
+
+                if (!categoryId) {
+                    return;
+                }
+
+
+                openCategory(
+                    categoryId
+                );
+
+            }
+        );
+
+    }
+
+
+    /*
+     * Technology click handling.
+     *
+     * Event delegation is important because
+     * openCategory() replaces the technology
+     * cards dynamically.
+     */
+
+    if (technologyContainer) {
+
+        technologyContainer.addEventListener(
+            "click",
+            event => {
+
+                const card =
+                    event.target.closest(
+                        "[data-technology]"
+                    );
+
+
+                if (!card) {
+                    return;
+                }
+
+
+                const technologyId =
+                    card.dataset.technology;
+
+
+                if (!technologyId) {
+                    return;
+                }
+
+
+                openTechnology(
+                    technologyId
+                );
+
+            }
+        );
+
+
+        /*
+         * Keyboard accessibility.
+         */
+
+        technologyContainer.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    event.key !== "Enter" &&
+                    event.key !== " "
+                ) {
+
+                    return;
+                }
+
+
+                const card =
+                    event.target.closest(
+                        "[data-technology]"
+                    );
+
+
+                if (!card) {
+                    return;
+                }
+
+
+                event.preventDefault();
+
+
+                const technologyId =
+                    card.dataset.technology;
+
+
+                if (!technologyId) {
+                    return;
+                }
+
+
+                openTechnology(
+                    technologyId
+                );
+
+            }
+        );
+
+    }
+
+}
+
+
+/* ==========================================================
+   6. HOME PAGE
    ========================================================== */
 
 /**
@@ -517,6 +1119,16 @@ async function initializeHomePage() {
 
     const categoryContainer =
         qs("#categoryGrid");
+
+
+    /* ------------------------------------------------------
+       Category / Technology interactions
+       ------------------------------------------------------ */
+
+    initializeCategoryTechnologyInteractions(
+        categoryContainer,
+        technologyContainer
+    );
 
 
     /* ------------------------------------------------------
@@ -547,6 +1159,7 @@ async function initializeHomePage() {
             initializeTechnologyCards(
                 technologyContainer
             );
+
         }
 
 
@@ -558,6 +1171,7 @@ async function initializeHomePage() {
             "Technology loading failed:",
             error
         );
+
     }
 
 
@@ -585,6 +1199,7 @@ async function initializeHomePage() {
                 categoryContainer,
                 searchInput
             );
+
         }
 
     } catch (error) {
@@ -593,6 +1208,7 @@ async function initializeHomePage() {
             "Category loading failed:",
             error
         );
+
     }
 
 
@@ -628,6 +1244,7 @@ async function initializeHomePage() {
             ) {
 
                 executeSearch();
+
             }
 
         }
@@ -670,6 +1287,7 @@ async function initializeHomePage() {
                         updateResultUI(
                             state
                         );
+
                     }
 
                 }
@@ -688,6 +1306,7 @@ async function initializeHomePage() {
         ) {
 
             return searchController.search();
+
         }
 
     }
@@ -721,11 +1340,13 @@ async function initializeHomePage() {
 
 
         executeSearch();
+
     }
 
 
     /*
-     * If no query exists, show initial empty state.
+     * If no query exists,
+     * show initial empty state.
      */
 
     if (
@@ -757,13 +1378,14 @@ async function initializeHomePage() {
             </div>
 
         `;
+
     }
 
 }
 
 
 /* ==========================================================
-   6. UPDATE SEARCH UI
+   7. UPDATE SEARCH UI
    ========================================================== */
 
 /**
@@ -789,6 +1411,7 @@ function updateResultUI(
             Number(
                 state.total || 0
             ).toLocaleString();
+
     }
 
 
@@ -798,13 +1421,14 @@ function updateResultUI(
             state.incomplete
                 ? "GitHub returned an incomplete result set."
                 : "GitHub search complete.";
+
     }
 
 }
 
 
 /* ==========================================================
-   7. TECHNOLOGIES PAGE
+   8. TECHNOLOGIES PAGE
    ========================================================== */
 
 /**
@@ -885,6 +1509,7 @@ async function initializeTechnologiesPage() {
                                 return text.includes(
                                     query
                                 );
+
                             }
                         );
 
@@ -910,13 +1535,14 @@ async function initializeTechnologiesPage() {
             </div>
 
         `;
+
     }
 
 }
 
 
 /* ==========================================================
-   8. TECHNOLOGY DETAIL PAGE
+   9. TECHNOLOGY DETAIL PAGE
    ========================================================== */
 
 /**
@@ -959,7 +1585,8 @@ async function initializeTechnologyPage() {
 
 
         /*
-         * Populate generic elements when they exist.
+         * Populate generic elements
+         * when they exist.
          */
 
         const title =
@@ -978,6 +1605,7 @@ async function initializeTechnologyPage() {
 
             title.textContent =
                 data.name;
+
         }
 
 
@@ -986,6 +1614,7 @@ async function initializeTechnologyPage() {
             description.textContent =
                 data.description ||
                 "DevOps technology.";
+
         }
 
 
@@ -994,6 +1623,7 @@ async function initializeTechnologyPage() {
             category.textContent =
                 data.category ||
                 "DevOps";
+
         }
 
 
@@ -1016,14 +1646,16 @@ async function initializeTechnologyPage() {
                 data.keywords
                     .map(
                         keyword => `
+
                             <span class="tag">
                                 ${keyword}
                             </span>
+
                         `
                     )
                     .join("");
-        }
 
+        }
 
     } catch (error) {
 
@@ -1031,13 +1663,14 @@ async function initializeTechnologyPage() {
             "Technology detail failed:",
             error
         );
+
     }
 
 }
 
 
 /* ==========================================================
-   9. REPOSITORY DETAIL PAGE
+   10. REPOSITORY DETAIL PAGE
    ========================================================== */
 
 /**
@@ -1107,6 +1740,7 @@ async function initializeRepositoryPage() {
 
             title.textContent =
                 repository.full_name;
+
         }
 
 
@@ -1115,6 +1749,7 @@ async function initializeRepositoryPage() {
             description.textContent =
                 repository.description ||
                 "No description available.";
+
         }
 
 
@@ -1125,6 +1760,7 @@ async function initializeRepositoryPage() {
                     repository.stargazers_count ||
                     0
                 ).toLocaleString();
+
         }
 
 
@@ -1135,6 +1771,7 @@ async function initializeRepositoryPage() {
                     repository.forks_count ||
                     0
                 ).toLocaleString();
+
         }
 
 
@@ -1143,6 +1780,7 @@ async function initializeRepositoryPage() {
             language.textContent =
                 repository.language ||
                 "Unknown";
+
         }
 
 
@@ -1151,6 +1789,7 @@ async function initializeRepositoryPage() {
             updated.textContent =
                 repository.updated_at ||
                 "Unknown";
+
         }
 
 
@@ -1181,14 +1820,16 @@ async function initializeRepositoryPage() {
                 repository.topics
                     .map(
                         topic => `
+
                             <span class="tag">
                                 ${topic}
                             </span>
+
                         `
                     )
                     .join("");
-        }
 
+        }
 
     } catch (error) {
 
@@ -1205,14 +1846,16 @@ async function initializeRepositoryPage() {
                 </div>
 
             `;
+
         }
+
     }
 
 }
 
 
 /* ==========================================================
-   10. CREATOR DETAIL PAGE
+   11. CREATOR DETAIL PAGE
    ========================================================== */
 
 /**
@@ -1268,6 +1911,7 @@ async function initializeCreatorPage() {
             name.textContent =
                 user.name ||
                 user.login;
+
         }
 
 
@@ -1276,6 +1920,7 @@ async function initializeCreatorPage() {
             bio.textContent =
                 user.bio ||
                 "GitHub developer.";
+
         }
 
 
@@ -1286,6 +1931,7 @@ async function initializeCreatorPage() {
 
             avatar.alt =
                 user.login;
+
         }
 
 
@@ -1293,6 +1939,7 @@ async function initializeCreatorPage() {
 
             repos.textContent =
                 user.public_repos;
+
         }
 
 
@@ -1300,6 +1947,7 @@ async function initializeCreatorPage() {
 
             followers.textContent =
                 user.followers;
+
         }
 
 
@@ -1307,8 +1955,8 @@ async function initializeCreatorPage() {
 
             github.href =
                 user.html_url;
-        }
 
+        }
 
     } catch (error) {
 
@@ -1316,13 +1964,14 @@ async function initializeCreatorPage() {
             getErrorMessage(error),
             "error"
         );
+
     }
 
 }
 
 
 /* ==========================================================
-   11. SAVED PAGE
+   12. SAVED PAGE
    ========================================================== */
 
 /**
@@ -1357,13 +2006,14 @@ function initializeSavedPage() {
 
         count.textContent =
             saved.length;
+
     }
 
 }
 
 
 /* ==========================================================
-   12. LAB PAGE
+   13. LAB PAGE
    ========================================================== */
 
 /**
@@ -1456,7 +2106,7 @@ async function initializeLabsPage() {
 
 
 /* ==========================================================
-   13. GLOBAL BACK TO TOP
+   14. GLOBAL BACK TO TOP
    ========================================================== */
 
 /**
@@ -1506,7 +2156,7 @@ function initializeBackToTop() {
 
 
 /* ==========================================================
-   14. PAGE INITIALIZATION
+   15. PAGE INITIALIZATION
    ========================================================== */
 
 /**
@@ -1630,6 +2280,7 @@ async function initializeApp() {
              */
 
             break;
+
     }
 
 
@@ -1645,7 +2296,7 @@ async function initializeApp() {
 
 
 /* ==========================================================
-   15. START APPLICATION
+   16. START APPLICATION
    ========================================================== */
 
 /*
@@ -1672,3 +2323,4 @@ if (
 /* ==========================================================
    END OF app.js
    ========================================================== */
+```
