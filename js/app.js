@@ -6,610 +6,648 @@ app.js
 
 MAIN APPLICATION CONTROLLER
 
-This is the entry point of the application.
+Connects:
 
-HTML loads this file:
+    index.html
+        ↓
+    app.js
+        ↓
+    categories.js
+    technologies.js
+    search.js
+    filters.js
+    github-api.js
+    repository-card.js
+    storage.js
+    devops-data.js
+    utils.js
 
-    <script
-        type="module"
-        src="js/app.js"
-    ></script>
+Main responsibilities:
 
-app.js connects:
-
-    Search
-       ↓
-    Filters
-       ↓
-    GitHub API
-       ↓
-    Repository Cards
-
-and:
-
-    Local JSON
-       ↓
-    Technologies
-       ↓
-    Categories
-
-and:
-
-    localStorage
-       ↓
-    Saved Resources
-       ↓
-    Search History
-
-and:
-
-    DevOps Categories
-       ↓
-    Technologies
-       ↓
-    GitHub Search
-
+    - Application startup
+    - Page detection
+    - Navigation
+    - Search
+    - Search modes
+    - Quick searches
+    - Filters
+    - Category cards
+    - Technology cards
+    - Technology modal
+    - GitHub status
+    - Repository rendering
+    - Page-specific initialization
 ============================================================
 */
 
 
-/* ==========================================================
-   IMPORTS
-   ========================================================== */
-
-
-/*
- * General utilities.
- */
+/* ============================================================
+   01. IMPORTS
+   ============================================================ */
 
 import {
-
     qs,
     qsa,
     getQueryParam,
     getProjectRoot,
     getErrorMessage,
     showNotification
-
 } from "./utils.js";
 
 
-/*
- * GitHub API.
- */
-
 import {
-
     getRateLimit,
     getRepository,
     getUser
-
 } from "./github-api.js";
 
 
-/*
- * Search system.
- */
-
 import {
-
     initializeSearch,
     initializeSearchModes,
     initializeQuickSearches
-
 } from "./search.js";
 
 
-/*
- * Filters.
- */
-
 import {
-
     getFilters,
     initializeFilters
-
 } from "./filters.js";
 
 
-/*
- * Technology database.
- */
-
 import {
-
     loadTechnologies,
     renderTechnologies,
     populateTechnologyFilter,
-    initializeTechnologyCards
-
+    initializeTechnologyCards,
+    getTechnology
 } from "./technologies.js";
 
 
-/*
- * Categories.
- */
-
 import {
-
     loadCategories,
     renderCategories,
     initializeCategoryCards
-
 } from "./categories.js";
 
 
-/*
- * Repository rendering.
- */
-
 import {
-
     renderRepositories
-
 } from "./repository-card.js";
 
 
-/*
- * Storage.
- */
-
 import {
-
     getSavedRepositories
-
 } from "./storage.js";
 
 
-/*
- * Central DevOps database.
- *
- * This database connects:
- *
- * Category
- *     ↓
- * Technology
- *     ↓
- * GitHub Search
- */
-
 import {
-
+    devopsCategories,
     devopsTechnologies
-
 } from "./devops-data.js";
 
 
-/* ==========================================================
-   1. APPLICATION STATE
-   ========================================================== */
+/* ============================================================
+   02. APPLICATION STATE
+   ============================================================ */
 
 const appState = {
 
-    /*
-     * Current search mode.
-     */
+    searchMode: "everything",
 
-    searchMode:
-        "everything",
+    repositories: [],
 
+    categories: [],
 
-    /*
-     * Last search results.
-     */
+    technologies: [],
 
-    repositories:
-        [],
+    initialized: false,
 
+    currentTechnology: null,
 
-    /*
-     * Categories loaded from
-     * devops-categories.json.
-     */
-
-    categories:
-        [],
-
-
-    /*
-     * Application initialized.
-     */
-
-    initialized:
-        false
+    currentCategory: null
 
 };
 
 
-/* ==========================================================
-   2. DETECT CURRENT PAGE
-   ========================================================== */
+/* ============================================================
+   03. PAGE DETECTION
+   ============================================================ */
 
-/**
- * Determine which page is currently open.
- *
- * @returns {string}
- */
 function getCurrentPage() {
 
-    const page =
-        document.body.dataset.page;
+    const body = document.body;
 
-
-    if (page) {
-        return page;
-    }
-
-
-    const pathname =
-        window.location.pathname;
-
-
-    if (
-        pathname.endsWith(
-            "index.html"
-        ) ||
-        pathname.endsWith("/")
-    ) {
-
+    if (!body) {
         return "home";
     }
 
+    const dataPage = body.dataset.page;
+
+    if (dataPage) {
+        return dataPage;
+    }
+
+    const path = window.location.pathname.toLowerCase();
 
     if (
-        pathname.includes(
-            "explorer.html"
-        )
+        path.includes("/explorer")
     ) {
-
         return "explorer";
     }
 
-
     if (
-        pathname.includes(
-            "technologies.html"
-        )
+        path.includes("/technologies")
     ) {
-
         return "technologies";
     }
 
-
     if (
-        pathname.includes(
-            "technology.html"
-        )
+        path.includes("/technology")
     ) {
-
         return "technology";
     }
 
-
     if (
-        pathname.includes(
-            "repository.html"
-        )
+        path.includes("/repository")
     ) {
-
         return "repository";
     }
 
-
     if (
-        pathname.includes(
-            "creator.html"
-        )
+        path.includes("/creator")
     ) {
-
         return "creator";
     }
 
-
     if (
-        pathname.includes(
-            "labs.html"
-        )
+        path.includes("/labs")
     ) {
-
         return "labs";
     }
 
-
     if (
-        pathname.includes(
-            "learning-path.html"
-        )
+        path.includes("/learning-path")
     ) {
-
         return "learning-path";
     }
 
-
     if (
-        pathname.includes(
-            "saved.html"
-        )
+        path.includes("/saved")
     ) {
-
         return "saved";
     }
 
-
-    return "unknown";
+    return "home";
 }
 
 
-/* ==========================================================
-   3. NAVIGATION
-   ========================================================== */
+/* ============================================================
+   04. NAVIGATION
+   ============================================================ */
 
-/**
- * Initialize navbar.
- */
 function initializeNavigation() {
 
-    const links =
-        qsa(".nav-link");
+    const navLinks = qsa(".nav-link");
 
+    navLinks.forEach(link => {
 
-    links.forEach(link => {
+        link.addEventListener("click", () => {
 
-        link.addEventListener(
-            "click",
-            () => {
+            const mobileMenu = qs(".main-nav");
 
-                links.forEach(
-                    item =>
-                        item.classList.remove(
-                            "active"
-                        )
-                );
-
-
-                link.classList.add(
-                    "active"
-                );
-
+            if (mobileMenu) {
+                mobileMenu.classList.remove("open");
             }
-        );
+
+        });
 
     });
 
 
-    /*
-     * Mobile menu.
-     */
+    const mobileButton = qs(".mobile-menu-button");
 
-    const menuButton =
-        qs(
-            ".mobile-menu-button"
-        );
-
-
-    const navLinks =
-        qs(".main-nav");
+    const mainNav = qs(".main-nav");
 
 
     if (
-        menuButton &&
-        navLinks
+        mobileButton &&
+        mainNav
     ) {
 
-        menuButton.addEventListener(
-            "click",
-            () => {
+        mobileButton.addEventListener("click", () => {
 
-                const isOpen =
-                    navLinks.classList.toggle(
-                        "mobile-open"
-                    );
+            const isOpen =
+                mainNav.classList.toggle("open");
 
-                menuButton.classList.toggle(
-                    "active",
-                    isOpen
-                );
+            mobileButton.setAttribute(
+                "aria-expanded",
+                String(isOpen)
+            );
 
-                menuButton.setAttribute(
-                    "aria-expanded",
-                    isOpen ? "true" : "false"
-                );
-
-            }
-        );
-
-
-        /*
-         * Close the mobile menu after
-         * a navigation link is tapped.
-         */
-
-        navLinks.addEventListener(
-            "click",
-            (event) => {
-
-                if (
-                    event.target.closest(
-                        ".nav-link"
-                    )
-                ) {
-
-                    navLinks.classList.remove(
-                        "mobile-open"
-                    );
-
-                    menuButton.classList.remove(
-                        "active"
-                    );
-
-                    menuButton.setAttribute(
-                        "aria-expanded",
-                        "false"
-                    );
-
-                }
-
-            }
-        );
+        });
 
     }
 
 }
 
 
-/* ==========================================================
-   4. GITHUB STATUS
-   ========================================================== */
+/* ============================================================
+   05. GITHUB STATUS
+   ============================================================ */
 
-/**
- * Update GitHub API status indicator.
- */
 async function initializeGitHubStatus() {
 
-    const status =
-        qs(".github-status");
+    const statusElements = qsa(".github-status");
 
-
-    if (!status) {
+    if (!statusElements.length) {
         return;
     }
 
 
     try {
 
-        const rate =
-            await getRateLimit();
+        const rateLimit = await getRateLimit();
 
+        statusElements.forEach(element => {
 
-        const core =
-            rate.resources?.core;
+            element.classList.add("online");
 
+            const text =
+                element.querySelector(
+                    ".github-status-text"
+                );
 
-        if (!core) {
+            if (text) {
 
-            status.textContent =
-                "GitHub API online";
+                if (
+                    rateLimit &&
+                    typeof rateLimit.remaining !== "undefined"
+                ) {
 
-            status.classList.add(
-                "online"
-            );
+                    text.textContent =
+                        `GitHub API ${rateLimit.remaining} requests remaining`;
 
-            return;
-        }
+                } else {
 
+                    text.textContent =
+                        "GitHub API connected";
 
-        const remaining =
-            core.remaining;
+                }
 
+            }
 
-        const limit =
-            core.limit;
+        });
 
+    } catch (error) {
 
-        status.textContent =
-            `GitHub API ${remaining}/${limit}`;
-
-
-        status.classList.add(
-            remaining > 100
-                ? "online"
-                : "warning"
+        console.warn(
+            "GitHub status check failed:",
+            error
         );
 
+        statusElements.forEach(element => {
 
-    } catch {
+            element.classList.remove("online");
 
-        status.textContent =
-            "GitHub API unavailable";
+            const text =
+                element.querySelector(
+                    ".github-status-text"
+                );
 
+            if (text) {
+                text.textContent =
+                    "GitHub API unavailable";
+            }
 
-        status.classList.add(
-            "offline"
-        );
+        });
 
     }
 
 }
 
 
-/* ==========================================================
-   5. CATEGORY → TECHNOLOGY
-   ========================================================== */
+/* ============================================================
+   06. CATEGORY → TECHNOLOGY SYSTEM
+   ============================================================ */
 
-/**
- * Open a DevOps category.
- *
- * Flow:
- *
- * devops-categories.json
- *    ↓
- * Category
- *    ↓
- * Technology IDs
- *    ↓
- * devopsTechnologies
- *    ↓
- * Technology cards
- *
- * @param {string} categoryId
- */
-function openCategory(
-    categoryId
+/*
+    This function was missing from the old app.js.
+
+    categories.js intentionally does NOT attach category
+    click listeners.
+
+    Therefore app.js must control:
+
+        Category card
+             ↓
+        openCategory()
+             ↓
+        Technology cards
+*/
+
+
+function initializeCategoryTechnologyInteractions(
+    categoryContainer,
+    technologyContainer
 ) {
 
-    /*
-     * Normalize the clicked category ID.
-     */
 
-    const normalizedCategoryId =
-        String(
-            categoryId || ""
-        )
-            .trim()
-            .toLowerCase();
+    /* --------------------------------------------------------
+       CATEGORY CLICK
+    -------------------------------------------------------- */
 
+    if (categoryContainer) {
 
-    /*
-     * Find the category inside the
-     * categories loaded from JSON.
-     */
+        categoryContainer.addEventListener(
+            "click",
+            event => {
 
-    const category =
-        appState.categories.find(
-            item => {
+                const card =
+                    event.target.closest(
+                        "[data-category]"
+                    );
 
-                const id =
-                    String(
-                        item.id || ""
-                    )
-                        .trim()
-                        .toLowerCase();
+                if (!card) {
+                    return;
+                }
 
+                const categoryId =
+                    card.dataset.category;
 
-                const slug =
-                    String(
-                        item.slug || ""
-                    )
-                        .trim()
-                        .toLowerCase();
+                if (!categoryId) {
+                    return;
+                }
 
-
-                return (
-                    id ===
-                    normalizedCategoryId
-                ) || (
-                    slug ===
-                    normalizedCategoryId
-                );
+                openCategory(categoryId);
 
             }
         );
 
 
-    /*
-     * Stop if the category
-     * cannot be found.
-     */
+        /* ----------------------------------------------------
+           CATEGORY KEYBOARD
+        ---------------------------------------------------- */
+
+        categoryContainer.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    event.key !== "Enter" &&
+                    event.key !== " "
+                ) {
+                    return;
+                }
+
+                const card =
+                    event.target.closest(
+                        "[data-category]"
+                    );
+
+                if (!card) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                const categoryId =
+                    card.dataset.category;
+
+                if (!categoryId) {
+                    return;
+                }
+
+                openCategory(categoryId);
+
+            }
+        );
+
+    }
+
+
+    /* --------------------------------------------------------
+       TECHNOLOGY CLICK
+    -------------------------------------------------------- */
+
+    if (technologyContainer) {
+
+        technologyContainer.addEventListener(
+            "click",
+            event => {
+
+                const card =
+                    event.target.closest(
+                        "[data-technology]"
+                    );
+
+                if (!card) {
+                    return;
+                }
+
+                const technologyId =
+                    card.dataset.technology;
+
+                if (!technologyId) {
+                    return;
+                }
+
+                openTechnology(technologyId);
+
+            }
+        );
+
+
+        /* ----------------------------------------------------
+           TECHNOLOGY KEYBOARD
+        ---------------------------------------------------- */
+
+        technologyContainer.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    event.key !== "Enter" &&
+                    event.key !== " "
+                ) {
+                    return;
+                }
+
+                const card =
+                    event.target.closest(
+                        "[data-technology]"
+                    );
+
+                if (!card) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                const technologyId =
+                    card.dataset.technology;
+
+                if (!technologyId) {
+                    return;
+                }
+
+                openTechnology(technologyId);
+
+            }
+        );
+
+    }
+
+
+    /* --------------------------------------------------------
+       STATIC TECHNOLOGY CARDS
+
+       Handles cards already present in index.html:
+
+           data-technology="aws"
+           data-technology="kubernetes"
+           data-technology="docker"
+           etc.
+    -------------------------------------------------------- */
+
+    document.addEventListener(
+        "click",
+        event => {
+
+            const element =
+                event.target.closest(
+                    "[data-technology]"
+                );
+
+            if (!element) {
+                return;
+            }
+
+
+            if (
+                technologyContainer &&
+                technologyContainer.contains(element)
+            ) {
+                return;
+            }
+
+
+            const technologyId =
+                element.dataset.technology;
+
+            if (!technologyId) {
+                return;
+            }
+
+            openTechnology(technologyId);
+
+        }
+    );
+
+
+    /* --------------------------------------------------------
+       STATIC TECHNOLOGY KEYBOARD SUPPORT
+    -------------------------------------------------------- */
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key !== "Enter" &&
+                event.key !== " "
+            ) {
+                return;
+            }
+
+
+            const element =
+                event.target.closest(
+                    "[data-technology]"
+                );
+
+            if (!element) {
+                return;
+            }
+
+
+            if (
+                technologyContainer &&
+                technologyContainer.contains(element)
+            ) {
+                return;
+            }
+
+
+            event.preventDefault();
+
+
+            const technologyId =
+                element.dataset.technology;
+
+            if (!technologyId) {
+                return;
+            }
+
+
+            openTechnology(technologyId);
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   07. OPEN CATEGORY
+   ============================================================ */
+
+function openCategory(categoryId) {
+
+    if (!categoryId) {
+        return;
+    }
+
+
+    const normalizedId =
+        String(categoryId)
+            .trim()
+            .toLowerCase();
+
+
+    let category =
+        appState.categories.find(
+            item =>
+                String(
+                    item.slug ||
+                    item.id ||
+                    item.name ||
+                    ""
+                )
+                .trim()
+                .toLowerCase()
+                === normalizedId
+        );
+
+
+    if (!category) {
+
+        category =
+            devopsCategories.find(
+                item =>
+                    String(
+                        item.slug ||
+                        item.id ||
+                        item.name ||
+                        ""
+                    )
+                    .trim()
+                    .toLowerCase()
+                    === normalizedId
+            );
+
+    }
+
 
     if (!category) {
 
@@ -622,235 +660,659 @@ function openCategory(
     }
 
 
-    /*
-     * Find technology grid.
-     */
-
-    const technologyGrid =
-        document.getElementById(
-            "technologyGrid"
-        );
+    appState.currentCategory = category;
 
 
-    if (!technologyGrid) {
+    const technologyContainer =
+        qs("#technologyGrid");
 
-        console.warn(
-            "Technology grid not found."
-        );
 
+    if (!technologyContainer) {
         return;
     }
 
 
-    /*
-     * Find technology section.
-     */
-
-    const technologySection =
+    const technologiesSection =
         document.querySelector(
             ".technologies-map"
         );
 
 
-    /*
-     * Update heading.
-     */
-
     const heading =
-        technologySection?.querySelector(
+        technologiesSection?.querySelector(
             "h2"
+        );
+
+
+    const description =
+        technologiesSection?.querySelector(
+            ".section-heading p"
         );
 
 
     if (heading) {
 
         heading.textContent =
-            category.name;
+            category.name ||
+            category.title ||
+            "Technologies";
 
     }
-
-
-    /*
-     * Update description.
-     */
-
-    const description =
-        technologySection?.querySelector(
-            ".section-heading p"
-        );
 
 
     if (description) {
 
         description.textContent =
             category.description ||
-            "Explore technologies in this DevOps category.";
+            "Explore technologies in this category.";
 
     }
 
 
-    /*
-     * Get technology IDs from JSON.
-     */
-
     const technologyIds =
-        Array.isArray(
-            category.technologies
-        )
+        Array.isArray(category.technologies)
             ? category.technologies
             : [];
 
 
-    /*
-     * Build technology cards.
-     */
-
-    const technologyCards =
-        technologyIds
-            .map(
-                technologyId => {
-
-                    const technology =
-                        devopsTechnologies[
-                            technologyId
-                        ];
+    const technologies = [];
 
 
-                    /*
-                     * If the technology does not
-                     * exist in devops-data.js,
-                     * show a warning in console
-                     * and skip the card.
-                     */
+    technologyIds.forEach(
+        technologyId => {
 
-                    if (!technology) {
-
-                        console.warn(
-                            `Technology "${technologyId}" is missing from devopsTechnologies.`
-                        );
-
-                        return "";
-
-                    }
-
-
-                    return `
-
-                        <article
-                            class="technology-card"
-                            data-technology="${technologyId}"
-                            tabindex="0"
-                            role="button"
-                            aria-label="Explore ${technology.name}"
-                        >
-
-                            <h3>
-                                ${technology.name}
-                            </h3>
-
-
-                            <p>
-                                ${technology.description}
-                            </p>
-
-
-                            <span>
-                                ${technology.category}
-                            </span>
-
-
-                            <strong>
-                                Explore →
-                            </strong>
-
-                        </article>
-
-                    `;
-
-                }
-            )
-            .join("");
-
-
-    /*
-     * Display the technology cards.
-     */
-
-    technologyGrid.innerHTML =
-        technologyCards ||
-        `
-
-            <div class="empty-state no-results">
-
-                <div class="empty-state-icon">
-                    &gt;_
-                </div>
-
-                <div class="empty-state-title">
-                    No technologies found
-                </div>
-
-                <p class="empty-state-description">
-                    No technologies are currently configured
-                    for this category.
-                </p>
-
-            </div>
-
-        `;
-
-
-    /*
-     * Highlight the selected category.
-     */
-
-    qsa(
-        "[data-category]"
-    ).forEach(
-        card => {
-
-            const cardCategory =
-                String(
-                    card.dataset.category || ""
-                )
+            const normalizedTechnologyId =
+                String(technologyId)
                     .trim()
                     .toLowerCase();
 
 
-            card.classList.toggle(
-                "active",
-                cardCategory ===
-                    normalizedCategoryId
-            );
+            const technology =
+                devopsTechnologies[
+                    normalizedTechnologyId
+                ];
+
+
+            if (technology) {
+
+                technologies.push({
+                    ...technology,
+                    id:
+                        technology.id ||
+                        normalizedTechnologyId
+                });
+
+            }
 
         }
     );
 
 
-    /*
-     * Scroll to technology section.
-     */
+    /* --------------------------------------------------------
+       If the category contains no direct technology list,
+       try matching devops-data.js category references.
+    -------------------------------------------------------- */
 
-    technologySection?.scrollIntoView({
+    if (!technologies.length) {
 
-        behavior:
-            "smooth",
+        Object.entries(
+            devopsTechnologies
+        ).forEach(
+            ([id, technology]) => {
 
-        block:
-            "start"
+                const technologyCategories =
+                    technology.categories ||
+                    technology.category ||
+                    [];
+
+
+                const categories =
+                    Array.isArray(
+                        technologyCategories
+                    )
+                        ? technologyCategories
+                        : [technologyCategories];
+
+
+                const matches =
+                    categories.some(
+                        value =>
+                            String(value)
+                                .trim()
+                                .toLowerCase()
+                            === normalizedId
+                    );
+
+
+                if (matches) {
+
+                    technologies.push({
+                        ...technology,
+                        id:
+                            technology.id ||
+                            id
+                    });
+
+                }
+
+            }
+        );
+
+    }
+
+
+    if (technologies.length) {
+
+        renderTechnologies(
+            technologies,
+            technologyContainer
+        );
+
+    } else {
+
+        technologyContainer.innerHTML = `
+            <div class="empty-state">
+                <h3>No technologies found</h3>
+                <p>
+                    No technologies are currently
+                    assigned to this category.
+                </p>
+            </div>
+        `;
+
+    }
+
+
+    /* --------------------------------------------------------
+       Highlight selected category
+    -------------------------------------------------------- */
+
+    qsa(
+        "[data-category]",
+        document
+    ).forEach(element => {
+
+        const value =
+            String(
+                element.dataset.category || ""
+            )
+            .trim()
+            .toLowerCase();
+
+
+        element.classList.toggle(
+            "active",
+            value === normalizedId
+        );
 
     });
+
+
+    /* --------------------------------------------------------
+       Initialize newly rendered technology cards
+    -------------------------------------------------------- */
+
+    try {
+
+        initializeTechnologyCards(
+            technologyContainer
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Technology card initialization warning:",
+            error
+        );
+
+    }
+
+
+    /* --------------------------------------------------------
+       Scroll to technologies
+    -------------------------------------------------------- */
+
+    if (technologiesSection) {
+
+        technologiesSection.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+    }
 
 }
 
 
-/* ==========================================================
-   6. HOME PAGE
-   ========================================================== */
+/* ============================================================
+   08. TECHNOLOGY LOOKUP
+   ============================================================ */
 
-/**
- * Initialize homepage.
- */
+function findTechnology(technologyId) {
+
+    if (!technologyId) {
+        return null;
+    }
+
+
+    const normalizedId =
+        String(technologyId)
+            .trim()
+            .toLowerCase();
+
+
+    /* --------------------------------------------------------
+       Direct devops-data.js lookup
+    -------------------------------------------------------- */
+
+    if (
+        devopsTechnologies[
+            normalizedId
+        ]
+    ) {
+
+        return {
+            ...devopsTechnologies[
+                normalizedId
+            ],
+            id:
+                devopsTechnologies[
+                    normalizedId
+                ].id ||
+                normalizedId
+        };
+
+    }
+
+
+    /* --------------------------------------------------------
+       Search loaded technologies
+    -------------------------------------------------------- */
+
+    const found =
+        appState.technologies.find(
+            technology => {
+
+                const id =
+                    String(
+                        technology.id ||
+                        technology.slug ||
+                        ""
+                    )
+                    .trim()
+                    .toLowerCase();
+
+
+                const name =
+                    String(
+                        technology.name ||
+                        ""
+                    )
+                    .trim()
+                    .toLowerCase();
+
+
+                return (
+                    id === normalizedId ||
+                    name === normalizedId
+                );
+
+            }
+        );
+
+
+    if (found) {
+        return found;
+    }
+
+
+    return null;
+
+}
+
+
+/* ============================================================
+   09. OPEN TECHNOLOGY
+   ============================================================ */
+
+function openTechnology(technologyId) {
+
+    const technology =
+        findTechnology(
+            technologyId
+        );
+
+
+    if (!technology) {
+
+        console.warn(
+            "Technology not found:",
+            technologyId
+        );
+
+        return;
+
+    }
+
+
+    appState.currentTechnology =
+        technology;
+
+
+    const modal =
+        qs("#technologyModal");
+
+
+    if (!modal) {
+
+        /*
+            If no modal exists on the current page,
+            navigate to technology detail when possible.
+        */
+
+        const technologySlug =
+            technology.slug ||
+            technology.id ||
+            technology.name;
+
+
+        if (technologySlug) {
+
+            const root =
+                getProjectRoot();
+
+
+            const target =
+                `${root}/technology.html?technology=${encodeURIComponent(
+                    technologySlug
+                )}`;
+
+
+            window.location.href =
+                target;
+
+        }
+
+        return;
+
+    }
+
+
+    const title =
+        qs("#technologyModalTitle");
+
+
+    const description =
+        qs("#technologyModalDescription");
+
+
+    if (title) {
+
+        title.textContent =
+            technology.name ||
+            technology.title ||
+            technology.id ||
+            "Technology";
+
+    }
+
+
+    if (description) {
+
+        description.textContent =
+            technology.description ||
+            technology.summary ||
+            "Explore this DevOps technology.";
+
+    }
+
+
+    modal.hidden = false;
+
+    modal.classList.add("open");
+
+    document.body.classList.add(
+        "modal-open"
+    );
+
+
+    modal.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    /* --------------------------------------------------------
+       Optional modal extra content
+    -------------------------------------------------------- */
+
+    const modalContent =
+        modal.querySelector(
+            ".technology-modal-content"
+        );
+
+
+    if (
+        modalContent &&
+        !modalContent.querySelector(
+            ".technology-modal-details"
+        )
+    ) {
+
+        const details =
+            document.createElement(
+                "div"
+            );
+
+
+        details.className =
+            "technology-modal-details";
+
+
+        const website =
+            technology.url ||
+            technology.website ||
+            technology.homepage;
+
+
+        if (website) {
+
+            const link =
+                document.createElement("a");
+
+
+            link.href = website;
+
+            link.target = "_blank";
+
+            link.rel = "noopener noreferrer";
+
+            link.textContent =
+                "Official Website →";
+
+
+            details.appendChild(link);
+
+        }
+
+
+        modalContent.appendChild(
+            details
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   10. CLOSE TECHNOLOGY MODAL
+   ============================================================ */
+
+function closeTechnologyModal() {
+
+    const modal =
+        qs("#technologyModal");
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    modal.classList.remove("open");
+
+    modal.hidden = true;
+
+    modal.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    document.body.classList.remove(
+        "modal-open"
+    );
+
+}
+
+
+/* ============================================================
+   11. INITIALIZE TECHNOLOGY MODAL
+   ============================================================ */
+
+function initializeTechnologyModal() {
+
+    const modal =
+        qs("#technologyModal");
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    const closeButton =
+        qs("#technologyModalClose");
+
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            closeTechnologyModal
+        );
+
+    }
+
+
+    modal.addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target === modal
+            ) {
+
+                closeTechnologyModal();
+
+            }
+
+        }
+    );
+
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                closeTechnologyModal();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   12. RESULT UI
+   ============================================================ */
+
+function updateResultUI(state) {
+
+    const resultCount =
+        qs("#resultCount");
+
+
+    const resultsStatus =
+        qs("#resultsStatus");
+
+
+    const items =
+        Array.isArray(state?.items)
+            ? state.items
+            : [];
+
+
+    if (resultCount) {
+
+        resultCount.textContent =
+            String(items.length);
+
+    }
+
+
+    if (resultsStatus) {
+
+        if (
+            state?.state === "loading"
+        ) {
+
+            resultsStatus.textContent =
+                "Searching GitHub...";
+
+        } else if (
+            state?.state === "success"
+        ) {
+
+            resultsStatus.textContent =
+                items.length
+                    ? `${items.length} repositories found`
+                    : "No repositories found";
+
+        } else if (
+            state?.state === "error"
+        ) {
+
+            resultsStatus.textContent =
+                getErrorMessage(
+                    state.error ||
+                    state.message ||
+                    "Search failed."
+                );
+
+        } else {
+
+            resultsStatus.textContent =
+                "";
+
+        }
+
+    }
+
+}
+
+
+/* ============================================================
+   13. INITIALIZE HOME PAGE
+   ============================================================ */
+
 async function initializeHomePage() {
 
     const searchInput =
@@ -865,6 +1327,10 @@ async function initializeHomePage() {
         qs("#repositoryResults");
 
 
+    const repositoryGrid =
+        qs("#repositoryGrid");
+
+
     const technologyContainer =
         qs("#technologyGrid");
 
@@ -873,21 +1339,26 @@ async function initializeHomePage() {
         qs("#categoryGrid");
 
 
-    /* ------------------------------------------------------
-       Category / Technology interactions
-       ------------------------------------------------------ */
+    /* --------------------------------------------------------
+       Category + technology interactions
+
+       IMPORTANT:
+       This must happen before search initialization,
+       but it must never stop the rest of the application.
+    -------------------------------------------------------- */
 
     initializeCategoryTechnologyInteractions(
         categoryContainer,
         technologyContainer
     );
 
-    initializeCategoryTechnologyInteractions()
+
+    initializeTechnologyModal();
 
 
-    /* ------------------------------------------------------
-       Technologies
-       ------------------------------------------------------ */
+    /* ========================================================
+       LOAD TECHNOLOGIES
+    ======================================================== */
 
     try {
 
@@ -895,17 +1366,16 @@ async function initializeHomePage() {
             await loadTechnologies();
 
 
-        if (
-            technologyContainer
-        ) {
+        appState.technologies =
+            Array.isArray(technologies)
+                ? technologies
+                : [];
 
-            /*
-             * Display the first 24 technologies
-             * on the homepage.
-             */
+
+        if (technologyContainer) {
 
             renderTechnologies(
-                technologies.slice(0, 24),
+                appState.technologies,
                 technologyContainer
             );
 
@@ -922,152 +1392,234 @@ async function initializeHomePage() {
     } catch (error) {
 
         console.error(
-            "Technology loading failed:",
+            "Failed to load technologies:",
             error
         );
 
     }
 
 
-    /* ------------------------------------------------------
-       Categories
-       ------------------------------------------------------ */
+    /* ========================================================
+       LOAD CATEGORIES
+    ======================================================== */
 
     try {
 
-    const categories =
-        await loadCategories();          
+        const categories =
+            await loadCategories();
 
 
-    /*
-     * Store the categories loaded from
-     * devops-categories.json.
-     *
-     * openCategory() will use this data.
-     */
-
-    appState.categories =
-        categories;
+        appState.categories =
+            Array.isArray(categories)
+                ? categories
+                : [];
 
 
-    if (
-        categoryContainer
-    ) {
+        if (categoryContainer) {
 
-        renderCategories(
-            categories.slice(0, 12),
-            categoryContainer
-        );
+            renderCategories(
+                appState.categories.slice(
+                    0,
+                    12
+                ),
+                categoryContainer
+            );
 
 
-        initializeCategoryCards(
-            categoryContainer,
-            searchInput
-        );
+            initializeCategoryCards(
+                categoryContainer,
+                searchInput
+            );
 
-    }
+        }
 
-} catch (error) {
+    } catch (error) {
 
         console.error(
-            "Category loading failed:",
+            "Failed to load categories:",
             error
         );
 
     }
 
 
-    /* ------------------------------------------------------
-       Search modes
-       ------------------------------------------------------ */
+    /* ========================================================
+       SEARCH MODE
+    ======================================================== */
 
-    const getSearchMode =
-        initializeSearchModes(
-            mode => {
+    let getSearchMode =
+        () =>
+            appState.searchMode;
 
-                appState.searchMode =
-                    mode;
+
+    try {
+
+        const modeGetter =
+            initializeSearchModes(
+                mode => {
+
+                    appState.searchMode =
+                        mode ||
+                        "everything";
+
+                }
+            );
+
+
+        if (
+            typeof modeGetter === "function"
+        ) {
+
+            getSearchMode =
+                modeGetter;
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Search mode initialization warning:",
+            error
+        );
+
+    }
+
+
+    /* ========================================================
+       FILTERS
+    ======================================================== */
+
+    try {
+
+        initializeFilters(
+            () => {
+
+                if (
+                    searchInput &&
+                    searchInput.value.trim()
+                ) {
+
+                    executeSearch();
+
+                }
 
             }
         );
 
+    } catch (error) {
 
-    /* ------------------------------------------------------
-       Filters
-       ------------------------------------------------------ */
+        console.warn(
+            "Filter initialization warning:",
+            error
+        );
 
-    initializeFilters(
-        () => {
-
-            /*
-             * If there are already results,
-             * search again automatically.
-             */
-
-            if (
-                searchInput?.value.trim()
-            ) {
-
-                executeSearch();
-
-            }
-
-        }
-    );
+    }
 
 
-    /* ------------------------------------------------------
-       Search
-       ------------------------------------------------------ */
+    /* ========================================================
+       SEARCH
+    ======================================================== */
 
-    const searchController =
-        initializeSearch({
-
-            input:
-                searchInput,
-
-            button:
-                searchButton,
-
-            container:
-                repositoryContainer,
-
-            getMode:
-                getSearchMode,
-
-            getFilters,
-
-            onResults:
-                state => {
-
-                    if (
-                        state.state ===
-                        "success"
-                    ) {
-
-                        appState.repositories =
-                            state.items || [];
+    let searchController = null;
 
 
-                        updateResultUI(
-                            state
-                        );
+    try {
+
+        searchController =
+            initializeSearch({
+
+                input:
+                    searchInput,
+
+                button:
+                    searchButton,
+
+                container:
+                    repositoryContainer ||
+                    repositoryGrid,
+
+                getMode:
+                    getSearchMode,
+
+                getFilters,
+
+                onResults:
+                    state => {
+
+                        if (!state) {
+                            return;
+                        }
+
+
+                        if (
+                            state.state ===
+                            "success"
+                        ) {
+
+                            appState.repositories =
+                                state.items ||
+                                [];
+
+
+                            updateResultUI(
+                                state
+                            );
+
+                        }
+
+
+                        if (
+                            state.state ===
+                            "loading"
+                        ) {
+
+                            updateResultUI(
+                                state
+                            );
+
+                        }
+
+
+                        if (
+                            state.state ===
+                            "error"
+                        ) {
+
+                            updateResultUI(
+                                state
+                            );
+
+                        }
 
                     }
 
-                }
+            });
 
-        });
+    } catch (error) {
+
+        console.error(
+            "Search initialization failed:",
+            error
+        );
+
+        showNotification(
+            "Search system could not be initialized.",
+            "error"
+        );
+
+    }
 
 
-    /*
-     * Store search function.
-     */
+    /* ========================================================
+       SEARCH EXECUTION
+    ======================================================== */
 
     function executeSearch() {
 
         if (
-            searchController?.search
+            searchController &&
+            typeof searchController.search ===
+                "function"
         ) {
 
             return searchController.search();
@@ -1077,19 +1629,30 @@ async function initializeHomePage() {
     }
 
 
-    /* ------------------------------------------------------
-       Quick searches
-       ------------------------------------------------------ */
+    /* ========================================================
+       QUICK SEARCHES
+    ======================================================== */
 
-    initializeQuickSearches(
-        searchInput,
-        executeSearch
-    );
+    try {
+
+        initializeQuickSearches(
+            searchInput,
+            executeSearch
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Quick search initialization warning:",
+            error
+        );
+
+    }
 
 
-    /* ------------------------------------------------------
-       Optional initial search
-       ------------------------------------------------------ */
+    /* ========================================================
+       URL SEARCH
+    ======================================================== */
 
     const query =
         getQueryParam("q");
@@ -1104,110 +1667,240 @@ async function initializeHomePage() {
             query;
 
 
-        executeSearch();
+        /*
+            Give the search controller a moment
+            after all components have initialized.
+        */
+
+        setTimeout(
+            () => {
+
+                executeSearch();
+
+            },
+            0
+        );
+
+    } else {
+
+        updateResultUI({
+            state: "success",
+            items: []
+        });
+
+    }
+
+}
+
+
+/* ============================================================
+   14. EXPLORER PAGE
+   ============================================================ */
+
+async function initializeExplorerPage() {
+
+    const searchInput =
+        qs("#searchInput");
+
+
+    const searchButton =
+        qs("#searchButton");
+
+
+    const repositoryContainer =
+        qs("#repositoryResults");
+
+
+    let searchController = null;
+
+
+    try {
+
+        await loadTechnologies();
+
+        await populateTechnologyFilter();
+
+    } catch (error) {
+
+        console.warn(
+            "Explorer data initialization warning:",
+            error
+        );
 
     }
 
 
-    /*
-     * If no query exists,
-     * show initial empty state.
-     */
+    try {
+
+        initializeFilters(
+            () => {
+
+                if (
+                    searchInput?.value.trim()
+                ) {
+
+                    searchController?.search();
+
+                }
+
+            }
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Explorer filters warning:",
+            error
+        );
+
+    }
+
+
+    let getSearchMode =
+        () =>
+            appState.searchMode;
+
+
+    try {
+
+        const getter =
+            initializeSearchModes(
+                mode => {
+
+                    appState.searchMode =
+                        mode ||
+                        "everything";
+
+                }
+            );
+
+
+        if (
+            typeof getter === "function"
+        ) {
+
+            getSearchMode =
+                getter;
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Explorer search mode warning:",
+            error
+        );
+
+    }
+
+
+    try {
+
+        searchController =
+            initializeSearch({
+
+                input:
+                    searchInput,
+
+                button:
+                    searchButton,
+
+                container:
+                    repositoryContainer,
+
+                getMode:
+                    getSearchMode,
+
+                getFilters,
+
+                onResults:
+                    state => {
+
+                        if (
+                            state?.state ===
+                            "success"
+                        ) {
+
+                            appState.repositories =
+                                state.items ||
+                                [];
+
+                            updateResultUI(
+                                state
+                            );
+
+                        }
+
+                    }
+
+            });
+
+    } catch (error) {
+
+        console.error(
+            "Explorer search failed to initialize:",
+            error
+        );
+
+    }
+
+
+    const executeSearch =
+        () => {
+
+            return searchController?.search();
+
+        };
+
+
+    try {
+
+        initializeQuickSearches(
+            searchInput,
+            executeSearch
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Explorer quick search warning:",
+            error
+        );
+
+    }
+
+
+    const query =
+        getQueryParam("q");
+
 
     if (
-        repositoryContainer &&
-        !query
+        query &&
+        searchInput
     ) {
 
-        repositoryContainer.innerHTML = `
+        searchInput.value =
+            query;
 
-            <div class="
-                empty-state
-                no-results
-            ">
 
-                <div class="empty-state-icon">
-                    &gt;_
-                </div>
-
-                <div class="empty-state-title">
-                    Ready to explore GitHub
-                </div>
-
-                <p class="empty-state-description">
-                    Search for Kubernetes, AWS,
-                    Terraform, Jenkins, Docker,
-                    Argo CD, DevSecOps and more.
-                </p>
-
-            </div>
-
-        `;
+        setTimeout(
+            executeSearch,
+            0
+        );
 
     }
 
 }
 
 
-/* ==========================================================
-   7. UPDATE SEARCH UI
-   ========================================================== */
+/* ============================================================
+   15. TECHNOLOGIES PAGE
+   ============================================================ */
 
-/**
- * Update search result count/status.
- *
- * @param {object} state
- */
-function updateResultUI(
-    state
-) {
-
-    const resultCount =
-        qs("#resultCount");
-
-
-    const resultStatus =
-        qs("#resultsStatus");
-
-
-    if (resultCount) {
-
-        resultCount.textContent =
-            Number(
-                state.total || 0
-            ).toLocaleString();
-
-    }
-
-
-    if (resultStatus) {
-
-        resultStatus.textContent =
-            state.incomplete
-                ? "GitHub returned an incomplete result set."
-                : "GitHub search complete.";
-
-    }
-
-}
-
-
-/* ==========================================================
-   8. TECHNOLOGIES PAGE
-   ========================================================== */
-
-/**
- * Initialize technologies listing page.
- */
 async function initializeTechnologiesPage() {
 
-    const container =
+    const technologyContainer =
         qs("#technologyGrid");
-
-
-    if (!container) {
-        return;
-    }
 
 
     const searchInput =
@@ -1220,227 +1913,234 @@ async function initializeTechnologiesPage() {
             await loadTechnologies();
 
 
-        renderTechnologies(
-            technologies,
-            container
-        );
+        appState.technologies =
+            Array.isArray(technologies)
+                ? technologies
+                : [];
 
 
-        initializeTechnologyCards(
-            container
-        );
+        if (technologyContainer) {
+
+            renderTechnologies(
+                appState.technologies,
+                technologyContainer
+            );
 
 
-        /*
-         * Local technology search.
-         */
-
-        if (searchInput) {
-
-            searchInput.addEventListener(
-                "input",
-                () => {
-
-                    const query =
-                        searchInput.value
-                            .trim()
-                            .toLowerCase();
-
-
-                    const filtered =
-                        technologies.filter(
-                            technology => {
-
-                                const text = [
-
-                                    technology.name,
-
-                                    technology.category,
-
-                                    technology.subcategory,
-
-                                    technology.description,
-
-                                    ...(technology.aliases || []),
-
-                                    ...(technology.keywords || [])
-
-                                ]
-                                    .filter(Boolean)
-                                    .join(" ")
-                                    .toLowerCase();
-
-
-                                return text.includes(
-                                    query
-                                );
-
-                            }
-                        );
-
-
-                    renderTechnologies(
-                        filtered,
-                        container
-                    );
-
-                }
+            initializeTechnologyCards(
+                technologyContainer
             );
 
         }
 
-    } catch (error) {
-
-        container.innerHTML = `
-
-            <div class="error-message">
-
-                ${getErrorMessage(error)}
-
-            </div>
-
-        `;
-
-    }
-
-}
-
-
-/* ==========================================================
-   9. TECHNOLOGY DETAIL PAGE
-   ========================================================== */
-
-/**
- * Initialize technology detail page.
- */
-async function initializeTechnologyPage() {
-
-    const name =
-        getQueryParam("name");
-
-
-    if (!name) {
-        return;
-    }
-
-
-    try {
-
-        const technology =
-            await import(
-                "./technologies.js"
-            );
-
-
-        const data =
-            await technology.getTechnology(
-                name
-            );
-
-
-        if (!data) {
-
-            showNotification(
-                "Technology not found.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        /*
-         * Populate generic elements
-         * when they exist.
-         */
-
-        const title =
-            qs("#technologyName");
-
-
-        const description =
-            qs("#technologyDescription");
-
-
-        const category =
-            qs("#technologyCategory");
-
-
-        if (title) {
-
-            title.textContent =
-                data.name;
-
-        }
-
-
-        if (description) {
-
-            description.textContent =
-                data.description ||
-                "DevOps technology.";
-
-        }
-
-
-        if (category) {
-
-            category.textContent =
-                data.category ||
-                "DevOps";
-
-        }
-
-
-        /*
-         * Render keywords.
-         */
-
-        const keywordContainer =
-            qs("#technologyKeywords");
-
-
-        if (
-            keywordContainer &&
-            Array.isArray(
-                data.keywords
-            )
-        ) {
-
-            keywordContainer.innerHTML =
-                data.keywords
-                    .map(
-                        keyword => `
-
-                            <span class="tag">
-                                ${keyword}
-                            </span>
-
-                        `
-                    )
-                    .join("");
-
-        }
 
     } catch (error) {
 
         console.error(
-            "Technology detail failed:",
+            "Failed to initialize technologies page:",
             error
         );
 
     }
 
+
+    if (searchInput) {
+
+        searchInput.addEventListener(
+            "input",
+            () => {
+
+                const query =
+                    searchInput.value
+                        .trim()
+                        .toLowerCase();
+
+
+                if (!technologyContainer) {
+                    return;
+                }
+
+
+                const filtered =
+                    appState.technologies.filter(
+                        technology => {
+
+                            const name =
+                                String(
+                                    technology.name ||
+                                    ""
+                                )
+                                .toLowerCase();
+
+
+                            const description =
+                                String(
+                                    technology.description ||
+                                    ""
+                                )
+                                .toLowerCase();
+
+
+                            const id =
+                                String(
+                                    technology.id ||
+                                    technology.slug ||
+                                    ""
+                                )
+                                .toLowerCase();
+
+
+                            return (
+                                !query ||
+                                name.includes(query) ||
+                                description.includes(query) ||
+                                id.includes(query)
+                            );
+
+                        }
+                    );
+
+
+                renderTechnologies(
+                    filtered,
+                    technologyContainer
+                );
+
+
+                initializeTechnologyCards(
+                    technologyContainer
+                );
+
+            }
+        );
+
+    }
+
+
+    initializeTechnologyModal();
+
 }
 
 
-/* ==========================================================
-   10. REPOSITORY DETAIL PAGE
-   ========================================================== */
+/* ============================================================
+   16. TECHNOLOGY DETAIL PAGE
+   ============================================================ */
 
-/**
- * Initialize repository detail page.
- */
+async function initializeTechnologyPage() {
+
+    initializeTechnologyModal();
+
+
+    const technologyValue =
+        getQueryParam(
+            "technology"
+        ) ||
+        getQueryParam(
+            "tech"
+        ) ||
+        getQueryParam(
+            "name"
+        );
+
+
+    if (!technologyValue) {
+        return;
+    }
+
+
+    let technology =
+        findTechnology(
+            technologyValue
+        );
+
+
+    if (!technology) {
+
+        try {
+
+            const loaded =
+                await loadTechnologies();
+
+
+            appState.technologies =
+                Array.isArray(loaded)
+                    ? loaded
+                    : [];
+
+
+            technology =
+                findTechnology(
+                    technologyValue
+                );
+
+        } catch (error) {
+
+            console.error(
+                "Technology loading failed:",
+                error
+            );
+
+        }
+
+    }
+
+
+    if (!technology) {
+
+        console.warn(
+            "Technology not found:",
+            technologyValue
+        );
+
+        return;
+
+    }
+
+
+    const title =
+        qs(
+            "#technologyTitle"
+        ) ||
+        qs(
+            ".technology-title"
+        );
+
+
+    const description =
+        qs(
+            "#technologyDescription"
+        ) ||
+        qs(
+            ".technology-description"
+        );
+
+
+    if (title) {
+
+        title.textContent =
+            technology.name ||
+            technology.title ||
+            technology.id;
+
+    }
+
+
+    if (description) {
+
+        description.textContent =
+            technology.description ||
+            technology.summary ||
+            "";
+
+    }
+
+}
+
+
+/* ============================================================
+   17. REPOSITORY DETAIL PAGE
+   ============================================================ */
+
 async function initializeRepositoryPage() {
 
     const owner =
@@ -1457,6 +2157,7 @@ async function initializeRepositoryPage() {
     ) {
 
         return;
+
     }
 
 
@@ -1469,42 +2170,35 @@ async function initializeRepositoryPage() {
             );
 
 
-        /*
-         * Populate elements.
-         */
+        if (!repository) {
+            return;
+        }
+
 
         const title =
-            qs("#repositoryName");
+            qs(
+                "#repositoryTitle"
+            ) ||
+            qs(
+                ".repository-title"
+            );
 
 
         const description =
-            qs("#repositoryDescription");
-
-
-        const stars =
-            qs("#repositoryStars");
-
-
-        const forks =
-            qs("#repositoryForks");
-
-
-        const language =
-            qs("#repositoryLanguage");
-
-
-        const updated =
-            qs("#repositoryUpdated");
-
-
-        const githubLink =
-            qs("#repositoryGithub");
+            qs(
+                "#repositoryDescription"
+            ) ||
+            qs(
+                ".repository-description"
+            );
 
 
         if (title) {
 
             title.textContent =
-                repository.full_name;
+                repository.full_name ||
+                repository.name ||
+                `${owner}/${repo}`;
 
         }
 
@@ -1513,124 +2207,39 @@ async function initializeRepositoryPage() {
 
             description.textContent =
                 repository.description ||
-                "No description available.";
-
-        }
-
-
-        if (stars) {
-
-            stars.textContent =
-                Number(
-                    repository.stargazers_count ||
-                    0
-                ).toLocaleString();
-
-        }
-
-
-        if (forks) {
-
-            forks.textContent =
-                Number(
-                    repository.forks_count ||
-                    0
-                ).toLocaleString();
-
-        }
-
-
-        if (language) {
-
-            language.textContent =
-                repository.language ||
-                "Unknown";
-
-        }
-
-
-        if (updated) {
-
-            updated.textContent =
-                repository.updated_at ||
-                "Unknown";
-
-        }
-
-
-        if (githubLink) {
-
-            githubLink.href =
-                repository.html_url;
-
-        }
-
-
-        /*
-         * Render topics.
-         */
-
-        const topics =
-            qs("#repositoryTopics");
-
-
-        if (
-            topics &&
-            Array.isArray(
-                repository.topics
-            )
-        ) {
-
-            topics.innerHTML =
-                repository.topics
-                    .map(
-                        topic => `
-
-                            <span class="tag">
-                                ${topic}
-                            </span>
-
-                        `
-                    )
-                    .join("");
+                "No repository description available.";
 
         }
 
     } catch (error) {
 
-        const container =
-            qs("#repositoryDetail");
+        console.error(
+            "Repository page failed:",
+            error
+        );
 
-
-        if (container) {
-
-            container.innerHTML = `
-
-                <div class="error-message">
-                    ${getErrorMessage(error)}
-                </div>
-
-            `;
-
-        }
+        showNotification(
+            getErrorMessage(error),
+            "error"
+        );
 
     }
 
 }
 
 
-/* ==========================================================
-   11. CREATOR DETAIL PAGE
-   ========================================================== */
+/* ============================================================
+   18. CREATOR PAGE
+   ============================================================ */
 
-/**
- * Initialize creator page.
- */
 async function initializeCreatorPage() {
 
     const username =
         getQueryParam(
             "username"
+        ) ||
+        getQueryParam(
+            "user"
         );
 
 
@@ -1647,35 +2256,41 @@ async function initializeCreatorPage() {
             );
 
 
+        if (!user) {
+            return;
+        }
+
+
         const name =
-            qs("#creatorName");
+            qs(
+                "#creatorName"
+            ) ||
+            qs(
+                ".creator-name"
+            );
 
 
         const bio =
-            qs("#creatorBio");
+            qs(
+                "#creatorBio"
+            ) ||
+            qs(
+                ".creator-bio"
+            );
 
 
         const avatar =
-            qs("#creatorAvatar");
-
-
-        const repos =
-            qs("#creatorRepos");
-
-
-        const followers =
-            qs("#creatorFollowers");
-
-
-        const github =
-            qs("#creatorGithub");
+            qs(
+                "#creatorAvatar"
+            );
 
 
         if (name) {
 
             name.textContent =
                 user.name ||
-                user.login;
+                user.login ||
+                username;
 
         }
 
@@ -1684,50 +2299,30 @@ async function initializeCreatorPage() {
 
             bio.textContent =
                 user.bio ||
-                "GitHub developer.";
+                "";
 
         }
 
 
-        if (avatar) {
+        if (
+            avatar &&
+            user.avatar_url
+        ) {
 
             avatar.src =
                 user.avatar_url;
 
             avatar.alt =
-                user.login;
-
-        }
-
-
-        if (repos) {
-
-            repos.textContent =
-                user.public_repos;
-
-        }
-
-
-        if (followers) {
-
-            followers.textContent =
-                user.followers;
-
-        }
-
-
-        if (github) {
-
-            github.href =
-                user.html_url;
+                user.login ||
+                username;
 
         }
 
     } catch (error) {
 
-        showNotification(
-            getErrorMessage(error),
-            "error"
+        console.error(
+            "Creator page failed:",
+            error
         );
 
     }
@@ -1735,17 +2330,19 @@ async function initializeCreatorPage() {
 }
 
 
-/* ==========================================================
-   12. SAVED PAGE
-   ========================================================== */
+/* ============================================================
+   19. SAVED REPOSITORIES PAGE
+   ============================================================ */
 
-/**
- * Render locally saved repositories.
- */
-function initializeSavedPage() {
+async function initializeSavedPage() {
 
     const container =
-        qs("#savedRepositoryResults");
+        qs(
+            "#repositoryResults"
+        ) ||
+        qs(
+            "#repositoryGrid"
+        );
 
 
     if (!container) {
@@ -1753,134 +2350,243 @@ function initializeSavedPage() {
     }
 
 
-    const saved =
-        getSavedRepositories();
+    try {
+
+        const repositories =
+            await getSavedRepositories();
 
 
-    renderRepositories(
-        saved,
-        container
-    );
+        const items =
+            Array.isArray(
+                repositories
+            )
+                ? repositories
+                : [];
 
 
-    const count =
-        qs("#savedCount");
+        appState.repositories =
+            items;
 
 
-    if (count) {
+        renderRepositories(
+            items,
+            container
+        );
 
-        count.textContent =
-            saved.length;
+
+        updateResultUI({
+            state: "success",
+            items
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Saved repositories failed:",
+            error
+        );
+
+
+        container.innerHTML = `
+            <div class="empty-state">
+                <h3>Unable to load saved repositories</h3>
+                <p>
+                    ${getErrorMessage(error)}
+                </p>
+            </div>
+        `;
 
     }
 
 }
 
 
-/* ==========================================================
-   13. LAB PAGE
-   ========================================================== */
+/* ============================================================
+   20. LABS PAGE
+   ============================================================ */
 
-/**
- * Labs page simply initializes the normal search system,
- * but defaults the mode to labs.
- */
 async function initializeLabsPage() {
 
-    const input =
+    const searchInput =
         qs("#searchInput");
 
 
-    const button =
+    const searchButton =
         qs("#searchButton");
 
 
-    const container =
+    const repositoryContainer =
         qs("#repositoryResults");
 
 
-    if (!input) {
+    if (!searchInput) {
         return;
     }
 
 
-    const getSearchMode =
-        initializeSearchModes(
-            mode => {
+    let searchController = null;
 
-                appState.searchMode =
-                    mode;
 
-            }
+    try {
+
+        searchController =
+            initializeSearch({
+
+                input:
+                    searchInput,
+
+                button:
+                    searchButton,
+
+                container:
+                    repositoryContainer,
+
+                getMode:
+                    () => "labs",
+
+                getFilters,
+
+                onResults:
+                    state => {
+
+                        if (
+                            state?.state ===
+                            "success"
+                        ) {
+
+                            appState.repositories =
+                                state.items ||
+                                [];
+
+                            updateResultUI(
+                                state
+                            );
+
+                        }
+
+                    }
+
+            });
+
+    } catch (error) {
+
+        console.error(
+            "Labs search initialization failed:",
+            error
         );
 
+        return;
 
-    appState.searchMode =
-        "labs";
-
-
-    const searchController =
-        initializeSearch({
-
-            input,
-
-            button,
-
-            container,
-
-            getMode:
-                () =>
-                    "labs",
-
-            getFilters,
-
-            onResults:
-                updateResultUI
-
-        });
+    }
 
 
-    initializeFilters(
-        () => {
-
-            searchController.search();
-
-        }
-    );
-
-
-    initializeQuickSearches(
-        input,
+    const executeSearch =
         () =>
-            searchController.search()
-    );
+            searchController?.search();
 
 
-    /*
-     * Automatically search for DevOps labs.
-     */
+    try {
 
-    input.value =
-        input.value ||
-        "DevOps Kubernetes";
+        initializeQuickSearches(
+            searchInput,
+            executeSearch
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Labs quick search warning:",
+            error
+        );
+
+    }
 
 
-    searchController.search();
+    const query =
+        getQueryParam("q");
+
+
+    if (query) {
+
+        searchInput.value =
+            query;
+
+
+        setTimeout(
+            executeSearch,
+            0
+        );
+
+    }
 
 }
 
 
-/* ==========================================================
-   14. GLOBAL BACK TO TOP
-   ========================================================== */
+/* ============================================================
+   21. LEARNING PATH PAGE
+   ============================================================ */
 
-/**
- * Initialize back-to-top button.
- */
+async function initializeLearningPathPage() {
+
+    const technologyContainer =
+        qs("#technologyGrid");
+
+
+    if (!technologyContainer) {
+        return;
+    }
+
+
+    try {
+
+        const technologies =
+            await loadTechnologies();
+
+
+        appState.technologies =
+            Array.isArray(
+                technologies
+            )
+                ? technologies
+                : [];
+
+
+        renderTechnologies(
+            appState.technologies,
+            technologyContainer
+        );
+
+
+        initializeTechnologyCards(
+            technologyContainer
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Learning path initialization failed:",
+            error
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   22. BACK TO TOP
+   ============================================================ */
+
 function initializeBackToTop() {
 
     const button =
-        qs(".back-to-top");
+        qs(
+            "#backToTop"
+        ) ||
+        qs(
+            ".back-to-top"
+        );
 
 
     if (!button) {
@@ -1892,10 +2598,22 @@ function initializeBackToTop() {
         "scroll",
         () => {
 
-            button.classList.toggle(
-                "visible",
-                window.scrollY > 500
-            );
+            if (
+                window.scrollY >
+                500
+            ) {
+
+                button.classList.add(
+                    "visible"
+                );
+
+            } else {
+
+                button.classList.remove(
+                    "visible"
+                );
+
+            }
 
         }
     );
@@ -1906,12 +2624,8 @@ function initializeBackToTop() {
         () => {
 
             window.scrollTo({
-
                 top: 0,
-
-                behavior:
-                    "smooth"
-
+                behavior: "smooth"
             });
 
         }
@@ -1920,24 +2634,111 @@ function initializeBackToTop() {
 }
 
 
-/* ==========================================================
-   15. PAGE INITIALIZATION
-   ========================================================== */
+/* ============================================================
+   23. GLOBAL TECHNOLOGY INTERACTIONS
+   ============================================================ */
 
-/**
- * Start application.
- */
-async function initializeApp() {
+function initializeGlobalTechnologyInteractions() {
 
     /*
-     * Prevent duplicate initialization.
-     */
+        These elements are already in index.html.
+
+        Examples:
+
+            data-technology="aws"
+            data-technology="docker"
+            data-technology="kubernetes"
+            data-technology="terraform"
+            data-technology="jenkins"
+            data-technology="argocd"
+    */
+
+
+    const elements =
+        qsa(
+            "[data-technology]"
+        );
+
+
+    elements.forEach(
+        element => {
+
+            /*
+                Do not add duplicate listeners if this
+                function is called again.
+            */
+
+            if (
+                element.dataset.appTechnologyBound ===
+                "true"
+            ) {
+                return;
+            }
+
+
+            element.dataset.appTechnologyBound =
+                "true";
+
+
+            if (
+                element.getAttribute(
+                    "role"
+                ) === "button"
+            ) {
+
+                element.addEventListener(
+                    "keydown",
+                    event => {
+
+                        if (
+                            event.key !== "Enter" &&
+                            event.key !== " "
+                        ) {
+                            return;
+                        }
+
+
+                        event.preventDefault();
+
+
+                        const technologyId =
+                            element.dataset
+                                .technology;
+
+
+                        if (
+                            technologyId
+                        ) {
+
+                            openTechnology(
+                                technologyId
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   24. GLOBAL APP INITIALIZATION
+   ============================================================ */
+
+async function initializeApp() {
 
     if (
         appState.initialized
     ) {
 
         return;
+
     }
 
 
@@ -1949,124 +2750,144 @@ async function initializeApp() {
         getCurrentPage();
 
 
-    /*
-     * Global components.
-     */
+    document.body.classList.add(
+        "app-initialized"
+    );
+
+
+    /* --------------------------------------------------------
+       Global systems
+    -------------------------------------------------------- */
 
     initializeNavigation();
 
     initializeBackToTop();
 
+    initializeGlobalTechnologyInteractions();
 
-    /*
-     * GitHub API status can run on pages
-     * where the status element exists.
-     */
+    initializeTechnologyModal();
 
     initializeGitHubStatus();
 
 
-    /*
-     * Page-specific initialization.
-     */
+    /* --------------------------------------------------------
+       Page systems
+    -------------------------------------------------------- */
 
-    switch (page) {
+    try {
 
-        case "home":
+        switch (page) {
 
-            await initializeHomePage();
+            case "home":
 
-            break;
+                await initializeHomePage();
 
-
-        case "explorer":
-
-            await initializeHomePage();
-
-            break;
+                break;
 
 
-        case "technologies":
+            case "explorer":
 
-            await initializeTechnologiesPage();
+                await initializeExplorerPage();
 
-            break;
-
-
-        case "technology":
-
-            await initializeTechnologyPage();
-
-            break;
+                break;
 
 
-        case "repository":
+            case "technologies":
 
-            await initializeRepositoryPage();
+                await initializeTechnologiesPage();
 
-            break;
-
-
-        case "creator":
-
-            await initializeCreatorPage();
-
-            break;
+                break;
 
 
-        case "labs":
+            case "technology":
 
-            await initializeLabsPage();
+                await initializeTechnologyPage();
 
-            break;
-
-
-        case "saved":
-
-            initializeSavedPage();
-
-            break;
+                break;
 
 
-        case "learning-path":
+            case "repository":
 
-            /*
-             * Learning path is primarily populated by
-             * the page's HTML/data in the current V1.
-             */
+                await initializeRepositoryPage();
 
-            break;
+                break;
 
 
-        default:
+            case "creator":
 
-            /*
-             * Unknown page.
-             */
+                await initializeCreatorPage();
 
-            break;
+                break;
+
+
+            case "saved":
+
+                await initializeSavedPage();
+
+                break;
+
+
+            case "labs":
+
+                await initializeLabsPage();
+
+                break;
+
+
+            case "learning-path":
+
+                await initializeLearningPathPage();
+
+                break;
+
+
+            default:
+
+                await initializeHomePage();
+
+                break;
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Application initialization failed:",
+            error
+        );
+
+
+        showNotification(
+            getErrorMessage(
+                error ||
+                "Application failed to initialize."
+            ),
+            "error"
+        );
 
     }
 
 
-    /*
-     * Global page-enter animation.
-     */
+    /* --------------------------------------------------------
+       Page enter animation
+    -------------------------------------------------------- */
 
-    document.body.classList.add(
-        "page-enter"
+    requestAnimationFrame(
+        () => {
+
+            document.body.classList.add(
+                "page-enter"
+            );
+
+        }
     );
 
 }
 
 
-/* ==========================================================
-   16. START APPLICATION
-   ========================================================== */
-
-/*
- * Wait until the DOM is ready.
- */
+/* ============================================================
+   25. START APPLICATION
+   ============================================================ */
 
 if (
     document.readyState ===
@@ -2075,7 +2896,10 @@ if (
 
     document.addEventListener(
         "DOMContentLoaded",
-        initializeApp
+        initializeApp,
+        {
+            once: true
+        }
     );
 
 } else {
@@ -2085,7 +2909,6 @@ if (
 }
 
 
-/* ==========================================================
-   END OF app.js
-   ========================================================== */
-
+/* ============================================================
+   END OF APP.JS
+============================================================ */
