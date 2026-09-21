@@ -1,3 +1,4 @@
+```javascript
 /*
 ============================================================
 CHARLIE MJ DEVOPS EXPLORER
@@ -27,9 +28,33 @@ Examples:
     SRE
     Platform Engineering
 
+IMPORTANT:
+
+    categories.js is responsible for:
+
+        Load categories
+        ↓
+        Find categories
+        ↓
+        Create category cards
+        ↓
+        Render category cards
+
+    app.js is responsible for:
+
+        Category click
+        ↓
+        Technology selection
+        ↓
+        GitHub search
+
 ============================================================
 */
 
+
+/* ==========================================================
+   IMPORTS
+   ========================================================== */
 
 import {
 
@@ -57,19 +82,44 @@ let categoryCache = [];
  */
 export async function loadCategories() {
 
+    /*
+     * Return cached categories when
+     * they have already been loaded.
+     */
+
     if (
         categoryCache.length > 0
     ) {
 
         return categoryCache;
+
     }
 
+
+    /*
+     * Load categories from JSON.
+     */
 
     const data =
         await fetchJson(
             "devops-categories.json"
         );
 
+
+    /*
+     * Support both possible JSON formats:
+     *
+     * [
+     *     {...},
+     *     {...}
+     * ]
+     *
+     * OR:
+     *
+     * {
+     *     "categories": [...]
+     * }
+     */
 
     categoryCache =
         Array.isArray(data)
@@ -78,6 +128,7 @@ export async function loadCategories() {
 
 
     return categoryCache;
+
 }
 
 
@@ -106,21 +157,38 @@ export async function getCategory(
 
 
     return (
-        categories.find(
-            category =>
-                String(
-                    category.slug ||
-                    ""
-                ).toLowerCase() ===
-                normalized ||
 
-                String(
-                    category.name ||
-                    ""
-                ).toLowerCase() ===
-                normalized
+        categories.find(
+            category => {
+
+                const slug =
+                    String(
+                        category.slug ||
+                        ""
+                    )
+                    .trim()
+                    .toLowerCase();
+
+
+                const name =
+                    String(
+                        category.name ||
+                        ""
+                    )
+                    .trim()
+                    .toLowerCase();
+
+
+                return (
+                    slug === normalized ||
+                    name === normalized
+                );
+
+            }
         ) || null
+
     );
+
 }
 
 
@@ -130,6 +198,22 @@ export async function getCategory(
 
 /**
  * Create category card.
+ *
+ * IMPORTANT:
+ *
+ * data-category is required by app.js.
+ *
+ * Example:
+ *
+ *     data-category="kubernetes"
+ *
+ * This connects the visual card to:
+ *
+ *     devopsCategories
+ *
+ * in:
+ *
+ *     devops-data.js
  *
  * @param {object} category
  * @param {number} index
@@ -141,23 +225,95 @@ export function createCategoryCard(
 ) {
 
     const card =
-        document.createElement("article");
+        document.createElement(
+            "article"
+        );
 
+
+    /*
+     * Main card class.
+     */
 
     card.className =
         "category-card";
 
 
-    card.dataset.category =
+    /*
+     * Category ID.
+     *
+     * app.js uses:
+     *
+     *     card.dataset.category
+     *
+     * to determine which category
+     * the user selected.
+     */
+
+    const categoryId =
         category.slug ||
+        category.id ||
         category.name ||
         "";
 
+
+    card.dataset.category =
+        String(categoryId)
+            .trim()
+            .toLowerCase();
+
+
+    /*
+     * Make card keyboard accessible.
+     */
+
+    card.setAttribute(
+        "tabindex",
+        "0"
+    );
+
+
+    card.setAttribute(
+        "role",
+        "button"
+    );
+
+
+    card.setAttribute(
+        "aria-label",
+        `Explore ${
+            category.name ||
+            "category"
+        }`
+    );
+
+
+    /*
+     * Category number.
+     */
 
     const number =
         String(index + 1)
             .padStart(2, "0");
 
+
+    /*
+     * Category technology count.
+     */
+
+    const technologyCount =
+        category.technologyCount ||
+        (
+            Array.isArray(
+                category.technologies
+            )
+                ? category.technologies.length
+                : 0
+        );
+
+
+    /*
+     * Build card HTML.
+     */
 
     card.innerHTML = `
 
@@ -183,11 +339,13 @@ export function createCategoryCard(
 
 
         ${
-            category.technologyCount
+            technologyCount
                 ? `
                     <div class="category-count">
                         ${escapeHtml(
-                            category.technologyCount
+                            String(
+                                technologyCount
+                            )
                         )}
                         tools
                     </div>
@@ -199,6 +357,7 @@ export function createCategoryCard(
 
 
     return card;
+
 }
 
 
@@ -222,8 +381,16 @@ export function renderCategories(
     }
 
 
+    /*
+     * Clear previous categories.
+     */
+
     container.innerHTML = "";
 
+
+    /*
+     * Empty state.
+     */
 
     if (
         !categories ||
@@ -249,8 +416,15 @@ export function renderCategories(
     }
 
 
+    /*
+     * Create each category card.
+     */
+
     categories.forEach(
-        (category, index) => {
+        (
+            category,
+            index
+        ) => {
 
             container.appendChild(
                 createCategoryCard(
@@ -261,15 +435,33 @@ export function renderCategories(
 
         }
     );
+
 }
 
 
 /* ==========================================================
-   6. CATEGORY CLICK HANDLER
+   6. CATEGORY CARD INITIALIZATION
    ========================================================== */
 
 /**
- * Make category cards searchable.
+ * Initialize category cards.
+ *
+ * IMPORTANT:
+ *
+ * Category click behavior is now handled
+ * centrally by app.js.
+ *
+ * This function is intentionally kept
+ * for compatibility with app.js:
+ *
+ *     initializeCategoryCards(
+ *         categoryContainer,
+ *         searchInput
+ *     );
+ *
+ * No separate click listener is added here.
+ *
+ * This prevents duplicate click behavior.
  *
  * @param {HTMLElement} container
  * @param {HTMLInputElement} searchInput
@@ -284,46 +476,21 @@ export function initializeCategoryCards(
     }
 
 
-    container.addEventListener(
-        "click",
-        event => {
+    /*
+     * The actual category interaction
+     * is handled by app.js.
+     *
+     * Keeping this function exported
+     * means the existing app.js code
+     * does not need to be changed.
+     */
 
-            const card =
-                event.target.closest(
-                    ".category-card"
-                );
+    return container;
 
-
-            if (!card) {
-                return;
-            }
-
-
-            const category =
-                card.dataset.category;
-
-
-            if (
-                searchInput &&
-                category
-            ) {
-
-                searchInput.value =
-                    category;
-
-
-                searchInput.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center"
-                });
-
-            }
-
-        }
-    );
 }
 
 
 /* ==========================================================
    END OF categories.js
    ========================================================== */
+```

@@ -253,6 +253,82 @@
 </section>
 </main>
 
+<!-- =========================================================
+     TECHNOLOGY DETAILS MODAL
+========================================================= -->
+
+<div
+    id="technologyModal"
+    class="technology-modal"
+    hidden
+    aria-hidden="true"
+>
+
+    <div
+        class="technology-modal-backdrop"
+        data-modal-close
+    ></div>
+
+
+    <div
+        class="technology-modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="technologyModalTitle"
+    >
+
+        <button
+            id="technologyModalClose"
+            class="technology-modal-close"
+            type="button"
+            aria-label="Close technology details"
+        >
+            ×
+        </button>
+
+
+        <span
+            id="technologyModalCategory"
+            class="section-number"
+        ></span>
+
+
+        <h2 id="technologyModalTitle"></h2>
+
+
+        <p id="technologyModalDescription"></p>
+
+
+        <div class="technology-modal-actions">
+
+            <a
+                id="technologyOfficialLink"
+                class="primary-btn"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                hidden
+            >
+                Official Repository ↗
+            </a>
+
+
+            <a
+                id="technologyGithubSearch"
+                class="secondary-btn"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Find GitHub Repositories ↗
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
 <footer class="site-footer">
   <div class="container footer-grid">
     <div><a class="brand footer-brand" href="#explore"><span class="brand-mark">∞</span><span class="brand-wordmark"><strong>Charlie MJ</strong><small>DevOps Explorer</small></span></a><p>GitHub discovery for DevOps learners, builders and engineers.</p></div>

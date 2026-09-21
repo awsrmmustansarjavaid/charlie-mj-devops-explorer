@@ -5384,3 +5384,48 @@ Responsive styles:
     }
 
 }
+
+/* =========================================================
+   INTERACTIVE CATEGORY / TECHNOLOGY CARDS
+========================================================= */
+
+.category-card[data-category],
+.technology-card[data-technology],
+.feature-card[data-technology],
+.pipeline-step[data-technology],
+.tool-pills [data-technology] {
+    cursor: pointer;
+}
+
+
+/* Category hover */
+
+.category-card[data-category]:hover {
+    transform: translateY(-4px);
+}
+
+
+/* Technology hover */
+
+.technology-card[data-technology]:hover {
+    transform: translateY(-4px);
+}
+
+
+/* Keyboard focus */
+
+.category-card[data-category]:focus-visible,
+.technology-card[data-technology]:focus-visible,
+.feature-card[data-technology]:focus-visible,
+.pipeline-step[data-technology]:focus-visible,
+.tool-pills [data-technology]:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+}
+
+
+/* Selected category */
+
+.category-card[data-category].active {
+    transform: translateY(-4px);
+}

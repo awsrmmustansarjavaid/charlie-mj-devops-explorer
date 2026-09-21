@@ -176,7 +176,6 @@ import {
 
 import {
 
-    devopsCategories,
     devopsTechnologies
 
 } from "./devops-data.js";
@@ -201,6 +200,15 @@ const appState = {
      */
 
     repositories:
+        [],
+
+
+    /*
+     * Categories loaded from
+     * devops-categories.json.
+     */
+
+    categories:
         [],
 
 
@@ -534,17 +542,15 @@ async function initializeGitHubStatus() {
  *
  * Flow:
  *
+ * devops-categories.json
+ *    ↓
  * Category
  *    ↓
- * Find category in devops-data.js
+ * Technology IDs
  *    ↓
- * Get technology IDs
+ * devopsTechnologies
  *    ↓
- * Find technology details
- *    ↓
- * Render technology cards
- *    ↓
- * Scroll to technology section
+ * Technology cards
  *
  * @param {string} categoryId
  */
@@ -553,18 +559,57 @@ function openCategory(
 ) {
 
     /*
-     * Find selected category.
+     * Normalize the clicked category ID.
+     */
+
+    const normalizedCategoryId =
+        String(
+            categoryId || ""
+        )
+            .trim()
+            .toLowerCase();
+
+
+    /*
+     * Find the category inside the
+     * categories loaded from JSON.
      */
 
     const category =
-        devopsCategories.find(
-            item =>
-                item.id === categoryId
+        appState.categories.find(
+            item => {
+
+                const id =
+                    String(
+                        item.id || ""
+                    )
+                        .trim()
+                        .toLowerCase();
+
+
+                const slug =
+                    String(
+                        item.slug || ""
+                    )
+                        .trim()
+                        .toLowerCase();
+
+
+                return (
+                    id ===
+                    normalizedCategoryId
+                ) || (
+                    slug ===
+                    normalizedCategoryId
+                );
+
+            }
         );
 
 
     /*
-     * Stop if category does not exist.
+     * Stop if the category
+     * cannot be found.
      */
 
     if (!category) {
@@ -599,8 +644,7 @@ function openCategory(
 
 
     /*
-     * Update section heading if
-     * a category heading exists.
+     * Find technology section.
      */
 
     const technologySection =
@@ -609,15 +653,13 @@ function openCategory(
         );
 
 
+    /*
+     * Update heading.
+     */
+
     const heading =
         technologySection?.querySelector(
             "h2"
-        );
-
-
-    const description =
-        technologySection?.querySelector(
-            ".section-heading p"
         );
 
 
@@ -625,7 +667,18 @@ function openCategory(
 
         heading.textContent =
             category.name;
+
     }
+
+
+    /*
+     * Update description.
+     */
+
+    const description =
+        technologySection?.querySelector(
+            ".section-heading p"
+        );
 
 
     if (description) {
@@ -633,7 +686,20 @@ function openCategory(
         description.textContent =
             category.description ||
             "Explore technologies in this DevOps category.";
+
     }
+
+
+    /*
+     * Get technology IDs from JSON.
+     */
+
+    const technologyIds =
+        Array.isArray(
+            category.technologies
+        )
+            ? category.technologies
+            : [];
 
 
     /*
@@ -641,26 +707,31 @@ function openCategory(
      */
 
     const technologyCards =
-        category.technologies
+        technologyIds
             .map(
-                id => {
+                technologyId => {
 
                     const technology =
-                        devopsTechnologies[id];
+                        devopsTechnologies[
+                            technologyId
+                        ];
 
 
                     /*
-                     * Skip technologies that
-                     * do not exist in the database.
+                     * If the technology does not
+                     * exist in devops-data.js,
+                     * show a warning in console
+                     * and skip the card.
                      */
 
                     if (!technology) {
 
                         console.warn(
-                            `Technology "${id}" is missing from devopsTechnologies.`
+                            `Technology "${technologyId}" is missing from devopsTechnologies.`
                         );
 
                         return "";
+
                     }
 
 
@@ -668,7 +739,7 @@ function openCategory(
 
                         <article
                             class="technology-card"
-                            data-technology="${id}"
+                            data-technology="${technologyId}"
                             tabindex="0"
                             role="button"
                             aria-label="Explore ${technology.name}"
@@ -703,7 +774,7 @@ function openCategory(
 
 
     /*
-     * Render cards.
+     * Display the technology cards.
      */
 
     technologyGrid.innerHTML =
@@ -731,8 +802,7 @@ function openCategory(
 
 
     /*
-     * Add active state to the
-     * selected category card.
+     * Highlight the selected category.
      */
 
     qsa(
@@ -740,10 +810,18 @@ function openCategory(
     ).forEach(
         card => {
 
+            const cardCategory =
+                String(
+                    card.dataset.category || ""
+                )
+                    .trim()
+                    .toLowerCase();
+
+
             card.classList.toggle(
                 "active",
-                card.dataset.category ===
-                    categoryId
+                cardCategory ===
+                    normalizedCategoryId
             );
 
         }
@@ -763,331 +841,6 @@ function openCategory(
             "start"
 
     });
-
-}
-
-
-/**
- * Open a technology.
- *
- * The technology is converted into a
- * GitHub search query.
- *
- * Example:
- *
- * Kubernetes
- *     ↓
- * Search GitHub
- *
- * @param {string} technologyId
- */
-function openTechnology(
-    technologyId
-) {
-
-    const technology =
-        devopsTechnologies[
-            technologyId
-        ];
-
-
-    if (!technology) {
-
-        console.warn(
-            "Technology not found:",
-            technologyId
-        );
-
-        return;
-    }
-
-
-    /*
-     * Find homepage search input.
-     */
-
-    const searchInput =
-        qs("#searchInput");
-
-
-    /*
-     * If the homepage search exists,
-     * use the existing search system.
-     */
-
-    if (searchInput) {
-
-        searchInput.value =
-            technology.githubSearch ||
-            technology.name;
-
-
-        /*
-         * Scroll to search section.
-         */
-
-        const exploreSection =
-            qs("#explore");
-
-
-        if (exploreSection) {
-
-            exploreSection.scrollIntoView({
-
-                behavior:
-                    "smooth",
-
-                block:
-                    "start"
-
-            });
-
-        }
-
-
-        /*
-         * Trigger the existing search button.
-         */
-
-        const searchButton =
-            qs("#searchButton");
-
-
-        if (searchButton) {
-
-            setTimeout(
-                () => {
-
-                    searchButton.click();
-
-                },
-                300
-            );
-
-            return;
-        }
-
-    }
-
-
-    /*
-     * Fallback:
-     *
-     * If the search system is not available,
-     * open the explorer page with the query.
-     */
-
-    const query =
-        encodeURIComponent(
-            technology.githubSearch ||
-            technology.name
-        );
-
-
-    const root =
-        getProjectRoot();
-
-
-    window.location.href =
-        `${root}explorer.html?q=${query}`;
-
-}
-
-
-/**
- * Initialize category and technology
- * interaction.
- *
- * This uses event delegation so it also
- * works after the technology grid is
- * replaced dynamically.
- *
- * @param {HTMLElement|null} categoryContainer
- * @param {HTMLElement|null} technologyContainer
- */
-function initializeCategoryTechnologyInteractions(
-    categoryContainer,
-    technologyContainer
-) {
-
-    /*
-     * Category click handling.
-     */
-
-    if (categoryContainer) {
-
-        categoryContainer.addEventListener(
-            "click",
-            event => {
-
-                const card =
-                    event.target.closest(
-                        "[data-category]"
-                    );
-
-
-                if (!card) {
-                    return;
-                }
-
-
-                const categoryId =
-                    card.dataset.category;
-
-
-                if (!categoryId) {
-                    return;
-                }
-
-
-                openCategory(
-                    categoryId
-                );
-
-            }
-        );
-
-
-        /*
-         * Keyboard accessibility.
-         */
-
-        categoryContainer.addEventListener(
-            "keydown",
-            event => {
-
-                if (
-                    event.key !== "Enter" &&
-                    event.key !== " "
-                ) {
-
-                    return;
-                }
-
-
-                const card =
-                    event.target.closest(
-                        "[data-category]"
-                    );
-
-
-                if (!card) {
-                    return;
-                }
-
-
-                event.preventDefault();
-
-
-                const categoryId =
-                    card.dataset.category;
-
-
-                if (!categoryId) {
-                    return;
-                }
-
-
-                openCategory(
-                    categoryId
-                );
-
-            }
-        );
-
-    }
-
-
-    /*
-     * Technology click handling.
-     *
-     * Event delegation is important because
-     * openCategory() replaces the technology
-     * cards dynamically.
-     */
-
-    if (technologyContainer) {
-
-        technologyContainer.addEventListener(
-            "click",
-            event => {
-
-                const card =
-                    event.target.closest(
-                        "[data-technology]"
-                    );
-
-
-                if (!card) {
-                    return;
-                }
-
-
-                const technologyId =
-                    card.dataset.technology;
-
-
-                if (!technologyId) {
-                    return;
-                }
-
-
-                openTechnology(
-                    technologyId
-                );
-
-            }
-        );
-
-
-        /*
-         * Keyboard accessibility.
-         */
-
-        technologyContainer.addEventListener(
-            "keydown",
-            event => {
-
-                if (
-                    event.key !== "Enter" &&
-                    event.key !== " "
-                ) {
-
-                    return;
-                }
-
-
-                const card =
-                    event.target.closest(
-                        "[data-technology]"
-                    );
-
-
-                if (!card) {
-                    return;
-                }
-
-
-                event.preventDefault();
-
-
-                const technologyId =
-                    card.dataset.technology;
-
-
-                if (!technologyId) {
-                    return;
-                }
-
-
-                openTechnology(
-                    technologyId
-                );
-
-            }
-        );
-
-    }
 
 }
 
@@ -1181,28 +934,40 @@ async function initializeHomePage() {
 
     try {
 
-        const categories =
-            await loadCategories();
+    const categories =
+        await loadCategories();   
+     
 
 
-        if (
+    /*
+     * Store the categories loaded from
+     * devops-categories.json.
+     *
+     * openCategory() will use this data.
+     */
+
+    appState.categories =
+        categories;
+
+
+    if (
+        categoryContainer
+    ) {
+
+        renderCategories(
+            categories.slice(0, 12),
             categoryContainer
-        ) {
-
-            renderCategories(
-                categories.slice(0, 12),
-                categoryContainer
-            );
+        );
 
 
-            initializeCategoryCards(
-                categoryContainer,
-                searchInput
-            );
+        initializeCategoryCards(
+            categoryContainer,
+            searchInput
+        );
 
-        }
+    }
 
-    } catch (error) {
+} catch (error) {
 
         console.error(
             "Category loading failed:",
