@@ -1,3 +1,4 @@
+```javascript
 /*
 ============================================================
 CHARLIE MJ DEVOPS EXPLORER
@@ -40,6 +41,14 @@ and:
     Saved Resources
        ↓
     Search History
+
+and:
+
+    DevOps Categories
+       ↓
+    Technologies
+       ↓
+    GitHub Search
 
 ============================================================
 */
@@ -153,6 +162,25 @@ import {
 } from "./storage.js";
 
 
+/*
+ * Central DevOps database.
+ *
+ * This database connects:
+ *
+ * Category
+ *     ↓
+ * Technology
+ *     ↓
+ * GitHub Search
+ */
+
+import {
+
+    devopsTechnologies
+
+} from "./devops-data.js";
+
+
 /* ==========================================================
    1. APPLICATION STATE
    ========================================================== */
@@ -172,6 +200,15 @@ const appState = {
      */
 
     repositories:
+        [],
+
+
+    /*
+     * Categories loaded from
+     * devops-categories.json.
+     */
+
+    categories:
         [],
 
 
@@ -383,7 +420,11 @@ function initializeNavigation() {
         );
 
 
-        /* Close the mobile menu after a nav link is tapped. */
+        /*
+         * Close the mobile menu after
+         * a navigation link is tapped.
+         */
+
         navLinks.addEventListener(
             "click",
             (event) => {
@@ -486,12 +527,326 @@ async function initializeGitHubStatus() {
         status.classList.add(
             "offline"
         );
+
     }
+
 }
 
 
 /* ==========================================================
-   5. HOME PAGE
+   5. CATEGORY → TECHNOLOGY
+   ========================================================== */
+
+/**
+ * Open a DevOps category.
+ *
+ * Flow:
+ *
+ * devops-categories.json
+ *    ↓
+ * Category
+ *    ↓
+ * Technology IDs
+ *    ↓
+ * devopsTechnologies
+ *    ↓
+ * Technology cards
+ *
+ * @param {string} categoryId
+ */
+function openCategory(
+    categoryId
+) {
+
+    /*
+     * Normalize the clicked category ID.
+     */
+
+    const normalizedCategoryId =
+        String(
+            categoryId || ""
+        )
+            .trim()
+            .toLowerCase();
+
+
+    /*
+     * Find the category inside the
+     * categories loaded from JSON.
+     */
+
+    const category =
+        appState.categories.find(
+            item => {
+
+                const id =
+                    String(
+                        item.id || ""
+                    )
+                        .trim()
+                        .toLowerCase();
+
+
+                const slug =
+                    String(
+                        item.slug || ""
+                    )
+                        .trim()
+                        .toLowerCase();
+
+
+                return (
+                    id ===
+                    normalizedCategoryId
+                ) || (
+                    slug ===
+                    normalizedCategoryId
+                );
+
+            }
+        );
+
+
+    /*
+     * Stop if the category
+     * cannot be found.
+     */
+
+    if (!category) {
+
+        console.warn(
+            "Category not found:",
+            categoryId
+        );
+
+        return;
+    }
+
+
+    /*
+     * Find technology grid.
+     */
+
+    const technologyGrid =
+        document.getElementById(
+            "technologyGrid"
+        );
+
+
+    if (!technologyGrid) {
+
+        console.warn(
+            "Technology grid not found."
+        );
+
+        return;
+    }
+
+
+    /*
+     * Find technology section.
+     */
+
+    const technologySection =
+        document.querySelector(
+            ".technologies-map"
+        );
+
+
+    /*
+     * Update heading.
+     */
+
+    const heading =
+        technologySection?.querySelector(
+            "h2"
+        );
+
+
+    if (heading) {
+
+        heading.textContent =
+            category.name;
+
+    }
+
+
+    /*
+     * Update description.
+     */
+
+    const description =
+        technologySection?.querySelector(
+            ".section-heading p"
+        );
+
+
+    if (description) {
+
+        description.textContent =
+            category.description ||
+            "Explore technologies in this DevOps category.";
+
+    }
+
+
+    /*
+     * Get technology IDs from JSON.
+     */
+
+    const technologyIds =
+        Array.isArray(
+            category.technologies
+        )
+            ? category.technologies
+            : [];
+
+
+    /*
+     * Build technology cards.
+     */
+
+    const technologyCards =
+        technologyIds
+            .map(
+                technologyId => {
+
+                    const technology =
+                        devopsTechnologies[
+                            technologyId
+                        ];
+
+
+                    /*
+                     * If the technology does not
+                     * exist in devops-data.js,
+                     * show a warning in console
+                     * and skip the card.
+                     */
+
+                    if (!technology) {
+
+                        console.warn(
+                            `Technology "${technologyId}" is missing from devopsTechnologies.`
+                        );
+
+                        return "";
+
+                    }
+
+
+                    return `
+
+                        <article
+                            class="technology-card"
+                            data-technology="${technologyId}"
+                            tabindex="0"
+                            role="button"
+                            aria-label="Explore ${technology.name}"
+                        >
+
+                            <h3>
+                                ${technology.name}
+                            </h3>
+
+
+                            <p>
+                                ${technology.description}
+                            </p>
+
+
+                            <span>
+                                ${technology.category}
+                            </span>
+
+
+                            <strong>
+                                Explore →
+                            </strong>
+
+                        </article>
+
+                    `;
+
+                }
+            )
+            .join("");
+
+
+    /*
+     * Display the technology cards.
+     */
+
+    technologyGrid.innerHTML =
+        technologyCards ||
+        `
+
+            <div class="empty-state no-results">
+
+                <div class="empty-state-icon">
+                    &gt;_
+                </div>
+
+                <div class="empty-state-title">
+                    No technologies found
+                </div>
+
+                <p class="empty-state-description">
+                    No technologies are currently configured
+                    for this category.
+                </p>
+
+            </div>
+
+        `;
+
+
+    /*
+     * Highlight the selected category.
+     */
+
+    qsa(
+        "[data-category]"
+    ).forEach(
+        card => {
+
+            const cardCategory =
+                String(
+                    card.dataset.category || ""
+                )
+                    .trim()
+                    .toLowerCase();
+
+
+            card.classList.toggle(
+                "active",
+                cardCategory ===
+                    normalizedCategoryId
+            );
+
+        }
+    );
+
+
+    /*
+     * Scroll to technology section.
+     */
+
+    technologySection?.scrollIntoView({
+
+        behavior:
+            "smooth",
+
+        block:
+            "start"
+
+    });
+
+}
+
+
+/* ==========================================================
+   6. HOME PAGE
    ========================================================== */
 
 /**
@@ -517,6 +872,16 @@ async function initializeHomePage() {
 
     const categoryContainer =
         qs("#categoryGrid");
+
+
+    /* ------------------------------------------------------
+       Category / Technology interactions
+       ------------------------------------------------------ */
+
+    initializeCategoryTechnologyInteractions(
+        categoryContainer,
+        technologyContainer
+    );
 
 
     /* ------------------------------------------------------
@@ -547,6 +912,7 @@ async function initializeHomePage() {
             initializeTechnologyCards(
                 technologyContainer
             );
+
         }
 
 
@@ -558,6 +924,7 @@ async function initializeHomePage() {
             "Technology loading failed:",
             error
         );
+
     }
 
 
@@ -567,32 +934,45 @@ async function initializeHomePage() {
 
     try {
 
-        const categories =
-            await loadCategories();
+    const categories =
+        await loadCategories();          
 
 
-        if (
+    /*
+     * Store the categories loaded from
+     * devops-categories.json.
+     *
+     * openCategory() will use this data.
+     */
+
+    appState.categories =
+        categories;
+
+
+    if (
+        categoryContainer
+    ) {
+
+        renderCategories(
+            categories.slice(0, 12),
             categoryContainer
-        ) {
-
-            renderCategories(
-                categories.slice(0, 12),
-                categoryContainer
-            );
+        );
 
 
-            initializeCategoryCards(
-                categoryContainer,
-                searchInput
-            );
-        }
+        initializeCategoryCards(
+            categoryContainer,
+            searchInput
+        );
 
-    } catch (error) {
+    }
+
+} catch (error) {
 
         console.error(
             "Category loading failed:",
             error
         );
+
     }
 
 
@@ -628,6 +1008,7 @@ async function initializeHomePage() {
             ) {
 
                 executeSearch();
+
             }
 
         }
@@ -670,6 +1051,7 @@ async function initializeHomePage() {
                         updateResultUI(
                             state
                         );
+
                     }
 
                 }
@@ -688,6 +1070,7 @@ async function initializeHomePage() {
         ) {
 
             return searchController.search();
+
         }
 
     }
@@ -721,11 +1104,13 @@ async function initializeHomePage() {
 
 
         executeSearch();
+
     }
 
 
     /*
-     * If no query exists, show initial empty state.
+     * If no query exists,
+     * show initial empty state.
      */
 
     if (
@@ -757,13 +1142,14 @@ async function initializeHomePage() {
             </div>
 
         `;
+
     }
 
 }
 
 
 /* ==========================================================
-   6. UPDATE SEARCH UI
+   7. UPDATE SEARCH UI
    ========================================================== */
 
 /**
@@ -789,6 +1175,7 @@ function updateResultUI(
             Number(
                 state.total || 0
             ).toLocaleString();
+
     }
 
 
@@ -798,13 +1185,14 @@ function updateResultUI(
             state.incomplete
                 ? "GitHub returned an incomplete result set."
                 : "GitHub search complete.";
+
     }
 
 }
 
 
 /* ==========================================================
-   7. TECHNOLOGIES PAGE
+   8. TECHNOLOGIES PAGE
    ========================================================== */
 
 /**
@@ -885,6 +1273,7 @@ async function initializeTechnologiesPage() {
                                 return text.includes(
                                     query
                                 );
+
                             }
                         );
 
@@ -910,13 +1299,14 @@ async function initializeTechnologiesPage() {
             </div>
 
         `;
+
     }
 
 }
 
 
 /* ==========================================================
-   8. TECHNOLOGY DETAIL PAGE
+   9. TECHNOLOGY DETAIL PAGE
    ========================================================== */
 
 /**
@@ -959,7 +1349,8 @@ async function initializeTechnologyPage() {
 
 
         /*
-         * Populate generic elements when they exist.
+         * Populate generic elements
+         * when they exist.
          */
 
         const title =
@@ -978,6 +1369,7 @@ async function initializeTechnologyPage() {
 
             title.textContent =
                 data.name;
+
         }
 
 
@@ -986,6 +1378,7 @@ async function initializeTechnologyPage() {
             description.textContent =
                 data.description ||
                 "DevOps technology.";
+
         }
 
 
@@ -994,6 +1387,7 @@ async function initializeTechnologyPage() {
             category.textContent =
                 data.category ||
                 "DevOps";
+
         }
 
 
@@ -1016,14 +1410,16 @@ async function initializeTechnologyPage() {
                 data.keywords
                     .map(
                         keyword => `
+
                             <span class="tag">
                                 ${keyword}
                             </span>
+
                         `
                     )
                     .join("");
-        }
 
+        }
 
     } catch (error) {
 
@@ -1031,13 +1427,14 @@ async function initializeTechnologyPage() {
             "Technology detail failed:",
             error
         );
+
     }
 
 }
 
 
 /* ==========================================================
-   9. REPOSITORY DETAIL PAGE
+   10. REPOSITORY DETAIL PAGE
    ========================================================== */
 
 /**
@@ -1107,6 +1504,7 @@ async function initializeRepositoryPage() {
 
             title.textContent =
                 repository.full_name;
+
         }
 
 
@@ -1115,6 +1513,7 @@ async function initializeRepositoryPage() {
             description.textContent =
                 repository.description ||
                 "No description available.";
+
         }
 
 
@@ -1125,6 +1524,7 @@ async function initializeRepositoryPage() {
                     repository.stargazers_count ||
                     0
                 ).toLocaleString();
+
         }
 
 
@@ -1135,6 +1535,7 @@ async function initializeRepositoryPage() {
                     repository.forks_count ||
                     0
                 ).toLocaleString();
+
         }
 
 
@@ -1143,6 +1544,7 @@ async function initializeRepositoryPage() {
             language.textContent =
                 repository.language ||
                 "Unknown";
+
         }
 
 
@@ -1151,6 +1553,7 @@ async function initializeRepositoryPage() {
             updated.textContent =
                 repository.updated_at ||
                 "Unknown";
+
         }
 
 
@@ -1181,14 +1584,16 @@ async function initializeRepositoryPage() {
                 repository.topics
                     .map(
                         topic => `
+
                             <span class="tag">
                                 ${topic}
                             </span>
+
                         `
                     )
                     .join("");
-        }
 
+        }
 
     } catch (error) {
 
@@ -1205,14 +1610,16 @@ async function initializeRepositoryPage() {
                 </div>
 
             `;
+
         }
+
     }
 
 }
 
 
 /* ==========================================================
-   10. CREATOR DETAIL PAGE
+   11. CREATOR DETAIL PAGE
    ========================================================== */
 
 /**
@@ -1268,6 +1675,7 @@ async function initializeCreatorPage() {
             name.textContent =
                 user.name ||
                 user.login;
+
         }
 
 
@@ -1276,6 +1684,7 @@ async function initializeCreatorPage() {
             bio.textContent =
                 user.bio ||
                 "GitHub developer.";
+
         }
 
 
@@ -1286,6 +1695,7 @@ async function initializeCreatorPage() {
 
             avatar.alt =
                 user.login;
+
         }
 
 
@@ -1293,6 +1703,7 @@ async function initializeCreatorPage() {
 
             repos.textContent =
                 user.public_repos;
+
         }
 
 
@@ -1300,6 +1711,7 @@ async function initializeCreatorPage() {
 
             followers.textContent =
                 user.followers;
+
         }
 
 
@@ -1307,8 +1719,8 @@ async function initializeCreatorPage() {
 
             github.href =
                 user.html_url;
-        }
 
+        }
 
     } catch (error) {
 
@@ -1316,13 +1728,14 @@ async function initializeCreatorPage() {
             getErrorMessage(error),
             "error"
         );
+
     }
 
 }
 
 
 /* ==========================================================
-   11. SAVED PAGE
+   12. SAVED PAGE
    ========================================================== */
 
 /**
@@ -1357,13 +1770,14 @@ function initializeSavedPage() {
 
         count.textContent =
             saved.length;
+
     }
 
 }
 
 
 /* ==========================================================
-   12. LAB PAGE
+   13. LAB PAGE
    ========================================================== */
 
 /**
@@ -1456,7 +1870,7 @@ async function initializeLabsPage() {
 
 
 /* ==========================================================
-   13. GLOBAL BACK TO TOP
+   14. GLOBAL BACK TO TOP
    ========================================================== */
 
 /**
@@ -1506,7 +1920,7 @@ function initializeBackToTop() {
 
 
 /* ==========================================================
-   14. PAGE INITIALIZATION
+   15. PAGE INITIALIZATION
    ========================================================== */
 
 /**
@@ -1630,6 +2044,7 @@ async function initializeApp() {
              */
 
             break;
+
     }
 
 
@@ -1645,7 +2060,7 @@ async function initializeApp() {
 
 
 /* ==========================================================
-   15. START APPLICATION
+   16. START APPLICATION
    ========================================================== */
 
 /*
@@ -1672,3 +2087,4 @@ if (
 /* ==========================================================
    END OF app.js
    ========================================================== */
+```
