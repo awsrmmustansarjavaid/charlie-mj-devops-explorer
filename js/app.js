@@ -1,4 +1,3 @@
-```javascript
 /*
 ============================================================
 CHARLIE MJ DEVOPS EXPLORER
@@ -882,6 +881,8 @@ async function initializeHomePage() {
         categoryContainer,
         technologyContainer
     );
+
+    initializeCategoryTechnologyInteractions()
 
 
     /* ------------------------------------------------------
@@ -2087,4 +2088,4 @@ if (
 /* ==========================================================
    END OF app.js
    ========================================================== */
-```
+
