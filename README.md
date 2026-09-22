@@ -1,6 +1,6 @@
 # Charlie MJ DevOps Explorer
 
-![Charlie MJ DevOps Explorer](./assets/images/devops-engineer.png)
+![Charlie MJ DevOps Explorer](./assets/images/charlie-mj-devops-explorer-story.png)
 
 > **A modern GitHub-powered DevOps discovery engine for finding projects, labs, tutorials, notes, technologies, scripts, infrastructure-as-code examples, CI/CD pipelines, GitOps resources, security tooling, observability projects, and practical engineering repositories.**
 
