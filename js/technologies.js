@@ -519,55 +519,16 @@ export async function populateTechnologyFilter() {
 
 
 /* ==========================================================
-   8. TECHNOLOGY CLICK HANDLER
+   8. INTERACTION NOTE
    ========================================================== */
 
-/**
- * Enable technology cards to open technology detail page.
+/*
+ * Technology click handling intentionally lives in search.js.
  *
- * @param {HTMLElement} container
+ * This module is responsible only for loading, rendering and
+ * filtering technology data. Keeping interaction logic in one
+ * place prevents duplicate click handlers.
  */
-export function initializeTechnologyCards(
-    container
-) {
-
-    if (!container) {
-        return;
-    }
-
-
-    container.addEventListener(
-        "click",
-        event => {
-
-            const card =
-                event.target.closest(
-                    ".technology-card"
-                );
-
-
-            if (!card) {
-                return;
-            }
-
-
-            const technology =
-                card.dataset.technology;
-
-
-            if (!technology) {
-                return;
-            }
-
-
-            window.location.href =
-                `pages/technology.html?name=${encodeURIComponent(
-                    technology
-                )}`;
-
-        }
-    );
-}
 
 
 /* ==========================================================

@@ -289,15 +289,11 @@ export function createRepositoryCard(
 
             <div class="repo-actions">
 
-                <a
-                    class="repo-action"
-                    href="${safeUrl(
-                        `../pages/repository.html?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repository.name || "")}`
-                    )}"
-                >
-                    Details
-                </a>
-
+                <!--
+                    Keep every repository action on a real GitHub
+                    destination. The previous project-local Details
+                    URL pointed to a page that does not exist.
+                -->
                 <a
                     class="repo-action"
                     href="${safeUrl(
@@ -308,7 +304,18 @@ export function createRepositoryCard(
                     target="_blank"
                     rel="noopener noreferrer"
                 >
-                    GitHub ↗
+                    Repository ↗
+                </a>
+
+                <a
+                    class="repo-action"
+                    href="${safeUrl(
+                        `https://github.com/${encodeURIComponent(owner)}?tab=repositories`
+                    )}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Creator ↗
                 </a>
 
             </div>

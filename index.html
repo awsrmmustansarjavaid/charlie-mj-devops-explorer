@@ -75,16 +75,7 @@
     href="https://fonts.gstatic.com"
     crossorigin
 >
-
-<link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
-    rel="stylesheet"
->
-
 <link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/components.css">
-<link rel="stylesheet" href="css/responsive.css">
-<link rel="stylesheet" href="css/theme-redesign.css">
 
 
 
@@ -872,15 +863,15 @@
 
                     <div class="feature-tools">
 
-                        <span class="technology-pill">
+                        <span class="technology-pill" tabindex="0" role="button">
                             Cloud
                         </span>
 
-                        <span class="technology-pill">
+                        <span class="technology-pill" tabindex="0" role="button">
                             Infrastructure
                         </span>
 
-                        <span class="technology-pill">
+                        <span class="technology-pill" tabindex="0" role="button">
                             DevOps
                         </span>
 
@@ -915,17 +906,11 @@
 
                     <div class="feature-tools">
 
-                        <span class="technology-pill">
-                            Cloud
-                        </span>
+                        <span class="technology-pill" tabindex="0" role="button"> Cloud </span>
 
-                        <span class="technology-pill">
-                            AKS
-                        </span>
+                        <span class="technology-pill" tabindex="0" role="button"> AKS </span>
 
-                        <span class="technology-pill">
-                            DevOps
-                        </span>
+                        <span class="technology-pill" tabindex="0" role="button"> DevOps </span>
 
                     </div>
 
@@ -958,17 +943,11 @@
 
                     <div class="feature-tools">
 
-                        <span class="technology-pill">
-                            Cloud
-                        </span>
+                        <span class="technology-pill" tabindex="0" role="button"> Cloud </span>
 
-                        <span class="technology-pill">
-                            GKE
-                        </span>
+                        <span class="technology-pill" tabindex="0" role="button"> GKE </span>
 
-                        <span class="technology-pill">
-                            DevOps
-                        </span>
+                        <span class="technology-pill" tabindex="0" role="button"> DevOps </span>
 
                     </div>
 
@@ -3240,7 +3219,7 @@
 
                 <!-- Discover -->
 
-                <div class="flow-card">
+                <div class="flow-card" data-search-query="DevOps learning GitHub repositories" tabindex="0" role="button">
 
                     <div class="flow-number">
                         01
@@ -3261,7 +3240,7 @@
 
                 <!-- Understand -->
 
-                <div class="flow-card">
+                <div class="flow-card" data-search-query="DevOps concepts tutorials GitHub" tabindex="0" role="button">
 
                     <div class="flow-number">
                         02
@@ -3282,7 +3261,7 @@
 
                 <!-- Build -->
 
-                <div class="flow-card">
+                <div class="flow-card" data-search-query="DevOps projects labs GitHub" tabindex="0" role="button">
 
                     <div class="flow-number">
                         03
@@ -3341,58 +3320,6 @@
     </section>
 
 </main>
-
-
-<!-- =========================================================
-     TECHNOLOGY DETAILS MODAL
-
-     Kept available for future technology detail UI.
-
-     Current openTechnology() in app.js performs the GitHub
-     search directly, so this modal does not interfere with
-     the existing workflow.
-     ========================================================= -->
-
-<div
-    id="technologyModal"
-    class="technology-modal"
-    aria-hidden="true"
->
-
-    <div
-        class="technology-modal-content"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="technologyModalTitle"
-    >
-
-        <button
-            id="technologyModalClose"
-            class="modal-close"
-            type="button"
-            aria-label="Close technology details"
-        >
-            ×
-        </button>
-
-        <div class="section-kicker">
-            // technology
-        </div>
-
-        <h2 id="technologyModalTitle">
-            Technology
-        </h2>
-
-        <p
-            id="technologyModalDescription"
-            class="section-description"
-        >
-            Explore this technology through GitHub resources.
-        </p>
-
-    </div>
-
-</div>
 
 
 <!-- =========================================================
@@ -3466,83 +3393,6 @@
     type="module"
     src="js/app.js"
 ></script>
-
-
-<!-- =========================================================
-     SMALL ACCESSIBILITY HELPER
-
-     This does NOT replace app.js.
-
-     It only makes the static modal close button harmless
-     if the modal is used by future UI functionality.
-     ========================================================= -->
-
-<script>
-
-    /*
-     * Keep the technology modal hidden unless another part
-     * of the application intentionally activates it.
-     */
-
-    const technologyModal =
-        document.getElementById(
-            "technologyModal"
-        );
-
-    const technologyModalClose =
-        document.getElementById(
-            "technologyModalClose"
-        );
-
-
-    if (
-        technologyModal &&
-        technologyModalClose
-    ) {
-
-        technologyModalClose.addEventListener(
-            "click",
-            () => {
-
-                technologyModal.classList.remove(
-                    "active"
-                );
-
-                technologyModal.setAttribute(
-                    "aria-hidden",
-                    "true"
-                );
-
-            }
-        );
-
-
-        technologyModal.addEventListener(
-            "click",
-            (event) => {
-
-                if (
-                    event.target ===
-                    technologyModal
-                ) {
-
-                    technologyModal.classList.remove(
-                        "active"
-                    );
-
-                    technologyModal.setAttribute(
-                        "aria-hidden",
-                        "true"
-                    );
-
-                }
-
-            }
-        );
-
-    }
-
-</script>
 
 
 </body>

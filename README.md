@@ -629,7 +629,7 @@ Loads and renders the local DevOps category data.
 
 Builds repository result cards and handles repository-related UI actions.
 
-## `creator-card.js`
+## JavaScript modules
 
 Builds GitHub creator/user cards.
 
@@ -752,8 +752,6 @@ assets/images/devops-engineer.png
 
 # 📁 Current Repository Structure
 
-The final project currently contains the following structure:
-
 ```text
 charlie-mj-devops-explorer/
 │
@@ -767,22 +765,26 @@ charlie-mj-devops-explorer/
 │       └── frontend_mockup.png
 │
 ├── css/
-│   ├── style.css
-│   ├── components.css
-│   ├── responsive.css
-│   └── theme-redesign.css
+│   └── style.css
 │
 ├── data/
 │   ├── devops-technologies.json
 │   └── devops-categories.json
 │
 ├── doc/
-│   └── repo structure.md
+│   ├── architecture.md
+│   ├── css-guide.md
+│   ├── github-resources.md
+│   ├── maintenance.md
+│   ├── search-flow.md
+│   ├── testing-checklist.md
+│   ├── repo structure.md
+│   └── css structure.md
 │
 └── js/
     ├── app.js
     ├── categories.js
-    ├── creator-card.js
+    ├── devops-data.js
     ├── filters.js
     ├── github-api.js
     ├── repository-card.js
@@ -791,10 +793,6 @@ charlie-mj-devops-explorer/
     ├── technologies.js
     └── utils.js
 ```
-
-> The README describes the **current packaged project**. Optional future pages and documentation are discussed below as possible extensions rather than being presented as files that already exist in this package.
-
----
 
 # 📚 File / Directory Explanation
 
@@ -805,18 +803,6 @@ Main application homepage containing the navigation, hero, GitHub search engine,
 ## `css/style.css`
 
 Base/global styling and foundational layout rules.
-
-## `css/components.css`
-
-Reusable UI component styling for cards, controls, search elements and other interface components.
-
-## `css/responsive.css`
-
-Responsive behavior for different viewport sizes.
-
-## `css/theme-redesign.css`
-
-The current visual redesign layer containing the modern DevOps dashboard styling, updated color system, hero treatment, cards, controls, sections and responsive visual refinements.
 
 ## `data/devops-technologies.json`
 
@@ -1208,3 +1194,14 @@ Improve
 **Charlie MJ DevOps Explorer**
 
 `Discover • Learn • Practice • Build • Automate • Deploy`
+
+
+## Final Project Architecture
+
+The current project uses a single stylesheet (`css/style.css`) and a data-driven interaction model.
+
+Technology-related cards use `data-technology` or `data-search-query` and are handled by the delegated GitHub search system in `js/search.js`.
+
+GitHub results render into `#repositoryGrid` using a responsive 4/3/2/1 card layout.
+
+See the documentation files in `doc/` for architecture, search flow, CSS maintenance, GitHub resources and testing.

@@ -839,6 +839,187 @@ export function updateResultCount(
 }
 
 
+
+
+/* ==========================================================
+   11. CARD / TAG GITHUB SEARCH INTERACTIONS
+   ========================================================== */
+
+/**
+ * Make technology cards, technology pills, pipeline nodes,
+ * learning cards, and similar UI elements perform a GitHub
+ * search instead of navigating to dead placeholder pages.
+ *
+ * @param {Function} onSearch Function that accepts a query.
+ */
+export function initializeCardAndTagSearch(
+    onSearch
+) {
+
+    if (typeof onSearch !== "function") {
+        return;
+    }
+
+    /*
+     * Return useful visible text from a card without including
+     * its full description. This keeps GitHub queries focused.
+     */
+    function getElementLabel(element) {
+
+        const preferred =
+            element.querySelector(
+                ".technology-name, .cloud-card h3, h3, .pipeline-node strong, .stack-node strong, .cluster-title strong, .feature-index"
+            );
+
+        if (preferred?.textContent?.trim()) {
+            return preferred.textContent.trim();
+        }
+
+        return (
+            element.getAttribute("aria-label") ||
+            element.textContent ||
+            ""
+        ).trim();
+    }
+
+    /*
+     * Find a meaningful parent card for generic pills such as:
+     *
+     *     AWS + Cloud
+     *     AWS + Infrastructure
+     *     Azure + AKS
+     *     GCP + GKE
+     *
+     * The pill itself becomes the search refinement.
+     */
+    function buildPillQuery(pill) {
+
+        const pillText =
+            pill.textContent.trim();
+
+        const parent =
+            pill.closest(
+                ".cloud-card, .feature-card, .split-card, .cluster-level"
+            );
+
+        const parentTitle =
+            parent
+                ? getElementLabel(parent)
+                : "";
+
+        if (
+            parentTitle &&
+            pillText &&
+            parentTitle.toLowerCase() !==
+                pillText.toLowerCase()
+        ) {
+            return `${parentTitle} ${pillText}`;
+        }
+
+        return pillText || parentTitle;
+    }
+
+    /*
+     * One delegated listener covers both existing and
+     * dynamically-rendered technology cards.
+     */
+    document.addEventListener("click", event => {
+
+        const interactive =
+            event.target.closest(
+                "[data-technology], [data-search-query], .technology-pill, .feature-card, .flow-card, .pipeline-node, .stack-node, .cluster-title"
+            );
+
+        if (!interactive) {
+            return;
+        }
+
+        /*
+         * Do not hijack normal links/buttons placed inside
+         * a card. Those controls have their own behavior.
+         */
+        if (
+            event.target.closest(
+                "a, button, input, select, textarea"
+            )
+        ) {
+            return;
+        }
+
+        let query =
+            interactive.dataset.searchQuery ||
+            "";
+
+        if (!query && interactive.matches(".technology-pill")) {
+            query = buildPillQuery(interactive);
+        }
+
+        if (!query) {
+            query = getElementLabel(interactive);
+        }
+
+        if (!query) {
+            return;
+        }
+
+        event.preventDefault();
+
+        onSearch(query);
+
+    });
+
+    /*
+     * Mirror click behavior for keyboard users.
+     */
+    document.addEventListener("keydown", event => {
+
+        if (
+            event.key !== "Enter" &&
+            event.key !== " "
+        ) {
+            return;
+        }
+
+        const interactive =
+            event.target.closest(
+                "[data-technology], [data-search-query], .technology-pill, .feature-card, .flow-card, .pipeline-node, .stack-node, .cluster-title"
+            );
+
+        if (!interactive) {
+            return;
+        }
+
+        if (
+            event.target.closest(
+                "a, button, input, select, textarea"
+            )
+        ) {
+            return;
+        }
+
+        event.preventDefault();
+
+        let query =
+            interactive.dataset.searchQuery ||
+            "";
+
+        if (!query && interactive.matches(".technology-pill")) {
+            query = buildPillQuery(interactive);
+        }
+
+        if (!query) {
+            query = getElementLabel(interactive);
+        }
+
+        if (query) {
+            onSearch(query);
+        }
+
+    });
+
+}
+
+
 /* ==========================================================
    END OF search.js
    ========================================================== */

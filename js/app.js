@@ -65,7 +65,8 @@ import {
 import {
     initializeSearch,
     initializeSearchModes,
-    initializeQuickSearches
+    initializeQuickSearches,
+    initializeCardAndTagSearch
 } from "./search.js";
 
 
@@ -78,9 +79,7 @@ import {
 import {
     loadTechnologies,
     renderTechnologies,
-    populateTechnologyFilter,
-    initializeTechnologyCards,
-    getTechnology
+    populateTechnologyFilter
 } from "./technologies.js";
 
 
@@ -347,209 +346,47 @@ async function initializeGitHubStatus() {
 */
 
 
+/* ============================================================
+   06. CATEGORY INTERACTION
+   ============================================================ */
+
+/**
+ * Bind category cards.
+ *
+ * Category cards reveal the technologies belonging to that
+ * category. The technology cards themselves are handled by the
+ * delegated GitHub search system in search.js.
+ */
 function initializeCategoryTechnologyInteractions(
-    categoryContainer,
-    technologyContainer
+    categoryContainer
 ) {
 
-
-    /* --------------------------------------------------------
-       CATEGORY CLICK
-    -------------------------------------------------------- */
-
-    if (categoryContainer) {
-
-        categoryContainer.addEventListener(
-            "click",
-            event => {
-
-                const card =
-                    event.target.closest(
-                        "[data-category]"
-                    );
-
-                if (!card) {
-                    return;
-                }
-
-                const categoryId =
-                    card.dataset.category;
-
-                if (!categoryId) {
-                    return;
-                }
-
-                openCategory(categoryId);
-
-            }
-        );
-
-
-        /* ----------------------------------------------------
-           CATEGORY KEYBOARD
-        ---------------------------------------------------- */
-
-        categoryContainer.addEventListener(
-            "keydown",
-            event => {
-
-                if (
-                    event.key !== "Enter" &&
-                    event.key !== " "
-                ) {
-                    return;
-                }
-
-                const card =
-                    event.target.closest(
-                        "[data-category]"
-                    );
-
-                if (!card) {
-                    return;
-                }
-
-                event.preventDefault();
-
-                const categoryId =
-                    card.dataset.category;
-
-                if (!categoryId) {
-                    return;
-                }
-
-                openCategory(categoryId);
-
-            }
-        );
-
+    if (!categoryContainer) {
+        return;
     }
 
-
-    /* --------------------------------------------------------
-       TECHNOLOGY CLICK
-    -------------------------------------------------------- */
-
-    if (technologyContainer) {
-
-        technologyContainer.addEventListener(
-            "click",
-            event => {
-
-                const card =
-                    event.target.closest(
-                        "[data-technology]"
-                    );
-
-                if (!card) {
-                    return;
-                }
-
-                const technologyId =
-                    card.dataset.technology;
-
-                if (!technologyId) {
-                    return;
-                }
-
-                openTechnology(technologyId);
-
-            }
-        );
-
-
-        /* ----------------------------------------------------
-           TECHNOLOGY KEYBOARD
-        ---------------------------------------------------- */
-
-        technologyContainer.addEventListener(
-            "keydown",
-            event => {
-
-                if (
-                    event.key !== "Enter" &&
-                    event.key !== " "
-                ) {
-                    return;
-                }
-
-                const card =
-                    event.target.closest(
-                        "[data-technology]"
-                    );
-
-                if (!card) {
-                    return;
-                }
-
-                event.preventDefault();
-
-                const technologyId =
-                    card.dataset.technology;
-
-                if (!technologyId) {
-                    return;
-                }
-
-                openTechnology(technologyId);
-
-            }
-        );
-
-    }
-
-
-    /* --------------------------------------------------------
-       STATIC TECHNOLOGY CARDS
-
-       Handles cards already present in index.html:
-
-           data-technology="aws"
-           data-technology="kubernetes"
-           data-technology="docker"
-           etc.
-    -------------------------------------------------------- */
-
-    document.addEventListener(
+    categoryContainer.addEventListener(
         "click",
         event => {
 
-            const element =
-                event.target.closest(
-                    "[data-technology]"
-                );
+            const card =
+                event.target.closest("[data-category]");
 
-            if (!element) {
+            if (!card) {
                 return;
             }
 
+            const categoryId =
+                card.dataset.category;
 
-            if (
-                technologyContainer &&
-                technologyContainer.contains(element)
-            ) {
-                return;
+            if (categoryId) {
+                openCategory(categoryId);
             }
-
-
-            const technologyId =
-                element.dataset.technology;
-
-            if (!technologyId) {
-                return;
-            }
-
-            openTechnology(technologyId);
 
         }
     );
 
-
-    /* --------------------------------------------------------
-       STATIC TECHNOLOGY KEYBOARD SUPPORT
-    -------------------------------------------------------- */
-
-    document.addEventListener(
+    categoryContainer.addEventListener(
         "keydown",
         event => {
 
@@ -560,48 +397,25 @@ function initializeCategoryTechnologyInteractions(
                 return;
             }
 
+            const card =
+                event.target.closest("[data-category]");
 
-            const element =
-                event.target.closest(
-                    "[data-technology]"
-                );
-
-            if (!element) {
+            if (!card) {
                 return;
             }
-
-
-            if (
-                technologyContainer &&
-                technologyContainer.contains(element)
-            ) {
-                return;
-            }
-
 
             event.preventDefault();
 
+            const categoryId =
+                card.dataset.category;
 
-            const technologyId =
-                element.dataset.technology;
-
-            if (!technologyId) {
-                return;
+            if (categoryId) {
+                openCategory(categoryId);
             }
-
-
-            openTechnology(technologyId);
 
         }
     );
-
 }
-
-
-/* ============================================================
-   07. OPEN CATEGORY
-   ============================================================ */
-
 function openCategory(categoryId) {
 
     if (!categoryId) {
@@ -854,10 +668,6 @@ function openCategory(categoryId) {
 
     try {
 
-        initializeTechnologyCards(
-            technologyContainer
-        );
-
     } catch (error) {
 
         console.warn(
@@ -975,344 +785,8 @@ function findTechnology(technologyId) {
    09. OPEN TECHNOLOGY
    ============================================================ */
 
-function openTechnology(technologyId) {
-
-    const technology =
-        findTechnology(
-            technologyId
-        );
-
-
-    if (!technology) {
-
-        console.warn(
-            "Technology not found:",
-            technologyId
-        );
-
-        return;
-
-    }
-
-
-    appState.currentTechnology =
-        technology;
-
-
-    const modal =
-        qs("#technologyModal");
-
-
-    if (!modal) {
-
-        /*
-            If no modal exists on the current page,
-            navigate to technology detail when possible.
-        */
-
-        const technologySlug =
-            technology.slug ||
-            technology.id ||
-            technology.name;
-
-
-        if (technologySlug) {
-
-            const root =
-                getProjectRoot();
-
-
-            const target =
-                `${root}/technology.html?technology=${encodeURIComponent(
-                    technologySlug
-                )}`;
-
-
-            window.location.href =
-                target;
-
-        }
-
-        return;
-
-    }
-
-
-    const title =
-        qs("#technologyModalTitle");
-
-
-    const description =
-        qs("#technologyModalDescription");
-
-
-    if (title) {
-
-        title.textContent =
-            technology.name ||
-            technology.title ||
-            technology.id ||
-            "Technology";
-
-    }
-
-
-    if (description) {
-
-        description.textContent =
-            technology.description ||
-            technology.summary ||
-            "Explore this DevOps technology.";
-
-    }
-
-
-    modal.hidden = false;
-
-    modal.classList.add("open");
-
-    document.body.classList.add(
-        "modal-open"
-    );
-
-
-    modal.setAttribute(
-        "aria-hidden",
-        "false"
-    );
-
-
-    /* --------------------------------------------------------
-       Optional modal extra content
-    -------------------------------------------------------- */
-
-    const modalContent =
-        modal.querySelector(
-            ".technology-modal-content"
-        );
-
-
-    if (
-        modalContent &&
-        !modalContent.querySelector(
-            ".technology-modal-details"
-        )
-    ) {
-
-        const details =
-            document.createElement(
-                "div"
-            );
-
-
-        details.className =
-            "technology-modal-details";
-
-
-        const website =
-            technology.url ||
-            technology.website ||
-            technology.homepage;
-
-
-        if (website) {
-
-            const link =
-                document.createElement("a");
-
-
-            link.href = website;
-
-            link.target = "_blank";
-
-            link.rel = "noopener noreferrer";
-
-            link.textContent =
-                "Official Website →";
-
-
-            details.appendChild(link);
-
-        }
-
-
-        modalContent.appendChild(
-            details
-        );
-
-    }
-
-}
-
-
-/* ============================================================
-   10. CLOSE TECHNOLOGY MODAL
-   ============================================================ */
-
-function closeTechnologyModal() {
-
-    const modal =
-        qs("#technologyModal");
-
-
-    if (!modal) {
-        return;
-    }
-
-
-    modal.classList.remove("open");
-
-    modal.hidden = true;
-
-    modal.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-
-    document.body.classList.remove(
-        "modal-open"
-    );
-
-}
-
-
-/* ============================================================
-   11. INITIALIZE TECHNOLOGY MODAL
-   ============================================================ */
-
-function initializeTechnologyModal() {
-
-    const modal =
-        qs("#technologyModal");
-
-
-    if (!modal) {
-        return;
-    }
-
-
-    const closeButton =
-        qs("#technologyModalClose");
-
-
-    if (closeButton) {
-
-        closeButton.addEventListener(
-            "click",
-            closeTechnologyModal
-        );
-
-    }
-
-
-    modal.addEventListener(
-        "click",
-        event => {
-
-            if (
-                event.target === modal
-            ) {
-
-                closeTechnologyModal();
-
-            }
-
-        }
-    );
-
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                event.key === "Escape"
-            ) {
-
-                closeTechnologyModal();
-
-            }
-
-        }
-    );
-
-}
-
-
-/* ============================================================
-   12. RESULT UI
-   ============================================================ */
-
-function updateResultUI(state) {
-
-    const resultCount =
-        qs("#resultCount");
-
-
-    const resultsStatus =
-        qs("#resultsStatus");
-
-
-    const items =
-        Array.isArray(state?.items)
-            ? state.items
-            : [];
-
-
-    if (resultCount) {
-
-        resultCount.textContent =
-            String(items.length);
-
-    }
-
-
-    if (resultsStatus) {
-
-        if (
-            state?.state === "loading"
-        ) {
-
-            resultsStatus.textContent =
-                "Searching GitHub...";
-
-        } else if (
-            state?.state === "success"
-        ) {
-
-            resultsStatus.textContent =
-                items.length
-                    ? `${items.length} repositories found`
-                    : "No repositories found";
-
-        } else if (
-            state?.state === "error"
-        ) {
-
-            resultsStatus.textContent =
-                getErrorMessage(
-                    state.error ||
-                    state.message ||
-                    "Search failed."
-                );
-
-        } else {
-
-            resultsStatus.textContent =
-                "";
-
-        }
-
-    }
-
-}
-
-
-/* ============================================================
-   13. INITIALIZE HOME PAGE
-   ============================================================ */
-
+/* Technology detail modal/navigation code was removed.
+   Technology cards now search GitHub directly through search.js. */
 async function initializeHomePage() {
 
     const searchInput =
@@ -1321,10 +795,6 @@ async function initializeHomePage() {
 
     const searchButton =
         qs("#searchButton");
-
-
-    const repositoryContainer =
-        qs("#repositoryResults");
 
 
     const repositoryGrid =
@@ -1348,12 +818,9 @@ async function initializeHomePage() {
     -------------------------------------------------------- */
 
     initializeCategoryTechnologyInteractions(
-        categoryContainer,
-        technologyContainer
+        categoryContainer
     );
 
-
-    initializeTechnologyModal();
 
 
     /* ========================================================
@@ -1376,11 +843,6 @@ async function initializeHomePage() {
 
             renderTechnologies(
                 appState.technologies,
-                technologyContainer
-            );
-
-
-            initializeTechnologyCards(
                 technologyContainer
             );
 
@@ -1535,7 +997,6 @@ async function initializeHomePage() {
                     searchButton,
 
                 container:
-                    repositoryContainer ||
                     repositoryGrid,
 
                 getMode:
@@ -1630,6 +1091,52 @@ async function initializeHomePage() {
 
 
     /* ========================================================
+       CARD / TAG SEARCH
+    ======================================================== */
+
+    /*
+     * Every technology-related card now feeds its visible
+     * technology/query text into the existing GitHub search
+     * controller. This keeps one search implementation for:
+     *
+     *     - technology cards
+     *     - cloud cards and pills
+     *     - pipeline nodes
+     *     - Kubernetes stack nodes
+     *     - learning cards
+     *     - dynamically rendered technology cards
+     */
+    initializeCardAndTagSearch(
+        query => {
+
+            if (!searchInput) {
+                return;
+            }
+
+            searchInput.value =
+                String(query || "").trim();
+
+            if (!searchInput.value) {
+                return;
+            }
+
+            executeSearch();
+
+            const resultsSection =
+                qs("#repositoryResults");
+
+            if (resultsSection) {
+                resultsSection.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+            }
+
+        }
+    );
+
+
+    /* ========================================================
        QUICK SEARCHES
     ======================================================== */
 
@@ -1705,10 +1212,6 @@ async function initializeExplorerPage() {
 
     const searchButton =
         qs("#searchButton");
-
-
-    const repositoryContainer =
-        qs("#repositoryResults");
 
 
     let searchController = null;
@@ -1806,7 +1309,8 @@ async function initializeExplorerPage() {
                     searchButton,
 
                 container:
-                    repositoryContainer,
+                    qs("#repositoryGrid") ||
+                    qs("#repositoryResults"),
 
                 getMode:
                     getSearchMode,
@@ -1926,11 +1430,6 @@ async function initializeTechnologiesPage() {
                 technologyContainer
             );
 
-
-            initializeTechnologyCards(
-                technologyContainer
-            );
-
         }
 
 
@@ -2006,18 +1505,11 @@ async function initializeTechnologiesPage() {
                     technologyContainer
                 );
 
-
-                initializeTechnologyCards(
-                    technologyContainer
-                );
-
             }
         );
 
     }
 
-
-    initializeTechnologyModal();
 
 }
 
@@ -2027,8 +1519,6 @@ async function initializeTechnologiesPage() {
    ============================================================ */
 
 async function initializeTechnologyPage() {
-
-    initializeTechnologyModal();
 
 
     const technologyValue =
@@ -2416,10 +1906,6 @@ async function initializeLabsPage() {
         qs("#searchButton");
 
 
-    const repositoryContainer =
-        qs("#repositoryResults");
-
-
     if (!searchInput) {
         return;
     }
@@ -2440,7 +1926,8 @@ async function initializeLabsPage() {
                     searchButton,
 
                 container:
-                    repositoryContainer,
+                    qs("#repositoryGrid") ||
+                    qs("#repositoryResults"),
 
                 getMode:
                     () => "labs",
@@ -2557,11 +2044,6 @@ async function initializeLearningPathPage() {
             technologyContainer
         );
 
-
-        initializeTechnologyCards(
-            technologyContainer
-        );
-
     } catch (error) {
 
         console.error(
@@ -2638,99 +2120,7 @@ function initializeBackToTop() {
    23. GLOBAL TECHNOLOGY INTERACTIONS
    ============================================================ */
 
-function initializeGlobalTechnologyInteractions() {
-
-    /*
-        These elements are already in index.html.
-
-        Examples:
-
-            data-technology="aws"
-            data-technology="docker"
-            data-technology="kubernetes"
-            data-technology="terraform"
-            data-technology="jenkins"
-            data-technology="argocd"
-    */
-
-
-    const elements =
-        qsa(
-            "[data-technology]"
-        );
-
-
-    elements.forEach(
-        element => {
-
-            /*
-                Do not add duplicate listeners if this
-                function is called again.
-            */
-
-            if (
-                element.dataset.appTechnologyBound ===
-                "true"
-            ) {
-                return;
-            }
-
-
-            element.dataset.appTechnologyBound =
-                "true";
-
-
-            if (
-                element.getAttribute(
-                    "role"
-                ) === "button"
-            ) {
-
-                element.addEventListener(
-                    "keydown",
-                    event => {
-
-                        if (
-                            event.key !== "Enter" &&
-                            event.key !== " "
-                        ) {
-                            return;
-                        }
-
-
-                        event.preventDefault();
-
-
-                        const technologyId =
-                            element.dataset
-                                .technology;
-
-
-                        if (
-                            technologyId
-                        ) {
-
-                            openTechnology(
-                                technologyId
-                            );
-
-                        }
-
-                    }
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-/* ============================================================
-   24. GLOBAL APP INITIALIZATION
-   ============================================================ */
-
+/* Global technology interaction code was consolidated into search.js. */
 async function initializeApp() {
 
     if (
@@ -2762,10 +2152,6 @@ async function initializeApp() {
     initializeNavigation();
 
     initializeBackToTop();
-
-    initializeGlobalTechnologyInteractions();
-
-    initializeTechnologyModal();
 
     initializeGitHubStatus();
 

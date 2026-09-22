@@ -1,34 +1,41 @@
-# charlie-mj-devops-explorer/
+# Repository Structure
 
-
-
-this structure:
-
-```
+```text
 charlie-mj-devops-explorer/
 ├── index.html
+├── README.md
+├── .gitignore
 ├── css/
-│   ├── style.css
-│   ├── components.css
-│   └── responsive.css
+│   └── style.css
 ├── js/
-│   ├── utils.js
-│   ├── storage.js
-│   ├── github-api.js
-│   ├── search.js
-│   ├── filters.js
-│   ├── technologies.js
+│   ├── app.js
 │   ├── categories.js
+│   ├── devops-data.js
+│   ├── filters.js
+│   ├── github-api.js
 │   ├── repository-card.js
-│   ├── creator-card.js
-│   └── app.js
+│   ├── search.js
+│   ├── storage.js
+│   ├── technologies.js
+│   └── utils.js
 ├── data/
 │   ├── devops-technologies.json
 │   └── devops-categories.json
-└── assets/
-    ├── images/
-    │   └── devops-engineer.png
-    └── icons/
+├── assets/
+│   └── images/
+│       ├── devops-engineer.png
+│       └── frontend_mockup.png
+└── doc/
+    ├── architecture.md
+    ├── css-guide.md
+    ├── github-resources.md
+    ├── maintenance.md
+    ├── search-flow.md
+    ├── testing-checklist.md
+    ├── repo structure.md
+    └── css structure.md
 ```
 
-The important part is at the bottom: all JavaScript is loaded through js/app.js as an ES
+All browser JavaScript is loaded through `js/app.js`, which imports the other modules as needed.
+
+The project does not require separate technology or repository HTML pages for the current GitHub-search workflow.

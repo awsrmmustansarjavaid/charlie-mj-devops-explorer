@@ -285,6 +285,15 @@ export function createCategoryCard(
         }`
     );
 
+    /*
+     * The category itself is also a valid GitHub search entry
+     * point. Clicking it therefore reveals its tools and lets
+     * the delegated search system discover related repositories.
+     */
+    card.dataset.searchQuery =
+        category.name ||
+        "DevOps";
+
 
     /*
      * Category number.
