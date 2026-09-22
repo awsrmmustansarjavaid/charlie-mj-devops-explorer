@@ -393,21 +393,28 @@ export function createRepositoryCard(
  */
 export function renderRepositories(
     repositories = [],
-    container
+    container,
+    { append = false } = {}
 ) {
 
     if (!container) {
         return;
     }
 
-
-    container.innerHTML = "";
-
+    /* Clear the grid only for a normal page change.
+       "See more" uses append=true and preserves previous cards. */
+    if (!append) {
+        container.innerHTML = "";
+    }
 
     if (
         !Array.isArray(repositories) ||
         repositories.length === 0
     ) {
+
+        if (append) {
+            return;
+        }
 
         container.innerHTML = `
 

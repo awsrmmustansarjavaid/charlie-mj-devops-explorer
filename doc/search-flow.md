@@ -1,123 +1,77 @@
-# GitHub Search Flow
+# Search Flow
 
-## 1. Normal search
+## Purpose
+
+Charlie MJ DevOps Explorer uses one GitHub repository-search controller for the main search box, technology cards, category cards, technology pills, pipeline nodes, quick searches, and filters.
+
+## Main search flow
 
 ```text
-Search input
-    |
-    v
-initializeSearch()
-    |
-    v
-performSearch()
-    |
-    v
+User enters query
+        ↓
+#searchInput
+        ↓
+searchController.search()
+        ↓
 buildGitHubQuery()
-    |
-    v
-GitHub API
-    |
-    v
-repositoryGrid
-    |
-    v
-Repository cards
+        ↓
+GitHub REST API
+        ↓
+renderRepositories()
+        ↓
+#repositoryGrid
+        ↓
+Pagination controls
 ```
 
-## 2. Technology card search
+## Card and tag flow
 
-When a user clicks a technology card:
+All interactive technology elements use the same delegated listener.
 
 ```text
-Technology card
-    |
-    v
-data-technology / visible label
-    |
-    v
-initializeCardAndTagSearch()
-    |
-    v
-Search input receives query
-    |
-    v
-Existing search controller
-    |
-    v
-GitHub API
+Card / tag clicked
+        ↓
+Resolve search context
+        ↓
+Write query into #searchInput
+        ↓
+Automatically execute main search
+        ↓
+Scroll to GitHub results
 ```
 
-## 3. Generic cloud pills
+## Context-aware queries
 
-Cloud cards contain generic pills such as:
-
-- Cloud
-- Infrastructure
-- DevOps
-- AKS
-- GKE
-
-A generic pill combines its own label with the parent card.
+The UI intentionally combines a parent context with a child technology when that produces a more useful GitHub search.
 
 Examples:
 
-```text
-AWS + Cloud
-AWS + Infrastructure
-AWS + DevOps
+- `Amazon Web Services` → `Amazon Web Services`
+- AWS + `DevOps` → `Amazon Web Services DevOps`
+- `Version Control` + `Git` → `Version Control Git`
+- `CI/CD` + `Jenkins` → `CI/CD Jenkins`
+- `Infrastructure as Code` + `Terraform` → `Infrastructure as Code Terraform`
+- `Managed Kubernetes` + `Amazon EKS` → `Managed Kubernetes Amazon EKS`
 
-Azure + Cloud
-Azure + AKS
-Azure + DevOps
+Technology cards rendered inside a selected category also retain the category context.
 
-Google Cloud + Cloud
-Google Cloud + GKE
-Google Cloud + DevOps
-```
+## Pagination
 
-This gives the GitHub API a useful context instead of searching for a generic word such as `Cloud`.
+The GitHub API is requested 12 repositories at a time.
 
-## 4. Category search
+The result area provides:
 
-A category card does not immediately perform a repository search.
+- A result count.
+- `See more` to append the next page without removing existing cards.
+- Numbered pages to replace the visible page with a specific GitHub page.
+- Responsive repository cards: 4 columns on large screens, 3 on smaller desktop screens, 2 on tablets, and 1 on mobile.
 
-It first displays the technologies belonging to that category.
+GitHub repository search has a practical 1,000-result search window, so pagination is capped accordingly.
 
-```text
-DevSecOps
-    |
-    v
-Trivy
-SonarQube
-Snyk
-Gitleaks
-...
-    |
-    v
-Click Trivy
-    |
-    v
-GitHub search for Trivy
-```
+## Error handling
 
-This makes category navigation useful for learning.
+GitHub API errors are displayed inside the repository grid and through the application's notification system. The search controller no longer relies on an undefined result-update function after rendering results.
 
-## 5. Learning cards
+## Rate limits
 
-The Discover, Understand and Build cards use `data-search-query`.
-
-They therefore become GitHub learning entry points without requiring separate page files.
-
-## Search result design
-
-Results are rendered into:
-
-```html
-<div id="repositoryGrid" class="repository-grid"></div>
-```
-
-The outer results section remains intact.
-
-## GitHub rate limits
-
-The GitHub REST API has rate limits. The application should treat API errors and rate-limit responses as normal runtime conditions and show a useful error state rather than breaking the page.
+The site uses GitHub's unauthenticated public REST API from the browser. GitHub applies rate limits to unauthenticated requests. A production deployment requiring higher limits should use a server-side or serverless proxy rather than exposing a personal access token in frontend JavaScript.

@@ -284,6 +284,15 @@ export function createTechnologyCard(
             technology.name
         );
 
+    /* Every generated technology card is keyboard accessible and
+       immediately usable by the global GitHub search handler. */
+    card.setAttribute("tabindex", "0");
+    card.setAttribute("role", "button");
+    card.setAttribute(
+        "aria-label",
+        `Search GitHub for ${technology.name || "technology"}`
+    );
+
 
     const shortSymbol =
         technology.name

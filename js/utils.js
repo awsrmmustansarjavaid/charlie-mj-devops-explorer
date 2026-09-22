@@ -482,9 +482,9 @@ export function getInitials(name = "") {
  * Example:
  *
  * URL:
- *     technology.html?name=Kubernetes
+ *     index.html?q=Kubernetes
  *
- * getQueryParam("name")
+ * getQueryParam("q")
  *
  * returns:
  *     Kubernetes
@@ -549,16 +549,8 @@ export function setQueryParams(values = {}) {
 /**
  * Return the correct project root.
  *
- * index.html:
- *
- *     ./data/
- *
- * pages/technology.html:
- *
- *     ../data/
- *
- * This allows the same JavaScript modules to work from both
- * the root page and pages inside /pages/.
+ * The current project is a single-page GitHub Pages application,
+ * but this helper remains defensive in case a nested page is added.
  *
  * @returns {string}
  */

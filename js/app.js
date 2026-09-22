@@ -622,6 +622,24 @@ function openCategory(categoryId) {
             technologyContainer
         );
 
+        /* Preserve category context so clicking Git inside the
+           Version Control category searches "Version Control Git"
+           instead of losing the parent category. */
+        technologyContainer
+            .querySelectorAll("[data-technology]")
+            .forEach(card => {
+                const technologyName =
+                    card.querySelector(".technology-name")?.textContent?.trim() ||
+                    card.dataset.technology ||
+                    "";
+
+                card.dataset.categoryContext =
+                    category.name || normalizedId;
+
+                card.dataset.searchQuery =
+                    `${category.name || normalizedId} ${technologyName}`.trim();
+            });
+
     } else {
 
         technologyContainer.innerHTML = `
@@ -778,6 +796,50 @@ function findTechnology(technologyId) {
 
     return null;
 
+}
+
+
+/* ============================================================
+   09. SEARCH RESULT UI
+   ============================================================ */
+
+/**
+ * Keep the result summary in sync with the GitHub search state.
+ * Pagination controls are rendered by search.js because they belong
+ * to the same search controller that owns the current page/query.
+ */
+function updateResultUI(state = {}) {
+    const count = qs("#resultCount");
+    const description = qs("#resultDescription");
+
+    if (!count) {
+        return;
+    }
+
+    if (state.state === "loading") {
+        count.textContent = "Searching…";
+        if (description) {
+            description.textContent = "Searching GitHub for relevant DevOps repositories.";
+        }
+        return;
+    }
+
+    if (state.state === "error") {
+        count.textContent = "Search unavailable";
+        return;
+    }
+
+    if (typeof state.total === "number") {
+        count.textContent = `${state.total.toLocaleString()} repositories`;
+    } else if (Array.isArray(state.items)) {
+        count.textContent = `${state.items.length.toLocaleString()} repositories`;
+    } else {
+        count.textContent = "";
+    }
+
+    if (description && state.query) {
+        description.textContent = `GitHub results for: ${state.query}`;
+    }
 }
 
 
@@ -999,6 +1061,9 @@ async function initializeHomePage() {
                 container:
                     repositoryGrid,
 
+                paginationContainer:
+                    qs("#repositoryPagination"),
+
                 getMode:
                     getSearchMode,
 
@@ -1120,7 +1185,9 @@ async function initializeHomePage() {
                 return;
             }
 
-            executeSearch();
+            /* Put the query into the real main search input and execute
+               immediately. The user never needs to press Search again. */
+            Promise.resolve(executeSearch()).catch(() => {});
 
             const resultsSection =
                 qs("#repositoryResults");
@@ -1311,6 +1378,9 @@ async function initializeExplorerPage() {
                 container:
                     qs("#repositoryGrid") ||
                     qs("#repositoryResults"),
+
+                paginationContainer:
+                    qs("#repositoryPagination"),
 
                 getMode:
                     getSearchMode,
@@ -1928,6 +1998,9 @@ async function initializeLabsPage() {
                 container:
                     qs("#repositoryGrid") ||
                     qs("#repositoryResults"),
+
+                paginationContainer:
+                    qs("#repositoryPagination"),
 
                 getMode:
                     () => "labs",
