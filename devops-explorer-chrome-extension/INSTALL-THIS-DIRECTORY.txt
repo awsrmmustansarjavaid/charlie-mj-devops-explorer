@@ -1,0 +1,2 @@
+Copy the chrome-extension directory into the root of your existing DevOps Explorer repository.
+Then load chrome-extension as an unpacked extension from chrome://extensions.
