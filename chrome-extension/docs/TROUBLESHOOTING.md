@@ -1,36 +1,67 @@
 # Troubleshooting
 
-## Raw index opens as text instead of an application
+## MV3 inline script CSP error
 
-This is a limitation of using raw GitHub as a web-hosting path. Raw content delivery is not a guaranteed replacement for GitHub Pages. Check the parent application's MIME behavior and make CSS, JavaScript, JSON and asset URLs explicitly raw-accessible.
+If Chrome reports:
 
-The extension intentionally keeps the raw launcher because that is the architecture requested for this project.
+```text
+Executing inline script violates the following Content Security Policy directive
+```
 
-## Health check fails
+Reload the updated extension. All extension HTML pages in this package use external JavaScript files.
+
+## Raw `index.html` opens as text
+
+GitHub Raw normally serves HTML with a source-oriented MIME type. This extension dynamically adds a scoped Chrome response-header rule for the configured repository so the configured `index.html`, CSS and JavaScript can render from the raw path.
+
+After changing repository URLs in Settings, reload the extension if Chrome has not refreshed the service worker yet.
+
+## Search shows no remote resources
+
+The configured default technologies database is:
+
+```text
+https://raw.githubusercontent.com/awsrmmustansarjavaid/charlie-mj-devops-explorer/main/data/devops-technologies.json
+```
+
+If that file is missing or returns 404, the extension automatically uses its built-in DevOps technology catalog. Search should still work.
+
+If you want the full repository dataset, create/restore `data/devops-technologies.json` in the parent DevOps Explorer repository or change the Raw Technologies DB URL in Settings.
+
+## GitHub Search fails
+
+GitHub repository search uses `api.github.com`. Check:
+
+- internet connection
+- GitHub API availability
+- configured token, if one is used
+- API rate limits
+
+A token is not required for basic public search, but authenticated requests can provide better rate-limit availability.
+
+## Bookmark push fails
 
 Verify:
 
-- repository is public or otherwise reachable by the configured URL
-- raw base URL points to the correct branch
-- `index.html` exists at the configured path
-- branch name is correct
-- optional data files actually exist
+- repository URL
+- branch
+- bookmark path
+- fine-grained token
+- repository Contents permission
 
-## GitHub push fails
+Raw GitHub is read-only. Push uses the GitHub Contents API.
 
-Check:
+## Configuration import fails
 
-- token is present
-- token is valid and not expired/revoked
-- token has access to the target repository
-- repository contents permission is sufficient
-- branch exists
-- bookmark path is correct
+The JSON must contain either a `config` object or recognized configuration keys. Unknown keys are ignored.
 
-## GitHub search rate limit
+## Token disappeared after export/import
 
-GitHub public API requests are rate limited. Configure a suitable fine-grained token if your usage requires authenticated API requests.
+This is intentional. Configuration exports exclude the token by default. Enable **Include GitHub token in exported JSON** only for a private backup.
 
-## Extension does not load
 
-Open `chrome://extensions`, inspect the extension's Errors section, and reload the unpacked extension after code changes.
+## Repository data sources
+
+- Categories: `data/devops-categories.json`
+- Technologies: `data/devops-technologies.json`
+- Bookmark database: optional `bookmark-db/bookmarks.json`

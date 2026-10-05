@@ -1,36 +1,81 @@
 # Architecture
 
-## Principle
+## Single repository
 
-One repository contains both the original DevOps Explorer application and this extension. The extension is an access, organization and learning layer; it does not duplicate the main explorer.
-
-## Runtime layers
+The extension lives inside the existing DevOps Explorer repository:
 
 ```text
-Existing DevOps Explorer
+devops-explorer/
 ├── index.html
 ├── css/
 ├── js/
 ├── assets/
-└── data/
-
-chrome-extension/
-├── popup/                 Chrome action popup
-├── pages/dashboard/       Main command center
-├── js/                    Shared extension logic
-├── css/                   Visual system
-├── icons/                 Extension icons
-├── bookmark-db/           Seed/sample data
-└── docs/                  Documentation
+├── data/
+├── bookmark-db/
+└── chrome-extension/
 ```
 
-## Data sources
+The extension does not copy the application into itself.
 
-- Local state: `chrome.storage.local`
-- Parent repository read source: `raw.githubusercontent.com`
-- Optional repository write source: `api.github.com`
-- GitHub repository metadata/search: GitHub REST API
+## Raw GitHub access
 
-## Design rule
+The extension uses:
 
-The extension should never require GitHub Pages or a GitHub Actions workflow.
+```text
+raw.githubusercontent.com
+```
+
+for the main HTML application and repository data.
+
+GitHub Raw normally serves HTML/CSS/JavaScript as source-oriented content rather than a normal hosted website. The extension therefore uses Chrome's `declarativeNetRequestWithHostAccess` capability to correct the response MIME type for the **configured repository only**:
+
+- configured `index.html` → `text/html`
+- configured repository CSS → `text/css`
+- configured repository JavaScript → `text/javascript`
+- configured repository JSON → `application/json`
+
+The rules are generated dynamically from Settings and stored by Chrome's extension rule engine. No proxy, GitHub Pages site, GitHub Action or second repository is used.
+
+## Command center
+
+The extension UI is a local extension dashboard. It manages:
+
+- resource search
+- GitHub repository search
+- bookmarks
+- collections
+- notes
+- learning progress
+- health checks
+- settings
+- GitHub synchronization
+
+## Data layers
+
+### Remote
+
+```text
+GitHub repository
+        ↓
+raw.githubusercontent.com
+        ↓
+resource DB / bookmark DB / application files
+```
+
+### Local
+
+```text
+chrome.storage.local
+        ↓
+bookmarks / history / notes / learning / settings
+```
+
+### Optional write
+
+```text
+Chrome local bookmarks
+        ↓
+GitHub Contents API
+        ↓
+bookmark-db/bookmarks.json
+```

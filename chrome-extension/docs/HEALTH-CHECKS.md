@@ -1,19 +1,34 @@
 # Health Checks
 
-The health center checks:
+The Health Center checks the real data sources used by the current DevOps Explorer repository:
 
-- repository URL
+- GitHub repository URL
 - raw `index.html`
-- raw resource database
-- raw bookmark database
-- GitHub API repository metadata
+- raw `data/devops-categories.json` — required
+- raw `data/devops-technologies.json` — required
+- raw `bookmark-db/bookmarks.json` — optional
+- GitHub repository API metadata — optional
 
-Each HTTP check reports:
+Each endpoint check reports:
 
 - success/failure
 - HTTP status
 - response time in milliseconds
 
-The terminal-style panel provides a compact diagnostic summary.
+A repository without a bookmark database can still be **Healthy** because bookmarks are optional. The categories and technologies JSON files are the authoritative application data sources.
 
-A failed optional resource database check does not mean the extension itself is broken; the parent repository may simply not contain that optional file.
+Example terminal output:
+
+```text
+$ devops-explorer health
+[OK] Repository URL
+[OK] Raw index.html
+[OK] Raw categories DB
+[OK] Raw technologies DB
+[SKIP] Raw bookmark DB
+[OK] GitHub API / repository
+
+SYSTEM: HEALTHY
+```
+
+Auto health checks can be enabled from Settings.

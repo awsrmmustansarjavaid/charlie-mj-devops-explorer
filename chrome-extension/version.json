@@ -1,6 +1,11 @@
 {
-  "version": "1.0.0",
-  "releaseDate": "2026-10-04",
-  "minimumExtensionVersion": "1.0.0",
-  "notes": "Initial final command-center release"
+  "version": "1.0.2",
+  "released": "2026-10-05",
+  "notes": [
+    "Use data/devops-categories.json as the category database.",
+    "Use data/devops-technologies.json as the technology database.",
+    "Replace the obsolete data/resources.json health check.",
+    "Search and category filters now use the repository JSON data.",
+    "Keep bookmark DB optional."
+  ]
 }

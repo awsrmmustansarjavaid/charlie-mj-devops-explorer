@@ -1,7 +1,6 @@
 {
-  "schemaVersion": 1,
-  "name": "DevOps Explorer Bookmark Database",
-  "description": "Seed metadata for the DevOps Explorer Chrome Extension bookmark database.",
-  "source": "chrome-extension",
-  "lastUpdated": "2026-10-04"
+  "format": "devops-explorer-bookmarks",
+  "version": 1,
+  "description": "Shared bookmark database for DevOps Explorer.",
+  "managedBy": "DevOps Explorer Chrome Extension"
 }

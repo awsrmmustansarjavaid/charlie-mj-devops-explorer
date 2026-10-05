@@ -1,151 +1,203 @@
 # DevOps Explorer Chrome Extension
 
-A modern Manifest V3 Chrome extension that turns the existing **DevOps Explorer** GitHub repository into a personal **DevOps Resource Command Center**.
+A modern **Manifest V3 Chrome extension** that turns the existing **DevOps Explorer** GitHub project into a personal DevOps resource command center.
 
-The extension is intentionally located inside the same repository under `chrome-extension/`. It does **not** copy or duplicate the main DevOps Explorer application. The main explorer remains in the parent repository and is opened through its configured **raw GitHub URL**.
+It lives inside the same repository under `chrome-extension/` and **does not duplicate the main DevOps Explorer application**. The extension reads the application and resource data from your configured raw GitHub paths.
 
 ![DevOps Explorer Chrome Extension](./assets/images/25656fce-6771-45f7-ba28-2b26f7e9d7c8.png)
 
-## What this extension provides
+## What is included
 
-### Core access
-
-- 🚀 Raw GitHub `index.html` launcher
+- 🚀 DevOps Explorer dashboard / personal workspace
+- 🔗 Raw GitHub `index.html` launcher
 - 📦 GitHub repository launcher
-- 🧭 Full extension command-center dashboard
-- ⌨️ Keyboard shortcuts and command palette
-- 🌙 Dark, light and system themes
-- 🎨 DevOps Blue, Cyber Purple, Terminal Green and Cloud Orange accents
-
-### Discovery and search
-
-- 🔎 Local DevOps resource search
+- 🔎 Local resource search
 - 🔎 GitHub repository search
 - 🏷️ Built-in DevOps categories
-- 🏷️ Multiple category selection
-- #️⃣ Multiple tag filtering
-- AND / OR filter modes
-- Resource type filtering
-- Difficulty filtering
-- Sortable/searchable resource table
-- Quick access technology toolbox
-
-### Bookmark and knowledge management
-
+- #️⃣ Multiple category and tag filters
+- AND / OR filtering
+- 📊 Search results table
 - ⭐ Bookmark manager
 - 📚 Collections
-- 📝 Personal notes per bookmark
-- 🕘 Recently opened resources
-- 📥 JSON import
-- 📤 JSON export
-- Duplicate-aware import
-- Local-first bookmark storage
-- GitHub bookmark database support
-
-### GitHub synchronization
-
-- 📥 Pull bookmark database from raw GitHub
-- 📤 Push bookmark database through the GitHub Contents API
-- 🔐 Optional fine-grained GitHub token
-- Conflict-safe API update using the current file SHA
-- Configurable repository, branch and bookmark path
-
-### DevOps learning
-
-- 🧭 DevOps roadmap
-- 🎓 Not Started / Learning / Completed states
-- 📈 Personal progress statistics
+- 📝 Personal bookmark notes
+- 📥 Bookmark JSON import
+- 📤 Bookmark JSON export
+- 📥 **GitHub configuration JSON import**
+- 📤 **GitHub configuration JSON export**
+- 🕘 Recently viewed resources
 - 🧰 DevOps technology toolbox
-- Technology/category shortcuts
-
-### Diagnostics
-
-- 🩺 Full health and diagnostics center
+- 🧭 DevOps roadmap
+- 🎓 Learning progress
+- 🩺 Health and diagnostics center
 - 📡 Raw GitHub endpoint checks
-- 📊 Response-time checks
-- GitHub repository metadata check
-- Resource database check
-- Bookmark database check
-- Terminal-style health output
-- Developer-friendly settings diagnostics
+- ⏱️ HTTP response-time checks
+- 🔄 Optional GitHub bookmark pull/push
+- 🔐 Optional fine-grained GitHub token
+- 🌙 Dark / light / system themes
+- 🎨 DevOps Blue / Cyber Purple / Terminal Green / Cloud Orange accents
+- ⚡ Command palette
+- ⌨️ Keyboard shortcut support
+- 🛠️ Developer diagnostics
+- 🖼️ UI thumbnail
+- 🚀 Chrome extension icons: 16 / 32 / 48 / 128px + SVG source
+- 📖 Complete Markdown documentation
+- ❌ No GitHub Actions
+- ❌ No GitHub workflow
+- ❌ No second repository
+- ❌ No duplicated DevOps Explorer application
+- ❌ No inline scripts that violate Chrome MV3 CSP
 
-## Repository placement
+## Default GitHub configuration
 
-Place the directory inside your existing repository:
+The extension is preconfigured for the current DevOps Explorer repository:
+
+```text
+Repository:
+https://github.com/awsrmmustansarjavaid/charlie-mj-devops-explorer
+
+Branch:
+main
+
+Raw base:
+https://raw.githubusercontent.com/awsrmmustansarjavaid/charlie-mj-devops-explorer/main
+
+Raw index:
+https://raw.githubusercontent.com/awsrmmustansarjavaid/charlie-mj-devops-explorer/main/index.html
+
+Raw technologies DB:
+https://raw.githubusercontent.com/awsrmmustansarjavaid/charlie-mj-devops-explorer/main/data/devops-technologies.json
+
+Raw categories DB:
+https://raw.githubusercontent.com/awsrmmustansarjavaid/charlie-mj-devops-explorer/main/data/devops-categories.json
+
+Technologies DB path:
+data/devops-technologies.json
+
+Bookmark DB:
+bookmark-db/bookmarks.json
+
+Categories data:
+data/devops-categories.json
+
+Tags:
+bookmark-db/tags.json
+
+Metadata:
+bookmark-db/metadata.json
+```
+
+Every value is editable in **Settings**.
+
+## Repository structure
+
+Place `chrome-extension/` inside your existing DevOps Explorer repository:
 
 ```text
 devops-explorer/
+│
 ├── index.html
 ├── css/
 ├── js/
 ├── assets/
 ├── data/
+│   ├── devops-categories.json
+│   └── devops-technologies.json
+│
 ├── bookmark-db/
+│   ├── bookmarks.json
+│   ├── categories.json
+│   ├── tags.json
+│   └── metadata.json
 │
 └── chrome-extension/
     ├── manifest.json
     ├── README.md
+    ├── version.json
+    ├── assets/
+    │   └── images/
+    │       └── 25656fce-6771-45f7-ba28-2b26f7e9d7c8.png
+    ├── bookmark-db/
+    │   └── sample database files
+    ├── icons/
+    ├── css/
+    ├── js/
     ├── popup/
     ├── pages/
-    ├── js/
-    ├── css/
-    ├── icons/
-    ├── assets/images/
-    ├── bookmark-db/
+    │   ├── dashboard/
+    │   └── settings/
     └── docs/
 ```
 
-There is **no second repository** and no duplicated copy of the main explorer application.
+The `chrome-extension/bookmark-db/` directory is a portable sample copy. The **default production paths point to the parent repository's root `bookmark-db/` directory**, as shown above.
 
-## Raw GitHub architecture
-
-The extension uses raw GitHub as the read source:
-
-```text
-Chrome Extension
-      │
-      ├── repository URL ───────► github.com/OWNER/REPO
-      │
-      └── raw base/index ───────► raw.githubusercontent.com/OWNER/REPO/main/...
-```
-
-The extension does not depend on GitHub Pages and does not contain a GitHub Actions workflow.
-
-### Important browser behavior
-
-The **Open Raw Explorer** action intentionally opens the exact configured raw `index.html` URL. This preserves the raw-path architecture you requested. Whether the parent application's HTML executes correctly from a raw host depends on the parent application's resource URLs, MIME handling, CORS policy and browser behavior. The extension therefore does not pretend that raw GitHub is equivalent to GitHub Pages; it gives you a direct raw launcher and diagnostics so you can verify your repository's current behavior.
-
-For a parent application to be raw-friendly, its HTML should use absolute raw URLs or correctly resolvable resource paths for CSS, JavaScript, JSON and assets.
-
-## First-time setup
+## Install locally
 
 1. Open Chrome.
-2. Go to `chrome://extensions`.
+2. Visit `chrome://extensions`.
 3. Enable **Developer mode**.
 4. Click **Load unpacked**.
 5. Select the `chrome-extension/` directory.
-6. Open **DevOps Explorer → Settings**.
-7. Enter your repository URL.
-8. Enter or allow the extension to derive the raw base and raw `index.html` URLs.
-9. Save settings.
-10. Run **Health Check**.
+6. Open the extension.
+7. Open **Settings**.
+8. Verify or edit the repository configuration.
 
-Example:
+The extension is fully local and does not require GitHub Pages or GitHub Actions.
+
+## Settings
+
+Settings includes editable defaults for:
+
+- GitHub Repository URL
+- Branch
+- Raw Base URL
+- Raw `index.html` URL
+- Raw Technologies DB URL
+- Technologies DB path
+- Bookmark database path
+- Categories path
+- Tags path
+- Metadata path
+- GitHub fine-grained token
+- Theme: Dark / Light / System
+- Accent: DevOps Blue / Cyber Purple / Terminal Green / Cloud Orange
+- Auto health checks
+
+It also includes:
+
+- **Save Settings**
+- **Reset Defaults**
+- **Import Config**
+- **Export Config**
+
+Configuration import/export uses JSON. For safety, exported configuration excludes the GitHub token by default. A separate checkbox allows the token to be included intentionally in a private configuration backup.
+
+## Search
+
+The search engine works even when the remote categories/technologies data is unavailable because it contains a built-in DevOps catalog fallback.
+
+It supports:
+
+- Free-text search
+- Multi-word search
+- Multiple categories
+- Multiple tags
+- Type
+- Difficulty
+- AND mode
+- OR mode
+- GitHub repository search
+
+The extension first attempts to load:
 
 ```text
-Repository:
-https://github.com/YOUR-OWNER/YOUR-REPO
-
-Raw base:
-https://raw.githubusercontent.com/YOUR-OWNER/YOUR-REPO/main
-
-Raw index:
-https://raw.githubusercontent.com/YOUR-OWNER/YOUR-REPO/main/index.html
+data/devops-technologies.json
 ```
+
+from the configured raw GitHub URL. If that request fails or returns an invalid/empty dataset, the built-in catalog remains available.
 
 ## Bookmark database
 
-The parent repository can contain the canonical database:
+The intended shared database is:
 
 ```text
 bookmark-db/
@@ -155,61 +207,65 @@ bookmark-db/
 └── metadata.json
 ```
 
-The extension also contains a small seed copy under `chrome-extension/bookmark-db/` for development and documentation. Your configured `bookmarkPath` determines which parent-repository file is used for raw pull/push operations.
+Raw GitHub is used as a read source. The extension cannot modify a raw URL directly.
 
-## GitHub write synchronization
+Optional write synchronization uses the GitHub Contents API and requires a user-supplied fine-grained token.
 
-Raw GitHub is read-only. Updating the repository requires the GitHub Contents API.
+## GitHub sync
 
-For a personal repository:
+Pull:
 
-1. Create a GitHub fine-grained personal access token.
-2. Give it only the minimum repository contents permission required for the bookmark file.
-3. Enter it in **Settings**.
-4. Use **Pull from GitHub** and **Push to GitHub** from the Sync screen.
+```text
+GitHub raw bookmark-db/bookmarks.json
+        ↓
+Chrome local bookmark store
+```
 
-The token is stored in Chrome extension storage and is not written into this repository. Never put it into `config.js`, JavaScript source, JSON files or documentation.
+Push:
 
-## Local bookmark model
+```text
+Chrome local bookmark store
+        ↓
+GitHub Contents API
+        ↓
+bookmark-db/bookmarks.json
+```
 
-A bookmark may contain:
+The extension never stores the token in source code.
 
-```json
-{
-  "id": "devops-0001",
-  "title": "Kubernetes Ingress",
-  "url": "https://example.com",
-  "category": "Kubernetes",
-  "tags": ["kubernetes", "ingress", "networking"],
-  "collections": ["Kubernetes Learning"],
-  "type": "documentation",
-  "difficulty": "beginner",
-  "description": "Kubernetes networking resource",
-  "notes": "My personal study notes",
-  "createdAt": "2026-10-04T00:00:00.000Z",
-  "updatedAt": "2026-10-04T00:00:00.000Z"
-}
+## Chrome MV3 CSP
+
+All extension scripts are loaded from external JavaScript files using:
+
+```html
+<script type="module" src=".../file.js"></script>
+```
+
+There are no inline scripts in extension HTML pages. This avoids the common MV3 error:
+
+```text
+Executing inline script violates the following Content Security Policy directive 'script-src 'self''
 ```
 
 ## No GitHub workflow
 
-This extension intentionally contains no:
+This project intentionally contains no:
 
 - `.github/workflows/`
 - GitHub Actions
 - deployment pipeline
-- GitHub Pages dependency
+- CI/CD requirement
 - second repository
-- duplicated main application
 
-It can be loaded locally from Chrome's **Load unpacked** feature and can communicate directly with GitHub raw files and the GitHub API.
+The extension is loaded locally through Chrome's Developer Mode and reads the existing GitHub project through raw URLs and the GitHub API where explicitly enabled.
 
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Features](docs/FEATURES.md)
 - [Setup](docs/SETUP.md)
-- [Bookmark System](docs/BOOKMARKS.md)
+- [Configuration](docs/CONFIGURATION.md)
+- [Bookmarks](docs/BOOKMARKS.md)
 - [GitHub Sync](docs/GITHUB-SYNC.md)
 - [Search](docs/SEARCH.md)
 - [Health Checks](docs/HEALTH-CHECKS.md)
@@ -219,7 +275,8 @@ It can be loaded locally from Chrome's **Load unpacked** feature and can communi
 - [Roadmap](docs/ROADMAP.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
 - [File Map](docs/FILE-MAP.md)
+- [Validation](docs/VALIDATION.md)
 
 ## License
 
-Use the same license as the parent DevOps Explorer repository unless your project has a different licensing policy.
+Use the same license as the parent DevOps Explorer repository unless the project has a different licensing policy.

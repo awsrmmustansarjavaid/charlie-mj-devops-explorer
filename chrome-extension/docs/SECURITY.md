@@ -2,20 +2,33 @@
 
 ## Permissions
 
-The extension uses only the permissions needed for its local dashboard, storage, tab opening and clipboard-related functionality.
+The extension uses:
+
+- `storage` for local settings, bookmarks, history, notes and learning state
+- `tabs` to open the explorer and resources
+- `clipboardWrite` for future resource-copy workflows
+- `declarativeNetRequestWithHostAccess` to correct raw GitHub MIME types for the configured repository
 
 ## Host permissions
 
-- `raw.githubusercontent.com` for raw repository data
+- `raw.githubusercontent.com` for raw repository files
 - `github.com` for repository links
-- `api.github.com` for optional GitHub search, metadata and bookmark write sync
+- `api.github.com` for optional GitHub search, metadata and bookmark synchronization
+
+## Raw MIME correction
+
+The MIME correction rules are dynamically generated from the user's configured repository and raw base. They are not a generic rule for every GitHub repository.
 
 ## GitHub token
 
-A token is optional. It is only required for repository write synchronization. Use a fine-grained token with the smallest scope possible.
+The token is optional and is only needed for authenticated GitHub operations such as bookmark push synchronization.
 
-The token is stored with Chrome extension storage and is not included in source files, exported bookmark JSON, or the repository.
+Use a fine-grained token with the smallest possible repository permission.
+
+The token is stored in Chrome extension storage and is not committed to source code.
+
+Configuration exports **exclude the token by default**. The Settings page provides an explicit opt-in checkbox for including it in a private JSON backup.
 
 ## Important
 
-Treat any browser extension with access to a GitHub token as sensitive. Use a dedicated token with limited repository permissions and rotate/revoke it when necessary.
+A browser extension that can use a GitHub write token is sensitive software. Keep the token private, use a dedicated fine-grained token, and revoke/rotate it if it is exposed.

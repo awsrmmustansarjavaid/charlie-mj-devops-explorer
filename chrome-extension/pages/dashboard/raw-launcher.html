@@ -1,14 +1,1 @@
-<!doctype html><meta charset="utf-8"><title>DevOps Explorer Raw Launcher</title><script type="module">
-import { getConfig } from '../../js/storage.js';
-const c=await getConfig();
-if(!c.rawIndexUrl){document.body.textContent='Configure the Raw index URL in DevOps Explorer Settings first.';throw new Error('Raw index URL missing');}
-try{
-  const response=await fetch(c.rawIndexUrl,{cache:'no-store'}); if(!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-  let html=await response.text();
-  const base=c.rawBaseUrl.replace(/\/+$/,'')+'/';
-  if(!/<base\b/i.test(html)) html=html.replace(/<head([^>]*)>/i,`<head$1><base href="${base}">`);
-  else html=html.replace(/<base\b[^>]*>/i,`<base href="${base}">`);
-  const encoded='data:text/html;charset=utf-8,'+encodeURIComponent(html);
-  location.replace(encoded);
-}catch(e){document.body.innerHTML=`<h2>Raw launcher failed</h2><p>${e.message}</p><p>Check the configured raw URL and the Health Center.</p>`;}
-</script>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DevOps Explorer Raw Launcher</title><link rel="stylesheet" href="../../css/app.css"></head><body><main class="main"><div class="card"><h2>🚀 Opening DevOps Explorer…</h2><p id="message" class="muted">Loading the configured raw GitHub index.</p><button id="openDirect" class="btn primary">Open Raw URL Directly</button><button id="openSettings" class="btn">Settings</button></div></main><script type="module" src="raw-launcher.js"></script></body></html>

@@ -2,13 +2,36 @@ import { DEFAULT_CONFIG, CONFIG_KEY, BOOKMARKS_KEY, HISTORY_KEY, NOTES_KEY, LEAR
 
 export async function getConfig() {
   const data = await chrome.storage.local.get(CONFIG_KEY);
-  return { ...DEFAULT_CONFIG, ...(data[CONFIG_KEY] || {}) };
+  const stored = data[CONFIG_KEY] || {};
+  const merged = { ...DEFAULT_CONFIG, ...stored };
+
+  // Migrate configurations from versions that incorrectly expected data/resources.json.
+  const legacyResourcePath = String(stored.resourceDbPath || '').trim();
+  const legacyResourceUrl = String(stored.resourceDbUrl || '').trim();
+  const legacyBookmarkCategories = String(stored.categoriesPath || '').trim() === 'bookmark-db/categories.json';
+  const needsMigration = !!(legacyResourcePath || legacyResourceUrl || legacyBookmarkCategories || !stored.technologiesPath || !stored.technologiesUrl);
+
+  if (needsMigration) {
+    merged.categoriesPath = DEFAULT_CONFIG.categoriesPath;
+    merged.categoriesUrl = DEFAULT_CONFIG.categoriesUrl;
+    merged.technologiesPath = DEFAULT_CONFIG.technologiesPath;
+    merged.technologiesUrl = DEFAULT_CONFIG.technologiesUrl;
+    delete merged.resourceDbPath;
+    delete merged.resourceDbUrl;
+    await chrome.storage.local.set({ [CONFIG_KEY]: merged });
+  }
+  return merged;
 }
 
 export async function saveConfig(config) {
   const merged = { ...DEFAULT_CONFIG, ...config };
   await chrome.storage.local.set({ [CONFIG_KEY]: merged });
   return merged;
+}
+
+export async function resetConfig() {
+  await chrome.storage.local.set({ [CONFIG_KEY]: { ...DEFAULT_CONFIG } });
+  return { ...DEFAULT_CONFIG };
 }
 
 export async function getBookmarks() {

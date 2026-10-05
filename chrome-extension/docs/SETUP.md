@@ -6,21 +6,54 @@
 2. Visit `chrome://extensions`.
 3. Enable Developer mode.
 4. Select **Load unpacked**.
-5. Select this `chrome-extension/` directory.
+5. Select the `chrome-extension/` directory.
 
-## Configure the repository
+## Default configuration
 
-Open **Settings** and enter:
+The extension is already configured for:
 
 ```text
-Repository URL: https://github.com/OWNER/REPO
-Branch: main
-Raw base URL: https://raw.githubusercontent.com/OWNER/REPO/main
-Raw index URL: https://raw.githubusercontent.com/OWNER/REPO/main/index.html
+https://github.com/awsrmmustansarjavaid/charlie-mj-devops-explorer
 ```
 
-If raw base/index are blank, saving the repository URL and branch automatically derives them.
+with branch `main` and the matching raw paths.
+
+## Configure manually
+
+Open:
+
+```text
+DevOps Explorer → Settings
+```
+
+Edit any value and choose **Save Settings**.
+
+## Configuration backup
+
+Use:
+
+```text
+Settings → Export Config
+Settings → Import Config
+```
+
+to move configuration between Chrome installations.
 
 ## Verify
 
-Open **Health Check** and run the full check. A configured installation should report the repository and raw index as reachable when the URLs are publicly accessible.
+Open **Health Check** and run the full check.
+
+The raw technologies database is:
+
+```text
+https://raw.githubusercontent.com/awsrmmustansarjavaid/charlie-mj-devops-explorer/main/data/devops-technologies.json
+```
+
+If the remote database is unavailable, local search still works using the built-in catalog.
+
+
+## Repository data sources
+
+- Categories: `data/devops-categories.json`
+- Technologies: `data/devops-technologies.json`
+- Bookmark database: optional `bookmark-db/bookmarks.json`

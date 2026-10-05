@@ -1,7 +1,7 @@
 import { getConfig } from './storage.js';
 
 export function joinRaw(base, path) {
-  return `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '').split('/').map(encodeURIComponent).join('/')}`;
+  return `${String(base).replace(/\/+$/, '')}/${String(path).replace(/^\/+/, '').split('/').map(encodeURIComponent).join('/')}`;
 }
 
 export async function fetchText(url, options = {}) {
@@ -34,7 +34,7 @@ export async function checkEndpoint(url) {
 }
 
 export function parseGithubRepository(repositoryUrl = '') {
-  const match = repositoryUrl.match(/^https?:\/\/github\.com\/([^/]+)\/([^/#]+?)(?:\.git)?\/?$/i);
+  const match = String(repositoryUrl).trim().match(/^https?:\/\/github\.com\/([^/]+)\/([^/#]+?)(?:\.git)?\/?$/i);
   return match ? { owner: match[1], repo: match[2] } : null;
 }
 
@@ -64,20 +64,34 @@ export async function githubGetFile(path) {
   return githubRequest(`/repos/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}/contents/${path.split('/').map(encodeURIComponent).join('/')}?ref=${encodeURIComponent(config.branch)}`);
 }
 
+function utf8ToBase64(value) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary);
+}
+
 export async function githubPutFile(path, content, message, sha = undefined) {
   const config = await getConfig();
   const repo = parseGithubRepository(config.repositoryUrl);
   if (!repo) throw new Error('Valid GitHub repository URL is required.');
-  const payload = { message, content: btoa(unescape(encodeURIComponent(content))), branch: config.branch };
+  const payload = { message, content: utf8ToBase64(content), branch: config.branch };
   if (sha) payload.sha = sha;
-  return githubRequest(`/repos/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}/contents/${path.split('/').map(encodeURIComponent).join('/')}`, { method: 'PUT', body: JSON.stringify(payload), headers: { 'Content-Type': 'application/json' } });
+  return githubRequest(`/repos/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}/contents/${path.split('/').map(encodeURIComponent).join('/')}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+    headers: { 'Content-Type': 'application/json' }
+  });
 }
 
 export async function getRepoMetadata() {
   const config = await getConfig();
   const repo = parseGithubRepository(config.repositoryUrl);
   if (!repo) throw new Error('Repository URL is not configured.');
-  const response = await fetch(`https://api.github.com/repos/${repo.owner}/${repo.repo}`, { headers: { Accept: 'application/vnd.github+json' }, cache: 'no-store' });
+  const response = await fetch(`https://api.github.com/repos/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}`, {
+    headers: { Accept: 'application/vnd.github+json' },
+    cache: 'no-store'
+  });
   if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
   return response.json();
 }
