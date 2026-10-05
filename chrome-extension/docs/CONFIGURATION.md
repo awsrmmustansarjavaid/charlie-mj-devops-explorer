@@ -57,4 +57,4 @@ Reset Defaults restores the built-in repository, raw paths, theme and other defa
 
 - Categories: `data/devops-categories.json`
 - Technologies: `data/devops-technologies.json`
-- Bookmark database: optional `bookmark-db/bookmarks.json`
+- Bookmark database: optional `chrome-extension/bookmark-db/bookmarks.json`

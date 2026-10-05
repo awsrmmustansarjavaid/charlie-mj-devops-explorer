@@ -6,7 +6,7 @@ The Health Center checks the real data sources used by the current DevOps Explor
 - raw `index.html`
 - raw `data/devops-categories.json` — required
 - raw `data/devops-technologies.json` — required
-- raw `bookmark-db/bookmarks.json` — optional
+- raw `chrome-extension/bookmark-db/bookmarks.json` — optional
 - GitHub repository API metadata — optional
 
 Each endpoint check reports:

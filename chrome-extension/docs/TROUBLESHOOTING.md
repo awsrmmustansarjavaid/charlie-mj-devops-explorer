@@ -64,4 +64,4 @@ This is intentional. Configuration exports exclude the token by default. Enable 
 
 - Categories: `data/devops-categories.json`
 - Technologies: `data/devops-technologies.json`
-- Bookmark database: optional `bookmark-db/bookmarks.json`
+- Bookmark database: optional `chrome-extension/bookmark-db/bookmarks.json`

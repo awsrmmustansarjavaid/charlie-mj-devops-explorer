@@ -56,4 +56,4 @@ If the remote database is unavailable, local search still works using the built-
 
 - Categories: `data/devops-categories.json`
 - Technologies: `data/devops-technologies.json`
-- Bookmark database: optional `bookmark-db/bookmarks.json`
+- Bookmark database: optional `chrome-extension/bookmark-db/bookmarks.json`

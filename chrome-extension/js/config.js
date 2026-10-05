@@ -7,9 +7,9 @@ export const DEFAULT_CONFIG = {
   categoriesUrl: "https://raw.githubusercontent.com/awsrmmustansarjavaid/charlie-mj-devops-explorer/main/data/devops-categories.json",
   technologiesPath: "data/devops-technologies.json",
   technologiesUrl: "https://raw.githubusercontent.com/awsrmmustansarjavaid/charlie-mj-devops-explorer/main/data/devops-technologies.json",
-  bookmarkPath: "bookmark-db/bookmarks.json",
-  tagsPath: "bookmark-db/tags.json",
-  metadataPath: "bookmark-db/metadata.json",
+  bookmarkPath: "chrome-extension/bookmark-db/bookmarks.json",
+  tagsPath: "chrome-extension/bookmark-db/tags.json",
+  metadataPath: "chrome-extension/bookmark-db/metadata.json",
   versionPath: "chrome-extension/version.json",
   token: "",
   theme: "dark",
@@ -18,7 +18,7 @@ export const DEFAULT_CONFIG = {
   githubSyncEnabled: false
 };
 
-export const APP_VERSION = "1.0.2";
+export const APP_VERSION = "1.0.3";
 export const CONFIG_KEY = "devopsExplorerConfig";
 export const BOOKMARKS_KEY = "devopsExplorerBookmarks";
 export const HISTORY_KEY = "devopsExplorerHistory";

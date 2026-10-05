@@ -9,13 +9,19 @@ export async function getConfig() {
   const legacyResourcePath = String(stored.resourceDbPath || '').trim();
   const legacyResourceUrl = String(stored.resourceDbUrl || '').trim();
   const legacyBookmarkCategories = String(stored.categoriesPath || '').trim() === 'bookmark-db/categories.json';
-  const needsMigration = !!(legacyResourcePath || legacyResourceUrl || legacyBookmarkCategories || !stored.technologiesPath || !stored.technologiesUrl);
+  const legacyBookmarkPath = String(stored.bookmarkPath || '').trim() === 'bookmark-db/bookmarks.json';
+  const legacyTagsPath = String(stored.tagsPath || '').trim() === 'bookmark-db/tags.json';
+  const legacyMetadataPath = String(stored.metadataPath || '').trim() === 'bookmark-db/metadata.json';
+  const needsMigration = !!(legacyResourcePath || legacyResourceUrl || legacyBookmarkCategories || legacyBookmarkPath || legacyTagsPath || legacyMetadataPath || !stored.technologiesPath || !stored.technologiesUrl);
 
   if (needsMigration) {
     merged.categoriesPath = DEFAULT_CONFIG.categoriesPath;
     merged.categoriesUrl = DEFAULT_CONFIG.categoriesUrl;
     merged.technologiesPath = DEFAULT_CONFIG.technologiesPath;
     merged.technologiesUrl = DEFAULT_CONFIG.technologiesUrl;
+    merged.bookmarkPath = DEFAULT_CONFIG.bookmarkPath;
+    merged.tagsPath = DEFAULT_CONFIG.tagsPath;
+    merged.metadataPath = DEFAULT_CONFIG.metadataPath;
     delete merged.resourceDbPath;
     delete merged.resourceDbUrl;
     await chrome.storage.local.set({ [CONFIG_KEY]: merged });
