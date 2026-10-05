@@ -13,6 +13,73 @@
 👉 **Live Demo:** [Charlie MJ DevOps Explorer](https://awsrmmustansarjavaid.github.io/charlie-mj-devops-explorer/)
 
 ---
+# DevOps Explorer Chrome Extension
+
+A modern **Manifest V3 Chrome extension** that turns the existing **DevOps Explorer** GitHub project into a personal DevOps resource command center.
+
+It lives inside the same repository under `chrome-extension/` and **does not duplicate the main DevOps Explorer application**. The extension reads the application and resource data from your configured raw GitHub paths.
+
+![DevOps Explorer Chrome Extension](/chrome-extension/assets/images/25656fce-6771-45f7-ba28-2b26f7e9d7c8.png)
+
+## What is included
+
+- 🚀 DevOps Explorer dashboard / personal workspace
+- 🔗 Raw GitHub `index.html` launcher
+- 📦 GitHub repository launcher
+- 🔎 Local resource search
+- 🔎 GitHub repository search
+- 🏷️ Built-in DevOps categories
+- #️⃣ Multiple category and tag filters
+- AND / OR filtering
+- 📊 Search results table
+- ⭐ Bookmark manager
+- 📚 Collections
+- 📝 Personal bookmark notes
+- 📥 Bookmark JSON import
+- 📤 Bookmark JSON export
+- 📥 **GitHub configuration JSON import**
+- 📤 **GitHub configuration JSON export**
+- 🕘 Recently viewed resources
+- 🧰 DevOps technology toolbox
+- 🧭 DevOps roadmap
+- 🎓 Learning progress
+- 🩺 Health and diagnostics center
+- 📡 Raw GitHub endpoint checks
+- ⏱️ HTTP response-time checks
+- 🔄 Optional GitHub bookmark pull/push
+- 🔐 Optional fine-grained GitHub token
+- 🌙 Dark / light / system themes
+- 🎨 DevOps Blue / Cyber Purple / Terminal Green / Cloud Orange accents
+- ⚡ Command palette
+- ⌨️ Keyboard shortcut support
+- 🛠️ Developer diagnostics
+- 🖼️ UI thumbnail
+- 🚀 Chrome extension icons: 16 / 32 / 48 / 128px + SVG source
+- 📖 Complete Markdown documentation
+- ❌ No GitHub Actions
+- ❌ No GitHub workflow
+- ❌ No second repository
+- ❌ No duplicated DevOps Explorer application
+- ❌ No inline scripts that violate Chrome MV3 CSP
+
+## Download
+
+<p align="center">
+  <a href="/downloads/devops-explorer-chrome-extension-final-v1.0.4.zip">
+    <img src="https://img.shields.io/badge/⬇%20Download%20Chrome%20Extension-2ea44f?style=for-the-badge" alt="Download Chrome Extension">
+  </a>
+</p>
+
+## Chrome Extension Documentation
+
+<p align="center">
+  <a href="/chrome-extension/README.md">
+    📖 <strong>Read Chrome Extension Documentation</strong>
+  </a>
+</p>
+
+
+---
 
 # 🚀 What Is Charlie MJ DevOps Explorer?
 
