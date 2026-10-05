@@ -47,3 +47,11 @@ matches resources containing both terms rather than requiring the exact phrase.
 - Categories: `data/devops-categories.json`
 - Technologies: `data/devops-technologies.json`
 - Bookmark database: optional `chrome-extension/bookmark-db/bookmarks.json`
+
+
+## v1.0.4 Search UI
+
+- Search controls are grouped as **Clear**, **Search Local**, and **Search GitHub**.
+- Local and GitHub results use responsive resource cards instead of a table.
+- GitHub repository cards show owner/account, creation date, last update, language, stars, forks, open issues, license, topics, description, and repository actions.
+- The GitHub API provides the repository owner/account and creation timestamp; it does not expose a guaranteed original creator field in repository search results.

@@ -294,6 +294,31 @@ function currentSearchFilters(){
 function textTokens(q){return q.split(/\s+/).map(x=>x.trim()).filter(Boolean);}
 function matchesQuery(resource,q){if(!q)return true;const text=JSON.stringify(resource).toLowerCase();return textTokens(q).every(token=>text.includes(token));}
 
+function formatGitHubDate(value){
+  if(!value) return '—';
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime())) return '—';
+  return new Intl.DateTimeFormat(undefined,{year:'numeric',month:'short',day:'numeric'}).format(d);
+}
+
+function renderResourceCards(list, emptyMessage='No resources matched.'){
+  $('#resultsBody').innerHTML=list.length?list.map(r=>{
+    const tags=(r.tags||[]).slice(0,8).map(t=>`<span class="pill">#${escapeHtml(t)}</span>`).join(' ');
+    return `<article class="resource-card">
+      <div class="resource-card-head"><div><h3 class="resource-card-title"><a href="${escapeHtml(r.url||'#')}" data-result-open="${encodeURIComponent(r.url||'')}" title="Open resource">${escapeHtml(r.title)}</a></h3><div class="small muted">${escapeHtml(r.category||'Uncategorized')}</div></div><span class="difficulty-badge">${escapeHtml(r.difficulty||'intermediate')}</span></div>
+      <p class="resource-card-description">${escapeHtml(r.description||r.url||'No description')}</p>
+      <div class="resource-card-tags">${tags||'<span class="muted small">No tags</span>'}</div>
+      <div class="resource-meta">
+        <div class="resource-meta-item"><span class="label">Type</span><strong>${escapeHtml(r.type||'resource')}</strong></div>
+        <div class="resource-meta-item"><span class="label">Source</span><strong>${escapeHtml(r.source||'Local')}</strong></div>
+      </div>
+      <div class="resource-card-actions"><button class="btn" data-result-open="${encodeURIComponent(r.url||'')}">Open</button><button class="btn" data-result-bookmark="${encodeURIComponent(JSON.stringify(r))}">⭐ Bookmark</button></div>
+    </article>`;
+  }).join(''):`<div class="card empty" style="grid-column:1/-1">${escapeHtml(emptyMessage)}</div>`;
+  $$('[data-result-open]').forEach(b=>b.onclick=e=>{e.preventDefault();openUrl(decodeURIComponent(b.dataset.resultOpen));});
+  $$('#resultsBody [data-result-bookmark]').forEach(b=>b.onclick=async()=>{const r=JSON.parse(decodeURIComponent(b.dataset.resultBookmark));if(!bookmarks.some(x=>x.url===r.url)){bookmarks.unshift({...r,id:makeId(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),collections:[]});await saveBookmarks(bookmarks);renderBookmarks();renderStats();toast('Added to bookmarks.')}else toast('Already bookmarked.');});
+}
+
 async function runSearch(){
   const f=currentSearchFilters();
   const list=resources.filter(r=>{
@@ -304,28 +329,47 @@ async function runSearch(){
     const tagOk=!f.tags.length||tagMatches.length===(f.mode==='AND'?f.tags.length:Math.min(1,f.tags.length));
     const typeOk=!f.type||r.type===f.type;
     const diffOk=!f.diff||r.difficulty===f.diff;
-    if(f.mode==='OR' && (f.cats.length||f.tags.length||f.type||f.diff)) return qOk && (catOk&&f.cats.length || tagMatches.length>0&&f.tags.length || typeOk&&f.type || diffOk&&f.diff);
+    if(f.mode==='OR' && (f.cats.length||f.tags.length||f.type||f.diff)) return qOk && ((catOk&&f.cats.length) || (tagMatches.length>0&&f.tags.length) || (typeOk&&f.type) || (diffOk&&f.diff));
     return qOk&&catOk&&tagOk&&typeOk&&diffOk;
   });
-  $('#resultCount').textContent=`${list.length} results`;
-  $('#resultsBody').innerHTML=list.length?list.map(r=>`<tr><td><strong>${escapeHtml(r.title)}</strong><br><span class="muted small">${escapeHtml(r.description||r.url)}</span></td><td>${escapeHtml(r.category)}</td><td>${(r.tags||[]).map(t=>`<span class="pill">#${escapeHtml(t)}</span> `).join('')}</td><td>${escapeHtml(r.type)}</td><td>${escapeHtml(r.difficulty)}</td><td><div class="toolbar"><button class="btn" data-result-open="${encodeURIComponent(r.url)}">Open</button><button class="btn" data-result-bookmark="${encodeURIComponent(JSON.stringify(r))}">⭐</button></div></td></tr>`).join(''):'<tr><td colspan="6"><div class="empty">No resources matched. Try fewer filters, a shorter query, or GitHub Search.</div></td></tr>';
-  $$('#resultsBody [data-result-open]').forEach(b=>b.onclick=()=>openUrl(decodeURIComponent(b.dataset.resultOpen)));
-  $$('#resultsBody [data-result-bookmark]').forEach(b=>b.onclick=async()=>{const r=JSON.parse(decodeURIComponent(b.dataset.resultBookmark));if(!bookmarks.some(x=>x.url===r.url)){bookmarks.unshift({...r,id:makeId(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),collections:[]});await saveBookmarks(bookmarks);renderBookmarks();renderStats();toast('Added to bookmarks.')}else toast('Already bookmarked.');});
+  $('#resultCount').textContent=`${list.length} local results`;
+  renderResourceCards(list,'No local resources matched. Try different filters or use Search GitHub.');
 }
 
 async function githubSearch(){
   const q=$('#searchQuery').value.trim();if(!q){toast('Enter a GitHub search query.');return}
-  $('#resultsBody').innerHTML='<tr><td colspan="6"><div class="empty">Searching GitHub…</div></td></tr>';
+  $('#resultsBody').innerHTML='<div class="card empty" style="grid-column:1/-1">Searching GitHub repositories…</div>';
   try{
     const c=await getConfig();const headers=c.token?{Authorization:`Bearer ${c.token}`,Accept:'application/vnd.github+json'}:{Accept:'application/vnd.github+json'};
     const res=await fetch(`https://api.github.com/search/repositories?q=${encodeURIComponent(q)}&per_page=30&sort=stars&order=desc`,{headers,cache:'no-store'});
     if(!res.ok)throw new Error(`${res.status} ${res.statusText}`);
     const data=await res.json();const list=data.items||[];
     $('#resultCount').textContent=`${list.length} GitHub repositories`;
-    $('#resultsBody').innerHTML=list.length?list.map(r=>`<tr><td><strong>${escapeHtml(r.full_name)}</strong><br><span class="muted small">${escapeHtml(r.description||'No description')}</span></td><td>GitHub</td><td>${(r.topics||[]).map(t=>`<span class="pill">#${escapeHtml(t)}</span> `).join('')}</td><td>github-repository</td><td>${r.stargazers_count>5000?'advanced':'intermediate'}</td><td><div class="toolbar"><button class="btn" data-result-open="${encodeURIComponent(r.html_url)}">Open</button><button class="btn" data-github-bookmark="${encodeURIComponent(JSON.stringify(r))}">⭐</button></div></td></tr>`).join(''):'<tr><td colspan="6"><div class="empty">No GitHub repositories found.</div></td></tr>';
-    $$('[data-result-open]').forEach(b=>b.onclick=()=>openUrl(decodeURIComponent(b.dataset.resultOpen)));
-    $$('[data-github-bookmark]').forEach(b=>b.onclick=async()=>{const r=JSON.parse(decodeURIComponent(b.dataset.githubBookmark));if(bookmarks.some(x=>x.url===r.html_url)){toast('Already bookmarked.');return}bookmarks.unshift({id:makeId(),title:r.full_name,url:r.html_url,category:inferCategory(r.name,(r.topics||[]).join(' ')),tags:r.topics||[],type:'github-repository',difficulty:'intermediate',description:r.description||'',collections:[],createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});await saveBookmarks(bookmarks);renderBookmarks();renderStats();toast('GitHub repository bookmarked.');});
-  }catch(e){$('#resultsBody').innerHTML='<tr><td colspan="6"><div class="empty">GitHub Search failed. Check network/API access and try again.</div></td></tr>';toast(`GitHub search failed: ${e.message}`);}
+    $('#resultsBody').innerHTML=list.length?list.map(r=>{
+      const topics=(r.topics||[]).slice(0,8).map(t=>`<span class="pill">#${escapeHtml(t)}</span>`).join(' ');
+      const owner=r.owner?.login||'Unknown';
+      const language=r.language||'Not specified';
+      const license=r.license?.spdx_id||r.license?.name||'None';
+      return `<article class="resource-card github-resource-card">
+        <div class="resource-card-head"><div><h3 class="resource-card-title"><a href="${escapeHtml(r.html_url)}" data-result-open="${encodeURIComponent(r.html_url)}">${escapeHtml(r.full_name)}</a></h3><div class="small muted">🐙 GitHub repository</div></div><span class="github-badge">${escapeHtml(r.visibility||'public')}</span></div>
+        <p class="resource-card-description">${escapeHtml(r.description||'No description provided by the repository.')}</p>
+        <div class="resource-card-tags">${topics||'<span class="muted small">No topics</span>'}</div>
+        <div class="resource-meta">
+          <div class="resource-meta-item"><span class="label">Owner / Creator</span><strong title="${escapeHtml(owner)}">${escapeHtml(owner)}</strong></div>
+          <div class="resource-meta-item"><span class="label">Created</span><strong>${escapeHtml(formatGitHubDate(r.created_at))}</strong></div>
+          <div class="resource-meta-item"><span class="label">Updated</span><strong>${escapeHtml(formatGitHubDate(r.updated_at))}</strong></div>
+          <div class="resource-meta-item"><span class="label">Language</span><strong>${escapeHtml(language)}</strong></div>
+          <div class="resource-meta-item"><span class="label">⭐ Stars</span><strong>${Number(r.stargazers_count||0).toLocaleString()}</strong></div>
+          <div class="resource-meta-item"><span class="label">⑂ Forks</span><strong>${Number(r.forks_count||0).toLocaleString()}</strong></div>
+          <div class="resource-meta-item"><span class="label">Issues</span><strong>${Number(r.open_issues_count||0).toLocaleString()}</strong></div>
+          <div class="resource-meta-item"><span class="label">License</span><strong>${escapeHtml(license)}</strong></div>
+        </div>
+        <div class="resource-card-actions"><button class="btn" data-result-open="${encodeURIComponent(r.html_url)}">Open Repository</button><button class="btn" data-github-bookmark="${encodeURIComponent(JSON.stringify(r))}">⭐ Bookmark</button></div>
+      </article>`;
+    }).join(''):'<div class="card empty" style="grid-column:1/-1">No GitHub repositories found.</div>';
+    $$('[data-result-open]').forEach(b=>b.onclick=e=>{e.preventDefault();openUrl(decodeURIComponent(b.dataset.resultOpen));});
+    $$('[data-github-bookmark]').forEach(b=>b.onclick=async()=>{const r=JSON.parse(decodeURIComponent(b.dataset.githubBookmark));if(bookmarks.some(x=>x.url===r.html_url)){toast('Already bookmarked.');return}bookmarks.unshift({id:makeId(),title:r.full_name,url:r.html_url,category:inferCategory(r.name,(r.topics||[]).join(' ')),tags:r.topics||[],type:'github-repository',difficulty:r.stargazers_count>5000?'advanced':'intermediate',description:r.description||'',collections:[],createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),github:{owner:r.owner?.login||'',createdAt:r.created_at,stars:r.stargazers_count||0,forks:r.forks_count||0,language:r.language||'',license:r.license?.spdx_id||r.license?.name||''}});await saveBookmarks(bookmarks);renderBookmarks();renderStats();toast('GitHub repository bookmarked.');});
+  }catch(e){$('#resultsBody').innerHTML='<div class="card empty" style="grid-column:1/-1">GitHub Search failed. Check network/API access and try again.</div>';toast(`GitHub search failed: ${e.message}`);}
 }
 
 async function runHealth(){
