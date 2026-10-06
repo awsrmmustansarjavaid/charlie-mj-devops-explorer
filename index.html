@@ -276,7 +276,13 @@
         </a>
 
 
-        <!-- Main navigation -->
+        <!-- ============================================================
+        MAIN NAVIGATION
+        ------------------------------------------------------------
+        Documentation links to the dedicated DevOps Documentation
+        page located at:
+        pages/devops-documentation/index.html
+        ============================================================ -->
 
         <div class="nav-links">
 
@@ -291,6 +297,13 @@
                 href="#technologies"
             >
                 Technologies
+            </a>
+
+            <!-- DevOps official documentation page -->
+            <a
+                href="pages/devops-documentation/index.html"
+            >
+                Documentation
             </a>
 
             <a
@@ -3346,6 +3359,142 @@
 </main>
 
 
+<!-- ============================================================
+     DEVOPS DOCUMENTATION SECTION
+     ------------------------------------------------------------
+     This section provides a featured entry point to the dedicated
+     DevOps Documentation page.
+
+     The complete documentation directory is maintained separately
+     at:
+
+     pages/
+     └── devops-documentation/
+         └── index.html
+
+     This keeps the main homepage lightweight while allowing the
+     documentation page to have its own HTML, CSS, JavaScript,
+     filtering system and JSON-powered tool database.
+     ============================================================ -->
+
+<section
+    id="documentation"
+    class="documentation-section"
+    aria-labelledby="documentation-title"
+>
+
+    <div class="documentation-container">
+
+        <!-- Section header -->
+        <div class="documentation-header">
+
+            <span class="documentation-eyebrow">
+                DevOps Knowledge Base
+            </span>
+
+            <h2 id="documentation-title">
+                DevOps Official Documentation
+            </h2>
+
+            <p class="documentation-description">
+                Explore official documentation for DevOps tools,
+                cloud platforms, infrastructure, containers,
+                Kubernetes, CI/CD, monitoring, security and more.
+            </p>
+
+        </div>
+
+
+        <!-- Documentation feature card -->
+        <div class="documentation-card">
+
+            <div class="documentation-card-content">
+
+                <div class="documentation-icon">
+                    📚
+                </div>
+
+                <div class="documentation-card-text">
+
+                    <h3>
+                        Explore 508+ DevOps Tools
+                    </h3>
+
+                    <p>
+                        Browse a centralized collection of DevOps
+                        technologies and their official documentation.
+                        Search tools, filter by category and quickly
+                        open the official documentation website.
+                    </p>
+
+                    <!-- Documentation categories -->
+                    <div class="documentation-tags">
+
+                        <span class="documentation-tag">
+                            Cloud
+                        </span>
+
+                        <span class="documentation-tag">
+                            CI/CD
+                        </span>
+
+                        <span class="documentation-tag">
+                            Infrastructure as Code
+                        </span>
+
+                        <span class="documentation-tag">
+                            Containers
+                        </span>
+
+                        <span class="documentation-tag">
+                            Kubernetes
+                        </span>
+
+                        <span class="documentation-tag">
+                            Monitoring
+                        </span>
+
+                        <span class="documentation-tag">
+                            Security
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Open documentation page -->
+            <div class="documentation-card-action">
+
+                <a
+                    href="pages/devops-documentation/index.html"
+                    class="documentation-button"
+                    aria-label="Open DevOps official documentation"
+                >
+                    <span>
+                        Explore Documentation
+                    </span>
+
+                    <span
+                        class="documentation-button-arrow"
+                        aria-hidden="true"
+                    >
+                        →
+                    </span>
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
 <!-- =========================================================
      FOOTER
      ========================================================= -->
@@ -3416,6 +3565,12 @@
 <script
     type="module"
     src="js/app.js"
+></script>
+
+<!-- DevOps Documentation section JavaScript -->
+<script
+    type="module"
+    src="js/devops-documentation.js"
 ></script>
 
 

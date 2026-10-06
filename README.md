@@ -8,11 +8,13 @@
 
 ---
 
-# 🚀 Live Demo
+## 🚀 Live Demo
 
-## Live Website
+👉 **[Charlie MJ DevOps Explorer](https://awsrmmustansarjavaid.github.io/charlie-mj-devops-explorer/)**
 
-👉 **Live Demo:** [Charlie MJ DevOps Explorer](https://awsrmmustansarjavaid.github.io/charlie-mj-devops-explorer/)
+<a href="https://awsrmmustansarjavaid.github.io/charlie-mj-devops-explorer/" target="_blank">
+  🌐 Open Live Website in New Tab
+</a>
 
 ---
 # DevOps Explorer Chrome Extension

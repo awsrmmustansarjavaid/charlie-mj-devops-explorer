@@ -4053,3 +4053,324 @@ body.devops-explorer-page a{color:inherit;text-decoration:none}
 .managed-kubernetes-level {
     margin-top: 20px;
 }
+
+/* ============================================================
+   DEVOPS DOCUMENTATION SECTION
+   ------------------------------------------------------------
+   Homepage entry point for the dedicated DevOps Documentation
+   page.
+
+   This section intentionally uses the same visual language as
+   the main DevOps Explorer interface:
+   - Dark/glass appearance
+   - Rounded cards
+   - Responsive layout
+   - Grid-friendly structure
+   - Subtle hover effects
+   ============================================================ */
+
+.documentation-section {
+    width: 100%;
+    padding: 80px 24px;
+    position: relative;
+}
+
+
+/* ------------------------------------------------------------
+   Documentation container
+   ------------------------------------------------------------ */
+
+.documentation-container {
+    width: min(1200px, 100%);
+    margin: 0 auto;
+}
+
+
+/* ------------------------------------------------------------
+   Section header
+   ------------------------------------------------------------ */
+
+.documentation-header {
+    text-align: center;
+    max-width: 850px;
+    margin: 0 auto 40px;
+}
+
+
+.documentation-eyebrow {
+    display: inline-block;
+    margin-bottom: 12px;
+
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+
+    opacity: 0.7;
+}
+
+
+.documentation-header h2 {
+    margin: 0 0 16px;
+
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.15;
+}
+
+
+.documentation-description {
+    margin: 0 auto;
+
+    max-width: 720px;
+
+    font-size: 1rem;
+    line-height: 1.7;
+
+    opacity: 0.72;
+}
+
+
+/* ------------------------------------------------------------
+   Documentation feature card
+   ------------------------------------------------------------ */
+
+.documentation-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+
+    padding: 32px;
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+
+    /*
+     * Transparent glass-style background.
+     * This allows the homepage background to remain visible
+     * underneath the documentation card.
+     */
+    background: rgba(255, 255, 255, 0.04);
+
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+/* Hover effect */
+
+.documentation-card:hover {
+    transform: translateY(-4px);
+
+    border-color: rgba(255, 255, 255, 0.2);
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+
+/* ------------------------------------------------------------
+   Card content
+   ------------------------------------------------------------ */
+
+.documentation-card-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+
+    flex: 1;
+}
+
+
+/* ------------------------------------------------------------
+   Documentation icon
+   ------------------------------------------------------------ */
+
+.documentation-icon {
+    width: 64px;
+    height: 64px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 18px;
+
+    font-size: 30px;
+
+    background: rgba(255, 255, 255, 0.08);
+}
+
+
+/* ------------------------------------------------------------
+   Card text
+   ------------------------------------------------------------ */
+
+.documentation-card-text h3 {
+    margin: 0 0 10px;
+
+    font-size: 1.5rem;
+}
+
+
+.documentation-card-text p {
+    margin: 0;
+
+    max-width: 760px;
+
+    line-height: 1.7;
+
+    opacity: 0.72;
+}
+
+
+/* ------------------------------------------------------------
+   Documentation category tags
+   ------------------------------------------------------------ */
+
+.documentation-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    margin-top: 18px;
+}
+
+
+.documentation-tag {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 6px 10px;
+
+    border-radius: 999px;
+
+    font-size: 0.78rem;
+    line-height: 1;
+
+    background: rgba(255, 255, 255, 0.07);
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    opacity: 0.85;
+}
+
+
+/* ------------------------------------------------------------
+   Documentation button area
+   ------------------------------------------------------------ */
+
+.documentation-card-action {
+    flex-shrink: 0;
+}
+
+
+/* ------------------------------------------------------------
+   Documentation button
+   ------------------------------------------------------------ */
+
+.documentation-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    min-height: 48px;
+
+    padding: 0 20px;
+
+    border-radius: 12px;
+
+    text-decoration: none;
+
+    font-weight: 700;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+
+    background: rgba(255, 255, 255, 0.08);
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.documentation-button:hover {
+    transform: translateY(-2px);
+
+    background: rgba(255, 255, 255, 0.14);
+
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+
+.documentation-button-arrow {
+    font-size: 1.2rem;
+
+    transition:
+        transform 0.2s ease;
+}
+
+
+.documentation-button:hover .documentation-button-arrow {
+    transform: translateX(4px);
+}
+
+
+/* ============================================================
+   RESPONSIVE DESIGN
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+    .documentation-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .documentation-card-action {
+        width: 100%;
+    }
+
+    .documentation-button {
+        width: 100%;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .documentation-section {
+        padding: 60px 16px;
+    }
+
+    .documentation-card {
+        padding: 24px;
+    }
+
+    .documentation-card-content {
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .documentation-icon {
+        width: 56px;
+        height: 56px;
+    }
+
+}
+
+/* ------------------------------------------------------------
+   End DEVOPS DOCUMENTATION SECTION
+   ------------------------------------------------------------ */
+
+   

@@ -1,0 +1,556 @@
+{
+  "schemaVersion": "1.0.0",
+  "databaseName": "Charlie MJ DevOps Tools Documentation",
+  "databaseDescription": "Curated DevOps tools and technologies with official websites, official documentation, categories, providers, learning levels, tags and relationships.",
+  "totalTools": 508,
+  "lastUpdated": "2026-10-06",
+  "dataSourcePolicy": {
+    "officialDocumentationRequired": true,
+    "officialWebsiteRequired": true,
+    "githubOptional": true,
+    "descriptionRequired": true,
+    "categoryRequired": true,
+    "providerRequired": true,
+    "learningLevelRequired": true,
+    "note": "Documentation URLs should point to official vendor or project documentation. Do not use guessed URLs."
+  },
+  "categories": [
+    "Cloud",
+    "Infrastructure as Code",
+    "CI/CD",
+    "Version Control",
+    "Containers",
+    "Container Orchestration",
+    "Configuration Management",
+    "GitOps",
+    "Monitoring",
+    "Observability",
+    "Logging",
+    "Security",
+    "DevSecOps",
+    "Artifact Management",
+    "Testing",
+    "Networking",
+    "Secrets Management",
+    "Service Mesh",
+    "Automation",
+    "Databases",
+    "Developer Tools",
+    "Project Management",
+    "Documentation",
+    "Operating Systems",
+    "Programming Languages",
+    "CLI Tools"
+  ],
+  "providers": [
+    "AWS",
+    "Microsoft Azure",
+    "Google Cloud",
+    "Oracle Cloud",
+    "IBM Cloud",
+    "DigitalOcean",
+    "Cloudflare",
+    "HashiCorp",
+    "CNCF",
+    "Apache",
+    "Linux Foundation",
+    "GitHub",
+    "GitLab",
+    "Independent"
+  ],
+  "tools": [
+    {
+      "id": "aws-cloudformation",
+      "name": "AWS CloudFormation",
+      "shortName": "CFN",
+      "category": "Infrastructure as Code",
+      "subcategory": "Cloud Infrastructure",
+      "provider": "AWS",
+      "type": "Cloud Service",
+      "description": "Infrastructure as code service for modeling, provisioning and managing AWS resources through templates.",
+      "officialWebsite": "https://aws.amazon.com/cloudformation/",
+      "documentation": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/",
+      "github": null,
+      "learningLevel": "Intermediate",
+      "openSource": false,
+      "tags": [
+        "aws",
+        "cloud",
+        "iac",
+        "infrastructure-as-code",
+        "automation",
+        "templates"
+      ],
+      "relatedTools": [
+        "terraform",
+        "aws-cdk",
+        "pulumi"
+      ]
+    },
+    {
+      "id": "aws-ec2",
+      "name": "Amazon EC2",
+      "shortName": "EC2",
+      "category": "Cloud",
+      "subcategory": "Compute",
+      "provider": "AWS",
+      "type": "Cloud Service",
+      "description": "Scalable virtual compute infrastructure provided by Amazon Web Services.",
+      "officialWebsite": "https://aws.amazon.com/ec2/",
+      "documentation": "https://docs.aws.amazon.com/ec2/",
+      "github": null,
+      "learningLevel": "Beginner",
+      "openSource": false,
+      "tags": [
+        "aws",
+        "cloud",
+        "compute",
+        "virtual-machines",
+        "infrastructure"
+      ],
+      "relatedTools": [
+        "aws-eks",
+        "aws-ecs",
+        "aws-auto-scaling"
+      ]
+    },
+    {
+      "id": "aws-s3",
+      "name": "Amazon S3",
+      "shortName": "S3",
+      "category": "Cloud",
+      "subcategory": "Storage",
+      "provider": "AWS",
+      "type": "Cloud Service",
+      "description": "Object storage service for storing and retrieving data at scale.",
+      "officialWebsite": "https://aws.amazon.com/s3/",
+      "documentation": "https://docs.aws.amazon.com/s3/",
+      "github": null,
+      "learningLevel": "Beginner",
+      "openSource": false,
+      "tags": [
+        "aws",
+        "cloud",
+        "storage",
+        "object-storage"
+      ],
+      "relatedTools": [
+        "aws-cloudfront",
+        "aws-glacier",
+        "aws-lambda"
+      ]
+    },
+    {
+      "id": "aws-eks",
+      "name": "Amazon EKS",
+      "shortName": "EKS",
+      "category": "Container Orchestration",
+      "subcategory": "Managed Kubernetes",
+      "provider": "AWS",
+      "type": "Cloud Service",
+      "description": "Managed Kubernetes service for running Kubernetes clusters on AWS.",
+      "officialWebsite": "https://aws.amazon.com/eks/",
+      "documentation": "https://docs.aws.amazon.com/eks/",
+      "github": null,
+      "learningLevel": "Intermediate",
+      "openSource": false,
+      "tags": [
+        "aws",
+        "kubernetes",
+        "eks",
+        "containers",
+        "orchestration"
+      ],
+      "relatedTools": [
+        "kubernetes",
+        "azure-aks",
+        "google-gke"
+      ]
+    },
+    {
+      "id": "azure",
+      "name": "Microsoft Azure",
+      "shortName": "AZ",
+      "category": "Cloud",
+      "subcategory": "Cloud Platform",
+      "provider": "Microsoft Azure",
+      "type": "Cloud Platform",
+      "description": "Microsoft cloud platform providing compute, storage, networking, databases, containers, security and developer services.",
+      "officialWebsite": "https://azure.microsoft.com/",
+      "documentation": "https://learn.microsoft.com/azure/",
+      "github": "https://github.com/Azure",
+      "learningLevel": "Beginner",
+      "openSource": false,
+      "tags": [
+        "azure",
+        "cloud",
+        "microsoft",
+        "cloud-platform"
+      ],
+      "relatedTools": [
+        "azure-aks",
+        "azure-functions",
+        "azure-devops",
+        "azure-bicep"
+      ]
+    },
+    {
+      "id": "azure-aks",
+      "name": "Azure Kubernetes Service",
+      "shortName": "AKS",
+      "category": "Container Orchestration",
+      "subcategory": "Managed Kubernetes",
+      "provider": "Microsoft Azure",
+      "type": "Cloud Service",
+      "description": "Managed Kubernetes service for deploying and managing containerized applications on Azure.",
+      "officialWebsite": "https://azure.microsoft.com/products/kubernetes-service/",
+      "documentation": "https://learn.microsoft.com/azure/aks/",
+      "github": "https://github.com/Azure/AKS",
+      "learningLevel": "Intermediate",
+      "openSource": false,
+      "tags": [
+        "azure",
+        "aks",
+        "kubernetes",
+        "containers",
+        "orchestration"
+      ],
+      "relatedTools": [
+        "kubernetes",
+        "aws-eks",
+        "google-gke"
+      ]
+    },
+    {
+      "id": "google-cloud",
+      "name": "Google Cloud",
+      "shortName": "GCP",
+      "category": "Cloud",
+      "subcategory": "Cloud Platform",
+      "provider": "Google Cloud",
+      "type": "Cloud Platform",
+      "description": "Google Cloud platform providing compute, storage, networking, Kubernetes, databases, analytics and developer services.",
+      "officialWebsite": "https://cloud.google.com/",
+      "documentation": "https://docs.cloud.google.com/docs",
+      "github": "https://github.com/GoogleCloudPlatform",
+      "learningLevel": "Beginner",
+      "openSource": false,
+      "tags": [
+        "gcp",
+        "google-cloud",
+        "cloud",
+        "cloud-platform"
+      ],
+      "relatedTools": [
+        "google-gke",
+        "google-cloud-run",
+        "google-compute-engine"
+      ]
+    },
+    {
+      "id": "google-gke",
+      "name": "Google Kubernetes Engine",
+      "shortName": "GKE",
+      "category": "Container Orchestration",
+      "subcategory": "Managed Kubernetes",
+      "provider": "Google Cloud",
+      "type": "Cloud Service",
+      "description": "Managed Kubernetes service for deploying and operating containerized workloads on Google Cloud.",
+      "officialWebsite": "https://cloud.google.com/kubernetes-engine",
+      "documentation": "https://cloud.google.com/kubernetes-engine/docs",
+      "github": "https://github.com/GoogleCloudPlatform",
+      "learningLevel": "Intermediate",
+      "openSource": false,
+      "tags": [
+        "gcp",
+        "google-cloud",
+        "gke",
+        "kubernetes",
+        "containers"
+      ],
+      "relatedTools": [
+        "kubernetes",
+        "aws-eks",
+        "azure-aks"
+      ]
+    },
+    {
+      "id": "terraform",
+      "name": "Terraform",
+      "shortName": "TF",
+      "category": "Infrastructure as Code",
+      "subcategory": "Multi-Cloud IaC",
+      "provider": "HashiCorp",
+      "type": "Open Source",
+      "description": "Infrastructure as code tool for provisioning and managing infrastructure across cloud and service providers.",
+      "officialWebsite": "https://www.terraform.io/",
+      "documentation": "https://developer.hashicorp.com/terraform/docs",
+      "github": "https://github.com/hashicorp/terraform",
+      "learningLevel": "Intermediate",
+      "openSource": true,
+      "tags": [
+        "terraform",
+        "iac",
+        "infrastructure-as-code",
+        "hashicorp",
+        "automation",
+        "multi-cloud"
+      ],
+      "relatedTools": [
+        "opentofu",
+        "pulumi",
+        "aws-cloudformation",
+        "aws-cdk"
+      ]
+    },
+    {
+      "id": "kubernetes",
+      "name": "Kubernetes",
+      "shortName": "K8S",
+      "category": "Container Orchestration",
+      "subcategory": "Container Orchestration",
+      "provider": "CNCF",
+      "type": "Open Source",
+      "description": "Open source platform for automating deployment, scaling and management of containerized applications.",
+      "officialWebsite": "https://kubernetes.io/",
+      "documentation": "https://kubernetes.io/docs/",
+      "github": "https://github.com/kubernetes/kubernetes",
+      "learningLevel": "Intermediate",
+      "openSource": true,
+      "tags": [
+        "kubernetes",
+        "k8s",
+        "containers",
+        "orchestration",
+        "cncf"
+      ],
+      "relatedTools": [
+        "docker",
+        "helm",
+        "argocd",
+        "aws-eks",
+        "azure-aks",
+        "google-gke"
+      ]
+    },
+    {
+      "id": "docker",
+      "name": "Docker",
+      "shortName": "DK",
+      "category": "Containers",
+      "subcategory": "Container Engine",
+      "provider": "Docker",
+      "type": "Open Source",
+      "description": "Container platform for building, running and distributing applications.",
+      "officialWebsite": "https://www.docker.com/",
+      "documentation": "https://docs.docker.com/",
+      "github": "https://github.com/docker",
+      "learningLevel": "Beginner",
+      "openSource": true,
+      "tags": [
+        "docker",
+        "containers",
+        "containerization",
+        "devops"
+      ],
+      "relatedTools": [
+        "kubernetes",
+        "podman",
+        "containerd",
+        "buildah"
+      ]
+    },
+    {
+      "id": "jenkins",
+      "name": "Jenkins",
+      "shortName": "J",
+      "category": "CI/CD",
+      "subcategory": "Continuous Integration",
+      "provider": "Jenkins Community",
+      "type": "Open Source",
+      "description": "Open source automation server commonly used to implement continuous integration and continuous delivery pipelines.",
+      "officialWebsite": "https://www.jenkins.io/",
+      "documentation": "https://www.jenkins.io/doc/",
+      "github": "https://github.com/jenkinsci/jenkins",
+      "learningLevel": "Intermediate",
+      "openSource": true,
+      "tags": [
+        "jenkins",
+        "ci",
+        "cd",
+        "cicd",
+        "automation"
+      ],
+      "relatedTools": [
+        "github-actions",
+        "gitlab-ci",
+        "argocd"
+      ]
+    },
+    {
+      "id": "github-actions",
+      "name": "GitHub Actions",
+      "shortName": "GHA",
+      "category": "CI/CD",
+      "subcategory": "Continuous Integration",
+      "provider": "GitHub",
+      "type": "Cloud Service",
+      "description": "GitHub automation platform for building workflows directly within GitHub repositories.",
+      "officialWebsite": "https://github.com/features/actions",
+      "documentation": "https://docs.github.com/actions",
+      "github": "https://github.com/actions",
+      "learningLevel": "Beginner",
+      "openSource": false,
+      "tags": [
+        "github",
+        "actions",
+        "ci",
+        "cd",
+        "cicd",
+        "automation"
+      ],
+      "relatedTools": [
+        "jenkins",
+        "gitlab-ci",
+        "circleci"
+      ]
+    },
+    {
+      "id": "git",
+      "name": "Git",
+      "shortName": "GIT",
+      "category": "Version Control",
+      "subcategory": "Source Control",
+      "provider": "Git Community",
+      "type": "Open Source",
+      "description": "Distributed version control system for tracking source code and collaborating on software projects.",
+      "officialWebsite": "https://git-scm.com/",
+      "documentation": "https://git-scm.com/doc",
+      "github": "https://github.com/git/git",
+      "learningLevel": "Beginner",
+      "openSource": true,
+      "tags": [
+        "git",
+        "version-control",
+        "source-control",
+        "scm"
+      ],
+      "relatedTools": [
+        "github",
+        "gitlab",
+        "gitea"
+      ]
+    },
+    {
+      "id": "prometheus",
+      "name": "Prometheus",
+      "shortName": "PROM",
+      "category": "Monitoring",
+      "subcategory": "Metrics",
+      "provider": "CNCF",
+      "type": "Open Source",
+      "description": "Open source monitoring and alerting toolkit for collecting and querying metrics.",
+      "officialWebsite": "https://prometheus.io/",
+      "documentation": "https://prometheus.io/docs/",
+      "github": "https://github.com/prometheus/prometheus",
+      "learningLevel": "Intermediate",
+      "openSource": true,
+      "tags": [
+        "prometheus",
+        "monitoring",
+        "metrics",
+        "observability",
+        "cncf"
+      ],
+      "relatedTools": [
+        "grafana",
+        "alertmanager",
+        "opentelemetry"
+      ]
+    },
+    {
+      "id": "grafana",
+      "name": "Grafana",
+      "shortName": "GRAF",
+      "category": "Observability",
+      "subcategory": "Visualization",
+      "provider": "Grafana Labs",
+      "type": "Open Source",
+      "description": "Observability and visualization platform for metrics, logs, traces and application data.",
+      "officialWebsite": "https://grafana.com/",
+      "documentation": "https://grafana.com/docs/",
+      "github": "https://github.com/grafana/grafana",
+      "learningLevel": "Intermediate",
+      "openSource": true,
+      "tags": [
+        "grafana",
+        "observability",
+        "monitoring",
+        "dashboards",
+        "metrics",
+        "logs"
+      ],
+      "relatedTools": [
+        "prometheus",
+        "loki",
+        "tempo",
+        "opentelemetry"
+      ]
+    },
+    {
+      "id": "argocd",
+      "name": "Argo CD",
+      "shortName": "ARGO",
+      "category": "GitOps",
+      "subcategory": "Continuous Delivery",
+      "provider": "CNCF",
+      "type": "Open Source",
+      "description": "Declarative GitOps continuous delivery tool for Kubernetes.",
+      "officialWebsite": "https://argo-cd.readthedocs.io/",
+      "documentation": "https://argo-cd.readthedocs.io/en/stable/",
+      "github": "https://github.com/argoproj/argo-cd",
+      "learningLevel": "Intermediate",
+      "openSource": true,
+      "tags": [
+        "argocd",
+        "gitops",
+        "kubernetes",
+        "continuous-delivery",
+        "cncf"
+      ],
+      "relatedTools": [
+        "kubernetes",
+        "helm",
+        "jenkins"
+      ]
+    },
+    {
+      "id": "trivy",
+      "name": "Trivy",
+      "shortName": "TRIVY",
+      "category": "DevSecOps",
+      "subcategory": "Security Scanning",
+      "provider": "Aqua Security",
+      "type": "Open Source",
+      "description": "Security scanner for containers, filesystems, repositories, Kubernetes and infrastructure as code.",
+      "officialWebsite": "https://trivy.dev/",
+      "documentation": "https://trivy.dev/latest/",
+      "github": "https://github.com/aquasecurity/trivy",
+      "learningLevel": "Beginner",
+      "openSource": true,
+      "tags": [
+        "trivy",
+        "security",
+        "devsecops",
+        "containers",
+        "vulnerability-scanning",
+        "iac"
+      ],
+      "relatedTools": [
+        "grype",
+        "syft",
+        "checkov"
+      ]
+    }
+  ]
+}

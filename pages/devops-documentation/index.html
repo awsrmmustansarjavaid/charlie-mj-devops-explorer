@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <!-- ================================================================
+         CHARLIE MJ DEVOPS EXPLORER
+         DEVOPS DOCUMENTATION LIBRARY
+         ================================================================
+
+         File:
+             pages/devops-documentation/index.html
+
+         Purpose:
+             Dedicated documentation library for browsing DevOps tools,
+             technologies, platforms, frameworks and official resources.
+
+         Data source:
+             ../../data/devops-tools.json
+
+         Stylesheet:
+             ./css/devops-documentation.css
+
+         JavaScript:
+             ./js/devops-documentation.js
+
+         Main project:
+             ../../index.html
+
+         ================================================================
+         PAGE FEATURES
+         ================================================================
+
+         - DevOps documentation search
+         - Category filtering
+         - Provider filtering
+         - Subcategory filtering
+         - Learning-level filtering
+         - Tool-type filtering
+         - Favorites
+         - Recently viewed
+         - Quick category filters
+         - Grid view
+         - List view
+         - Sorting
+         - Tool details modal
+         - Official documentation links
+         - Official website links
+         - GitHub links
+         - Tags
+         - Related technologies
+         - Result counter
+         - Responsive layout
+
+         ================================================================
+         DESIGN
+         ================================================================
+
+         The documentation page uses the same Charlie MJ DevOps Explorer
+         branding and technical interface style as the main application.
+
+         ================================================================
+    -->
+
+
+    <!-- ================================================================
+         BASIC DOCUMENT SETTINGS
+         ================================================================ -->
+
+    <meta charset="UTF-8">
+
+
+    <!-- Responsive layout for desktop, tablet and mobile -->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+
+    <!-- Search-engine / browser description -->
+    <meta
+        name="description"
+        content="Charlie MJ DevOps Explorer official DevOps documentation library containing DevOps tools, cloud platforms, infrastructure as code, CI/CD, Kubernetes, security, monitoring and more."
+    >
+
+
+    <!-- Browser theme color -->
+    <meta
+        name="theme-color"
+        content="#070b12"
+    >
+
+
+    <!-- Page title -->
+    <title>
+        DevOps Documentation | Charlie MJ DevOps Explorer
+    </title>
+
+
+    <!-- ================================================================
+         FAVICON
+         ================================================================
+
+         The favicon is shared with the main application.
+
+         Path from this page:
+             pages/devops-documentation/
+
+         Therefore:
+             ../../assets/images/favicon.png
+         ================================================================ -->
+
+    <link
+        rel="icon"
+        href="../../assets/images/favicon.png"
+    >
+
+
+    <!-- ================================================================
+         DOCUMENTATION PAGE STYLESHEET
+         ================================================================ -->
+
+    <link
+        rel="stylesheet"
+        href="./css/devops-documentation.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!-- ================================================================
+         BACKGROUND DECORATION
+         ================================================================
+
+         These elements provide the technical grid / terminal-style
+         visual background used by the Charlie MJ DevOps Explorer UI.
+
+         They are decorative only and are hidden from screen readers.
+         ================================================================ -->
+
+    <div
+        class="page-background"
+        aria-hidden="true"
+    >
+
+        <!-- Technical background grid -->
+        <div class="background-grid"></div>
+
+        <!-- Decorative glow -->
+        <div class="background-glow background-glow-one"></div>
+
+        <!-- Secondary decorative glow -->
+        <div class="background-glow background-glow-two"></div>
+
+        <!-- Terminal-style scan line -->
+        <div class="scan-line"></div>
+
+    </div>
+
+
+    <!-- ================================================================
+         APPLICATION SHELL
+         ================================================================ -->
+
+    <div class="app-shell">
+
+
+        <!-- ============================================================
+             TOP STATUS BAR
+             ============================================================
+
+             This matches the main Charlie MJ DevOps Explorer status
+             branding.
+
+             Example:
+
+                 ● CHARLIE MJ DEVOPS EXPLORER
+                 //
+                 SYSTEM ONLINE
+
+             Keep this branding consistent across all project pages.
+             ============================================================ -->
+
+        <div class="top-status">
+
+            <div class="top-status-inner">
+
+
+                <!-- ====================================================
+                     STATUS BAR - LEFT SIDE
+                     ==================================================== -->
+
+                <div class="status-left">
+
+                    <!-- Online indicator -->
+                    <span
+                        class="status-dot"
+                        aria-hidden="true"
+                    ></span>
+
+
+                    <!-- Main project name -->
+                    <span>
+                        CHARLIE MJ DEVOPS EXPLORER
+                    </span>
+
+
+                    <!-- Terminal-style separator -->
+                    <span>
+                        //
+                    </span>
+
+
+                    <!-- Current system state -->
+                    <span>
+                        SYSTEM ONLINE
+                    </span>
+
+                </div>
+
+
+                <!-- ====================================================
+                     STATUS BAR - RIGHT SIDE
+                     ==================================================== -->
+
+                <div class="status-right">
+
+                    <span>
+                        DOCUMENTATION
+                    </span>
+
+                    <span>
+                        //
+                    </span>
+
+                    <span>
+                        508+ DEVOPS TOOLS
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ============================================================
+             MAIN SITE HEADER
+             ============================================================ -->
+
+        <header class="site-header">
+
+
+            <!-- ========================================================
+                 BRAND / TEXT LOGO
+                 ========================================================
+
+                 This is the main text-based Charlie MJ logo.
+
+                 It links back to the root homepage.
+
+                 The logo intentionally uses text instead of an image
+                 so it remains lightweight and consistent with the
+                 main application.
+                 ======================================================== -->
+
+            <div class="header-brand">
+
+                <a
+                    class="brand-link"
+                    href="../../index.html"
+                    aria-label="Return to Charlie MJ DevOps Explorer homepage"
+                >
+
+                    <!-- Terminal-style logo symbol -->
+                    <span
+                        class="brand-symbol"
+                        aria-hidden="true"
+                    >
+                        &gt;_
+                    </span>
+
+
+                    <!-- Text logo -->
+                    <span class="brand-copy">
+
+                        <strong>
+                            CHARLIE MJ
+                        </strong>
+
+                        <span>
+                            DEVOPS EXPLORER
+                        </span>
+
+                    </span>
+
+                </a>
+
+            </div>
+
+
+            <!-- ========================================================
+                 HEADER SYSTEM STATUS
+                 ======================================================== -->
+
+            <div class="header-status">
+
+                <!-- Online status indicator -->
+                <span
+                    class="status-dot"
+                    aria-hidden="true"
+                ></span>
+
+
+                <span>
+                    DOCUMENTATION SYSTEM ONLINE
+                </span>
+
+            </div>
+
+
+            <!-- ========================================================
+                 MAIN NAVIGATION
+                 ========================================================
+
+                 Links back to sections of the main homepage.
+
+                 Documentation is marked active because this is the
+                 current page.
+                 ======================================================== -->
+
+            <nav
+                class="header-navigation"
+                aria-label="Main navigation"
+            >
+
+                <!-- Main Explorer -->
+                <a href="../../index.html">
+                    Explore
+                </a>
+
+
+                <!-- Technologies section -->
+                <a href="../../index.html#technologies">
+                    Technologies
+                </a>
+
+
+                <!-- Labs section -->
+                <a href="../../index.html#labs">
+                    Labs
+                </a>
+
+
+                <!-- Current documentation page -->
+                <a
+                    class="active"
+                    href="./"
+                    aria-current="page"
+                >
+                    Documentation
+                </a>
+
+            </nav>
+
+        </header>
+
+
+        <!-- ============================================================
+             MAIN CONTENT
+             ============================================================ -->
+
+        <main>
+
+
+            <!-- ========================================================
+                 DOCUMENTATION HERO
+                 ======================================================== -->
+
+            <section class="documentation-hero">
+
+
+                <!-- Terminal-style section label -->
+                <div class="hero-terminal-label">
+                    // DEVOPS KNOWLEDGE DATABASE
+                </div>
+
+
+                <!-- Main page heading -->
+                <h1>
+                    DevOps Documentation
+                </h1>
+
+
+                <!-- Page description -->
+                <p class="hero-description">
+
+                    Explore DevOps tools, cloud platforms, infrastructure,
+                    automation, CI/CD, Kubernetes, security, observability
+                    and engineering technologies through their official
+                    documentation.
+
+                </p>
+
+
+                <!-- ====================================================
+                     DOCUMENTATION SEARCH
+                     ==================================================== -->
+
+                <div class="hero-search">
+
+                    <!-- Accessible search label -->
+                    <label
+                        class="sr-only"
+                        for="toolSearch"
+                    >
+                        Search DevOps tools
+                    </label>
+
+
+                    <!-- Search icon -->
+                    <span
+                        class="search-icon"
+                        aria-hidden="true"
+                    >
+                        ⌕
+                    </span>
+
+
+                    <!-- Search input -->
+                    <input
+                        id="toolSearch"
+                        type="search"
+                        placeholder="Search Docker, Kubernetes, AWS, Terraform, Jenkins..."
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+
+
+                    <!-- Clear search button -->
+                    <button
+                        id="clearSearch"
+                        class="search-clear"
+                        type="button"
+                        aria-label="Clear search"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+
+                <!-- ====================================================
+                     DOCUMENTATION STATISTICS
+                     ==================================================== -->
+
+                <div class="documentation-stats">
+
+
+                    <!-- Total tools -->
+                    <div class="stat-card">
+
+                        <span
+                            id="totalTools"
+                            class="stat-value"
+                        >
+                            0
+                        </span>
+
+                        <span class="stat-label">
+                            Tools
+                        </span>
+
+                    </div>
+
+
+                    <!-- Total categories -->
+                    <div class="stat-card">
+
+                        <span
+                            id="totalCategories"
+                            class="stat-value"
+                        >
+                            0
+                        </span>
+
+                        <span class="stat-label">
+                            Categories
+                        </span>
+
+                    </div>
+
+
+                    <!-- Total providers -->
+                    <div class="stat-card">
+
+                        <span
+                            id="totalProviders"
+                            class="stat-value"
+                        >
+                            0
+                        </span>
+
+                        <span class="stat-label">
+                            Providers
+                        </span>
+
+                    </div>
+
+
+                    <!-- User favorites -->
+                    <div class="stat-card">
+
+                        <span
+                            id="favoriteCount"
+                            class="stat-value"
+                        >
+                            0
+                        </span>
+
+                        <span class="stat-label">
+                            Favorites
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ========================================================
+                 FILTER SYSTEM
+                 ======================================================== -->
+
+            <section class="filter-section">
+
+
+                <!-- Section heading -->
+                <div class="section-heading">
+
+                    <div>
+
+                        <span class="section-kicker">
+                            // FILTER SYSTEM
+                        </span>
+
+                        <h2>
+                            Explore the Library
+                        </h2>
+
+                    </div>
+
+
+                    <!-- Reset all filters -->
+                    <button
+                        id="clearFilters"
+                        class="secondary-button"
+                        type="button"
+                    >
+                        Reset Filters
+                    </button>
+
+                </div>
+
+
+                <!-- ====================================================
+                     FILTER CONTROLS
+                     ==================================================== -->
+
+                <div class="filters-grid">
+
+
+                    <!-- ==================================================
+                         CLOUD PROVIDER FILTER
+                         ================================================== -->
+
+                    <div class="filter-control">
+
+                        <label for="providerFilter">
+                            Cloud Provider
+                        </label>
+
+                        <select id="providerFilter">
+
+                            <option value="all">
+                                All Providers
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- ==================================================
+                         CATEGORY FILTER
+                         ================================================== -->
+
+                    <div class="filter-control">
+
+                        <label for="categoryFilter">
+                            Category
+                        </label>
+
+                        <select id="categoryFilter">
+
+                            <option value="all">
+                                All Categories
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- ==================================================
+                         SUBCATEGORY FILTER
+                         ================================================== -->
+
+                    <div class="filter-control">
+
+                        <label for="subcategoryFilter">
+                            Subcategory
+                        </label>
+
+                        <select id="subcategoryFilter">
+
+                            <option value="all">
+                                All Subcategories
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- ==================================================
+                         LEARNING LEVEL FILTER
+                         ================================================== -->
+
+                    <div class="filter-control">
+
+                        <label for="levelFilter">
+                            Learning Level
+                        </label>
+
+                        <select id="levelFilter">
+
+                            <option value="all">
+                                All Levels
+                            </option>
+
+                            <option value="Beginner">
+                                Beginner
+                            </option>
+
+                            <option value="Intermediate">
+                                Intermediate
+                            </option>
+
+                            <option value="Advanced">
+                                Advanced
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- ==================================================
+                         TOOL TYPE FILTER
+                         ================================================== -->
+
+                    <div class="filter-control">
+
+                        <label for="typeFilter">
+                            Tool Type
+                        </label>
+
+                        <select id="typeFilter">
+
+                            <option value="all">
+                                All Types
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- ==================================================
+                         PERSONAL LIBRARY FILTER
+                         ================================================== -->
+
+                    <div class="filter-control">
+
+                        <label for="favoriteFilter">
+                            Personal Library
+                        </label>
+
+                        <select id="favoriteFilter">
+
+                            <option value="all">
+                                All Tools
+                            </option>
+
+                            <option value="favorites">
+                                Favorites
+                            </option>
+
+                            <option value="recent">
+                                Recently Viewed
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ====================================================
+                     QUICK CATEGORY FILTERS
+                     ==================================================== -->
+
+                <div class="category-toolbar">
+
+
+                    <!-- Toolbar title -->
+                    <span class="toolbar-label">
+                        Quick Categories
+                    </span>
+
+
+                    <!--
+                        JavaScript dynamically creates category buttons
+                        inside this container.
+                    -->
+                    <div
+                        id="categoryChips"
+                        class="category-chips"
+                    ></div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ========================================================
+                 RESULTS TOOLBAR
+                 ======================================================== -->
+
+            <section class="results-toolbar">
+
+
+                <!-- ====================================================
+                     RESULTS INFORMATION
+                     ==================================================== -->
+
+                <div class="results-summary">
+
+                    <span class="section-kicker">
+                        // TECHNOLOGY LIBRARY
+                    </span>
+
+                    <h2>
+                        DevOps Tools
+                    </h2>
+
+                    <p>
+
+                        Showing
+
+                        <strong id="resultCount">
+                            0
+                        </strong>
+
+                        technologies.
+
+                    </p>
+
+                </div>
+
+
+                <!-- ====================================================
+                     RESULTS CONTROLS
+                     ==================================================== -->
+
+                <div class="results-controls">
+
+
+                    <!-- Sort selector -->
+                    <label
+                        class="sr-only"
+                        for="sortSelect"
+                    >
+                        Sort tools
+                    </label>
+
+
+                    <select id="sortSelect">
+
+                        <option value="name-asc">
+                            Name A–Z
+                        </option>
+
+                        <option value="name-desc">
+                            Name Z–A
+                        </option>
+
+                        <option value="category">
+                            Category
+                        </option>
+
+                        <option value="level">
+                            Learning Level
+                        </option>
+
+                    </select>
+
+
+                    <!-- ==================================================
+                         GRID / LIST VIEW SWITCHER
+                         ================================================== -->
+
+                    <div
+                        class="view-switcher"
+                        aria-label="Change result view"
+                    >
+
+
+                        <!-- Grid view -->
+                        <button
+                            id="gridViewButton"
+                            class="view-button active"
+                            type="button"
+                            aria-label="Grid view"
+                            title="Grid view"
+                            aria-pressed="true"
+                        >
+                            ▦
+                        </button>
+
+
+                        <!-- List view -->
+                        <button
+                            id="listViewButton"
+                            class="view-button"
+                            type="button"
+                            aria-label="List view"
+                            title="List view"
+                            aria-pressed="false"
+                        >
+                            ☷
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ========================================================
+                 DEVOPS TOOL GRID
+                 ========================================================
+
+                 JavaScript dynamically renders the documentation cards
+                 into this container.
+                 ======================================================== -->
+
+            <section
+                id="toolGrid"
+                class="tool-grid"
+                aria-live="polite"
+                aria-label="DevOps documentation tools"
+            >
+
+                <!--
+                    Tool cards are generated by:
+
+                        js/devops-documentation.js
+                -->
+
+            </section>
+
+
+            <!-- ========================================================
+                 EMPTY SEARCH STATE
+                 ======================================================== -->
+
+            <section
+                id="emptyState"
+                class="empty-state hidden"
+                aria-live="polite"
+            >
+
+                <!-- Empty-state icon -->
+                <div
+                    class="empty-icon"
+                    aria-hidden="true"
+                >
+                    ∅
+                </div>
+
+
+                <!-- Empty-state heading -->
+                <h2>
+                    No tools found
+                </h2>
+
+
+                <!-- Empty-state description -->
+                <p>
+                    Try another search term or reset your filters.
+                </p>
+
+
+                <!-- Reset search button -->
+                <button
+                    id="emptyResetButton"
+                    class="primary-button"
+                    type="button"
+                >
+                    Reset Search
+                </button>
+
+            </section>
+
+        </main>
+
+
+        <!-- ============================================================
+             TOOL DETAILS MODAL
+             ============================================================
+
+             This modal displays detailed information about the selected
+             DevOps technology.
+
+             The JavaScript controller fills the fields dynamically.
+             ============================================================ -->
+
+        <div
+            id="toolModal"
+            class="modal hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modalToolName"
+        >
+
+
+            <!-- Modal background overlay -->
+            <div class="modal-overlay"></div>
+
+
+            <!-- Modal content -->
+            <div class="modal-panel">
+
+
+                <!-- ====================================================
+                     CLOSE MODAL BUTTON
+                     ==================================================== -->
+
+                <button
+                    id="closeModal"
+                    class="modal-close"
+                    type="button"
+                    aria-label="Close tool details"
+                >
+                    ×
+                </button>
+
+
+                <!-- ====================================================
+                     MODAL TOOL HEADER
+                     ==================================================== -->
+
+                <div class="modal-header">
+
+
+                    <!-- Tool icon / abbreviation -->
+                    <div
+                        id="modalToolIcon"
+                        class="modal-tool-icon"
+                    >
+                        DEV
+                    </div>
+
+
+                    <!-- Tool identity -->
+                    <div>
+
+
+                        <!-- Tool category -->
+                        <span
+                            id="modalToolCategory"
+                            class="tool-category"
+                        >
+                            Category
+                        </span>
+
+
+                        <!-- Tool name -->
+                        <h2 id="modalToolName">
+                            Tool
+                        </h2>
+
+
+                        <!-- Tool provider -->
+                        <p id="modalToolProvider">
+                            Provider
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ====================================================
+                     TOOL DESCRIPTION
+                     ==================================================== -->
+
+                <p
+                    id="modalToolDescription"
+                    class="modal-description"
+                >
+                    Tool description.
+                </p>
+
+
+                <!-- ====================================================
+                     TOOL METADATA
+                     ==================================================== -->
+
+                <div
+                    id="modalToolMeta"
+                    class="modal-meta"
+                >
+
+                    <!--
+                        JavaScript inserts metadata such as:
+
+                        - Learning level
+                        - Tool type
+                        - Category
+                        - Subcategory
+                        - Provider
+                    -->
+
+                </div>
+
+
+                <!-- ====================================================
+                     OFFICIAL RESOURCES
+                     ==================================================== -->
+
+                <div class="modal-section">
+
+                    <h3>
+                        Official Resources
+                    </h3>
+
+
+                    <div
+                        id="modalToolLinks"
+                        class="resource-links"
+                    >
+
+                        <!--
+                            JavaScript inserts:
+
+                            - Official website
+                            - Official documentation
+                            - GitHub repository
+                        -->
+
+                    </div>
+
+                </div>
+
+
+                <!-- ====================================================
+                     TOOL TAGS
+                     ==================================================== -->
+
+                <div class="modal-section">
+
+                    <h3>
+                        Tags
+                    </h3>
+
+
+                    <div
+                        id="modalToolTags"
+                        class="tool-tags"
+                    >
+
+                        <!-- JavaScript inserts tool tags -->
+
+                    </div>
+
+                </div>
+
+
+                <!-- ====================================================
+                     RELATED TECHNOLOGIES
+                     ==================================================== -->
+
+                <div class="modal-section">
+
+                    <h3>
+                        Related Technologies
+                    </h3>
+
+
+                    <div
+                        id="modalRelatedTools"
+                        class="related-tools"
+                    >
+
+                        <!--
+                            JavaScript inserts related DevOps
+                            technologies here.
+                        -->
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ============================================================
+             SITE FOOTER
+             ============================================================ -->
+
+        <footer class="site-footer">
+
+
+            <!-- Project copyright -->
+            <div>
+                © 2026 Charlie MJ DevOps Explorer
+            </div>
+
+
+            <!-- Project technology categories -->
+            <div>
+                DEVOPS // CLOUD // AUTOMATION // KUBERNETES
+            </div>
+
+        </footer>
+
+    </div>
+
+
+    <!-- ================================================================
+         DOCUMENTATION JAVASCRIPT
+         ================================================================
+
+         File:
+             pages/devops-documentation/js/devops-documentation.js
+
+         The script is loaded after the page markup.
+
+         "defer" ensures the browser parses the HTML first while still
+         allowing the script to load without blocking page rendering.
+
+         The JavaScript is responsible for:
+
+             - Loading devops-tools.json
+             - Rendering tools
+             - Search
+             - Filters
+             - Sorting
+             - Favorites
+             - Recently viewed
+             - Grid / list view
+             - Modal
+             - Statistics
+             - Category chips
+             - Official resource links
+             - Related technologies
+
+         ================================================================ -->
+
+    <script
+        src="./js/devops-documentation.js"
+        defer
+    ></script>
+
+
+</body>
+
+</html>
