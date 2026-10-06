@@ -1,7 +1,7 @@
 # Charlie MJ DevOps Explorer
 
 <p align="center">
-  <img src="/assets/images/charlie-mj-devops-explorer-story.png" alt="Charlie MJ DevOps Explorer" width="500">
+  <img src="/assets/images/charlie-mj-devops-explorer-story.png" alt="Charlie MJ DevOps Explorer" width="500" height="250">
 </p>
 
 > **A modern GitHub-powered DevOps discovery engine for finding projects, labs, tutorials, notes, technologies, scripts, infrastructure-as-code examples, CI/CD pipelines, GitOps resources, security tooling, observability projects, and practical engineering repositories.**
@@ -23,7 +23,7 @@ It lives inside the same repository under `chrome-extension/` and **does not dup
 
 ![DevOps Explorer Chrome Extension]()
 <p align="center">
-  <img src="/assets/images/charlie-mj-devops-explorer-mockup-thumbnail.png" alt="Charlie MJ DevOps Explorer" width="500">
+  <img src="/assets/images/charlie-mj-devops-explorer-mockup-thumbnail.png" alt="Charlie MJ DevOps Explorer" width="500" height="250">
 </p>
 
 ## What is included
