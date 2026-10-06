@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "DevOps Explorer Command Center",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "A professional Chrome extension for the existing DevOps Explorer GitHub project: raw GitHub launcher, live categories and technologies search, bookmarks, collections, health diagnostics, learning roadmap, toolbox, JSON import/export and optional GitHub bookmark sync.",
   "action": {
     "default_title": "DevOps Explorer",

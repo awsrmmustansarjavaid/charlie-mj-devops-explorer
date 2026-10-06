@@ -1,0 +1,6 @@
+{"version":1,"roadmaps":[
+{"id":"devops-core","name":"DevOps Core","source":"GitHub","nodes":["Linux","Git","Docker","CI/CD","Terraform","AWS","Kubernetes","GitOps","Observability"]},
+{"id":"kubernetes","name":"Kubernetes Roadmap","source":"GitHub","nodes":["Linux","Networking","Docker","Kubernetes","kubectl","Helm","Kustomize","Ingress","Observability","GitOps"]},
+{"id":"aws","name":"AWS DevOps Roadmap","source":"GitHub","nodes":["AWS","IAM","EC2","S3","VPC","ECR","ECS","EKS","CloudWatch","Terraform"]},
+{"id":"security","name":"DevSecOps Roadmap","source":"GitHub","nodes":["Git","SAST","SCA","DAST","Trivy","SonarQube","Secrets Management","Cloud Security"]}
+]}

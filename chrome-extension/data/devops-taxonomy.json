@@ -1,0 +1,32 @@
+{
+  "version": "1.0.0",
+  "domains": [
+    {"name":"Operating Systems","icon":"🖥️","color":"#4f8cff","subcategories":["Linux","Windows","Unix"],"technologies":["Linux","Ubuntu","Debian","RHEL","Rocky Linux","AlmaLinux","Fedora","Alpine Linux","Amazon Linux","Windows Server","PowerShell","WSL","FreeBSD"]},
+    {"name":"Programming Languages","icon":"💻","color":"#7c5cff","subcategories":["General","Scripting","Config"],"technologies":["Python","Go","Java","JavaScript","TypeScript","C","C++","C#","Rust","Ruby","PHP","Kotlin","Scala","Groovy","HCL","YAML","JSON","SQL"]},
+    {"name":"Shell / Scripting","icon":"🐚","color":"#19c987","subcategories":["Unix Shell","Windows Shell","Automation Scripts"],"technologies":["Bash","Shell Scripting","PowerShell","Zsh","Fish","Batch"]},
+    {"name":"Version Control","icon":"🌿","color":"#2bb673","subcategories":["Git","Workflows"],"technologies":["Git","Git LFS","Mercurial"]},
+    {"name":"Git Hosting","icon":"🐙","color":"#8b9bb4","subcategories":["Platforms"],"technologies":["GitHub","GitLab","Bitbucket","Azure Repos"]},
+    {"name":"CI/CD","icon":"🔄","color":"#f4b942","subcategories":["CI","CD","Pipelines"],"technologies":["Jenkins","GitHub Actions","GitLab CI/CD","CircleCI","Tekton","TeamCity","Azure Pipelines","AWS CodePipeline","AWS CodeBuild","AWS CodeDeploy"]},
+    {"name":"Containers","icon":"🐳","color":"#20a4f3","subcategories":["Runtimes","Build","Compose"],"technologies":["Docker","Docker Compose","Podman","Containerd","Buildah","Docker Swarm"]},
+    {"name":"Container Orchestration","icon":"☸️","color":"#326ce5","subcategories":["Kubernetes","Scheduling"],"technologies":["Kubernetes","kubectl","Kubernetes Operators","Nomad"]},
+    {"name":"Container Registries","icon":"📦","color":"#ff9f43","subcategories":["Public","Private","Cloud"],"technologies":["Docker Hub","Amazon ECR","Azure Container Registry","Google Artifact Registry","Harbor","GitHub Container Registry"]},
+    {"name":"Cloud","icon":"☁️","color":"#168cff","subcategories":["AWS","Azure","Google Cloud","Other Cloud"],"technologies":["AWS","Azure","Google Cloud","Oracle Cloud","IBM Cloud","DigitalOcean","Hetzner","Alibaba Cloud"]},
+    {"name":"Infrastructure as Code","icon":"🏗️","color":"#9b6cff","subcategories":["Provisioning","Templates"],"technologies":["Terraform","OpenTofu","CloudFormation","Pulumi","Crossplane"]},
+    {"name":"Configuration Management","icon":"⚙️","color":"#00b894","subcategories":["Configuration","Provisioning"],"technologies":["Ansible","Chef","Puppet","SaltStack"]},
+    {"name":"GitOps","icon":"🚀","color":"#e16cff","subcategories":["Continuous Delivery"],"technologies":["Argo CD","Flux"]},
+    {"name":"Service Mesh","icon":"🕸️","color":"#00cec9","subcategories":["Kubernetes Mesh"],"technologies":["Istio","Linkerd","Cilium"]},
+    {"name":"API Gateway","icon":"🔌","color":"#6c5ce7","subcategories":["Gateway","Ingress"],"technologies":["Kong","Traefik","NGINX","Envoy"]},
+    {"name":"Networking","icon":"🌐","color":"#00a8ff","subcategories":["Network","Load Balancing","DNS"],"technologies":["NGINX","HAProxy","Traefik","Envoy","VPC","Route 53","CloudFront","Elastic Load Balancing"]},
+    {"name":"Secrets Management","icon":"🔑","color":"#ff7675","subcategories":["Secrets","Keys"],"technologies":["HashiCorp Vault","AWS Secrets Manager","AWS KMS","Azure Key Vault"]},
+    {"name":"Security","icon":"🔐","color":"#e74c3c","subcategories":["General Security","Cloud Security"],"technologies":["Trivy","Snyk","Vault","GuardDuty","Defender for Cloud"]},
+    {"name":"DevSecOps","icon":"🛡️","color":"#ff4757","subcategories":["SAST","DAST","SCA","Container Security"],"technologies":["SonarQube","Semgrep","OWASP ZAP","Dependency-Check","Gitleaks","Checkov","Trivy"]},
+    {"name":"Monitoring / Observability","icon":"📊","color":"#ff9f43","subcategories":["Metrics","Logs","Tracing"],"technologies":["Prometheus","Grafana","Loki","OpenTelemetry","Jaeger","Elastic Stack","CloudWatch","AWS X-Ray"]},
+    {"name":"Databases","icon":"🗄️","color":"#a55eea","subcategories":["SQL","NoSQL","Cache"],"technologies":["PostgreSQL","MySQL","MariaDB","MongoDB","DynamoDB","Redis","ElastiCache","Aurora"]},
+    {"name":"Artifact Management","icon":"🧱","color":"#fd9644","subcategories":["Repositories","Packages"],"technologies":["JFrog Artifactory","Sonatype Nexus","AWS CodeArtifact"]},
+    {"name":"Testing","icon":"🧪","color":"#26de81","subcategories":["Automation","Performance","Chaos"],"technologies":["Selenium","Playwright","Cypress","JMeter","k6","Chaos Mesh"]},
+    {"name":"Platform Engineering","icon":"🏢","color":"#3867d6","subcategories":["Internal Developer Platforms"],"technologies":["Backstage","Crossplane","Port"]},
+    {"name":"AI / AIOps","icon":"🤖","color":"#8854d0","subcategories":["Local AI","AIOps"],"technologies":["Ollama","LM Studio","llama.cpp"]},
+    {"name":"Documentation","icon":"📖","color":"#778ca3","subcategories":["Docs","Knowledge"],"technologies":["Markdown","MkDocs","Docusaurus"]},
+    {"name":"Project Management","icon":"📋","color":"#45aaf2","subcategories":["Planning","Tracking"],"technologies":["Jira","Linear","GitHub Projects"]}
+  ]
+}

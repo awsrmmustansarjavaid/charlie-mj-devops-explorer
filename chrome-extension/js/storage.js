@@ -1,5 +1,7 @@
 import { DEFAULT_CONFIG, CONFIG_KEY, BOOKMARKS_KEY, HISTORY_KEY, NOTES_KEY, LEARNING_KEY } from './config.js';
 
+export const CUSTOM_CATEGORIES_KEY = 'devopsExplorerCustomCategories';
+
 export async function getConfig() {
   const data = await chrome.storage.local.get(CONFIG_KEY);
   const stored = data[CONFIG_KEY] || {};
@@ -78,4 +80,16 @@ export async function getLearning() {
 
 export async function saveLearning(value) {
   await chrome.storage.local.set({ [LEARNING_KEY]: value });
+}
+
+
+export async function getCustomCategories() {
+  const data = await chrome.storage.local.get(CUSTOM_CATEGORIES_KEY);
+  return Array.isArray(data[CUSTOM_CATEGORIES_KEY]) ? data[CUSTOM_CATEGORIES_KEY] : [];
+}
+
+export async function saveCustomCategories(categories) {
+  const normalized = Array.isArray(categories) ? categories : [];
+  await chrome.storage.local.set({ [CUSTOM_CATEGORIES_KEY]: normalized });
+  return normalized;
 }

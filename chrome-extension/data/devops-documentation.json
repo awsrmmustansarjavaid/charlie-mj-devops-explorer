@@ -1,0 +1,8 @@
+{"version":1,"documentation":[
+{"technology":"Docker","official":"https://docs.docker.com/","github":"https://github.com/docker/docs","examples":"https://docs.docker.com/get-started/","tutorials":"https://docs.docker.com/get-started/"},
+{"technology":"Kubernetes","official":"https://kubernetes.io/docs/","github":"https://github.com/kubernetes/kubernetes","examples":"https://kubernetes.io/docs/tutorials/","tutorials":"https://kubernetes.io/docs/tutorials/"},
+{"technology":"Terraform","official":"https://developer.hashicorp.com/terraform/docs","github":"https://github.com/hashicorp/terraform","examples":"https://developer.hashicorp.com/terraform/tutorials","tutorials":"https://developer.hashicorp.com/terraform/tutorials"},
+{"technology":"Jenkins","official":"https://www.jenkins.io/doc/","github":"https://github.com/jenkinsci/jenkins","examples":"https://www.jenkins.io/doc/book/pipeline/","tutorials":"https://www.jenkins.io/doc/tutorials/"},
+{"technology":"Prometheus","official":"https://prometheus.io/docs/","github":"https://github.com/prometheus/prometheus","examples":"https://prometheus.io/docs/prometheus/latest/getting_started/","tutorials":"https://prometheus.io/docs/tutorials/"},
+{"technology":"Grafana","official":"https://grafana.com/docs/","github":"https://github.com/grafana/grafana","examples":"https://grafana.com/docs/grafana/latest/getting-started/","tutorials":"https://grafana.com/tutorials/"}
+]}

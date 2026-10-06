@@ -1,5 +1,5 @@
 import { APP_VERSION, DEFAULT_CONFIG, deriveRawBase, deriveRawIndex, deriveRawFile } from '../../js/config.js';
-import { getConfig, saveConfig, resetConfig, getBookmarks, saveBookmarks, getHistory, addHistory, getNotes, getLearning, saveLearning } from '../../js/storage.js';
+import { getConfig, saveConfig, resetConfig, getBookmarks, saveBookmarks, getHistory, addHistory, getNotes, getLearning, saveLearning, getCustomCategories, saveCustomCategories } from '../../js/storage.js';
 import { CATEGORIES, TYPES, DIFFICULTIES, ROADMAP, inferCategory, makeId } from '../../js/data.js';
 import { checkEndpoint, fetchRawFile, githubGetFile, githubPutFile, getRepoMetadata } from '../../js/github.js';
 
@@ -8,6 +8,8 @@ const $$ = s => [...document.querySelectorAll(s)];
 let config, bookmarks = [], notes = {}, learning = {}, resources = [];
 let selectedCategories = new Set();
 let remoteCategories = [];
+let customCategories = [];
+let categoryTechnologyIndex = new Map();
 let remoteTechnologies = [];
 
 const builtInResources = [
@@ -77,6 +79,71 @@ function normalizeTechnology(technology) {
   };
 }
 
+
+function allCategories(){ return [...CATEGORIES, ...customCategories]; }
+function categoryByName(name){ return allCategories().find(c=>c.name===name); }
+function categoryTools(category){ return Array.isArray(category?.tools) ? category.tools : []; }
+function normalizeCategoryKey(value=''){ return String(value).trim().toLowerCase(); }
+function getTechnologyCatalog(){
+  const map = new Map();
+  remoteTechnologies.forEach(t=>{
+    const name=t?.name||t?.title||t?.slug||t?.id;
+    if(name) map.set(normalizeCategoryKey(name), {...t, name});
+  });
+  allCategories().forEach(c=>categoryTools(c).forEach(name=>{
+    const key=normalizeCategoryKey(name);
+    if(!map.has(key)) map.set(key,{id:key,name,category:c.name,subcategory:'',aliases:[],keywords:[]});
+  }));
+  return [...map.values()];
+}
+function rebuildCategoryTechnologyIndex(){
+  categoryTechnologyIndex=new Map();
+  allCategories().forEach(c=>categoryTechnologyIndex.set(c.name, new Set(categoryTools(c).map(normalizeCategoryKey))));
+}
+function categoryMatchesResource(category, resource){
+  if(!category) return false;
+  if(category.kind==='custom'){
+    const keys=categoryTechnologyIndex.get(category.name)||new Set();
+    const hay=new Set([resource.title, resource.name, ...(resource.tags||[]), resource.id].filter(Boolean).map(normalizeCategoryKey));
+    if([...keys].some(k=>hay.has(k))) return true;
+    const text=JSON.stringify(resource).toLowerCase();
+    return [...keys].some(k=>k && text.includes(k));
+  }
+  return resource.category===category.name || categoryTools(category).some(t=>normalizeCategoryKey(t)===normalizeCategoryKey(resource.title) || (resource.tags||[]).some(tag=>normalizeCategoryKey(tag)===normalizeCategoryKey(t)));
+}
+function githubTermsForCategory(category){
+  const tools=categoryTools(category).map(String).filter(Boolean);
+  const terms=[];
+  for(const tool of tools){
+    const tech=remoteTechnologies.find(t=>normalizeCategoryKey(t?.name||t?.slug||t?.id)===normalizeCategoryKey(tool));
+    const candidates=[tech?.name, ...(Array.isArray(tech?.aliases)?tech.aliases.slice(0,2):[])].filter(Boolean);
+    terms.push(candidates[0]||tool);
+    if(terms.length>=4) break;
+  }
+  return [...new Set(terms)];
+}
+function buildGithubSearchQuery(filters){
+  const parts=[];
+  if(filters.q) parts.push(filters.q);
+  const cats=filters.cats.map(categoryByName).filter(Boolean);
+  if(cats.length){
+    const groups=cats.map(c=>githubTermsForCategory(c)).filter(Boolean).map(terms=>terms.slice(0,2).map(t=>`"${String(t).replace(/"/g,'')}"`).join(' OR ')).filter(Boolean);
+    if(filters.mode==='AND'){
+      // GitHub repository search has a five-operator query limit. Keep each group compact.
+      groups.slice(0,3).forEach(g=>parts.push(`(${g})`));
+      
+    } else if(groups.length){
+      parts.push(`(${groups.slice(0,3).join(' OR ')})`);
+    }
+  }
+  if(filters.tags.length){
+    const tagTerms=filters.tags.slice(0,4).map(t=>`topic:${t.replace(/[^a-zA-Z0-9-]/g,'')}`).filter(Boolean);
+    if(filters.mode==='AND') parts.push(...tagTerms.slice(0,2)); else if(tagTerms.length) parts.push(`(${tagTerms.join(' OR ')})`);
+  }
+  if(filters.diff) parts.push(filters.diff==='beginner'?'stars:<5000':filters.diff==='advanced'?'stars:>=5000':'stars:100..50000');
+  return parts.join(' ').slice(0,250).trim();
+}
+
 function applyRemoteCategories(categoryData, technologyData) {
   const categories=jsonArray(categoryData);
   const technologies=jsonArray(technologyData);
@@ -92,6 +159,7 @@ function applyRemoteCategories(categoryData, technologyData) {
   if (normalized.length) {
     CATEGORIES.splice(0,CATEGORIES.length,...normalized);
     remoteCategories=normalized;
+    rebuildCategoryTechnologyIndex();
   }
 }
 
@@ -219,15 +287,64 @@ function renderQuick(){
 }
 
 function fillCategories(){
-  $('#searchCategory').innerHTML=CATEGORIES.map(c=>`<option value="${escapeHtml(c.name)}">${c.icon} ${escapeHtml(c.name)}</option>`).join('');
-  $('#bookmarkCategory').innerHTML='<option value="">All categories</option>'+CATEGORIES.map(c=>`<option>${escapeHtml(c.name)}</option>`).join('');
-  $('#categoryChips').innerHTML=CATEGORIES.map(c=>`<button class="chip" data-cat="${escapeHtml(c.name)}">${c.icon} ${escapeHtml(c.name)}</button>`).join('');
+  rebuildCategoryTechnologyIndex();
+  const categories=allCategories();
+  $('#searchCategory').innerHTML=categories.map(c=>`<option value="${escapeHtml(c.name)}">${c.icon||'◈'} ${escapeHtml(c.name)}${c.kind==='custom'?' · Custom':''}</option>`).join('');
+  $('#bookmarkCategory').innerHTML='<option value="">All categories</option>'+categories.map(c=>`<option>${escapeHtml(c.name)}</option>`).join('');
+  $('#categoryChips').innerHTML=categories.map(c=>`<button class="chip ${c.kind==='custom'?'custom-chip':''}" data-cat="${escapeHtml(c.name)}">${c.icon||'◈'} ${escapeHtml(c.name)}${c.kind==='custom'?' · Custom':''}</button>`).join('');
   $$('#categoryChips [data-cat]').forEach(btn=>btn.onclick=()=>{
     const v=btn.dataset.cat;
     selectedCategories.has(v)?(selectedCategories.delete(v),btn.classList.remove('selected')):(selectedCategories.add(v),btn.classList.add('selected'));
     [...$('#searchCategory').options].forEach(o=>o.selected=selectedCategories.has(o.value));
   });
+  $('#searchCategory').onchange=()=>{
+    selectedCategories=new Set([...$('#searchCategory').selectedOptions].map(o=>o.value));
+    $$('#categoryChips [data-cat]').forEach(btn=>btn.classList.toggle('selected',selectedCategories.has(btn.dataset.cat)));
+  };
+  renderCustomCategorySummary();
 }
+function renderCustomCategorySummary(){
+  const el=$('#customCategorySummary'); if(!el) return;
+  el.innerHTML=customCategories.length
+    ? customCategories.map(c=>`<span class="pill">${escapeHtml(c.icon||'◈')} ${escapeHtml(c.name)} · ${categoryTools(c).length} tools</span>`).join(' ')
+    : '<span class="muted small">No custom categories yet.</span>';
+}
+function openCategoryManager(){
+  const catalog=getTechnologyCatalog();
+  $('#modalContent').innerHTML=`<div class="section-title"><h2>🏷️ Custom Category Manager</h2><button class="btn" id="closeModal">✕</button></div>
+    <p class="muted small">Select any technologies from your complete DevOps catalog and save them as your own category. These categories work in Local Search and GitHub Search.</p>
+    <div class="form-grid"><div class="field"><label>Category name</label><input id="customCatName" class="input" placeholder="My AWS Tools"></div><div class="field"><label>Icon / short code</label><input id="customCatIcon" class="input" value="★" maxlength="4"></div><div class="field full"><label>Find technologies</label><input id="customTechFilter" class="input" placeholder="Search Docker, AWS, Terraform, Python…"></div></div>
+    <div class="category-manager-list" id="customTechList"></div>
+    <div class="section-title"><h3>My custom categories</h3></div><div id="customCatList"></div>
+    <div class="toolbar modal-actions"><button class="btn" id="exportCustomCategories">📤 Export</button><button class="btn" id="importCustomCategories">📥 Import</button><button class="btn" id="cancelCustomCategory">Cancel</button><button class="btn primary" id="saveCustomCategory">＋ Save Custom Category</button></div>`;
+  $('#modal').classList.add('open');
+  const renderTechs=()=>{
+    const q=($('#customTechFilter').value||'').trim().toLowerCase();
+    const filtered=catalog.filter(t=>!q||JSON.stringify(t).toLowerCase().includes(q));
+    $('#customTechList').innerHTML=filtered.map((t,i)=>{
+      const key=normalizeCategoryKey(t.name); const checked=selectedCustomTools.has(key);
+      return `<label class="category-tech-row"><input type="checkbox" data-custom-tech="${escapeHtml(key)}" ${checked?'checked':''}><span><strong>${escapeHtml(t.name)}</strong><small>${escapeHtml(t.category||'Uncategorized')}${t.subcategory?' · '+escapeHtml(t.subcategory):''}</small></span></label>`;
+    }).join('') || '<div class="empty">No technologies match.</div>';
+    $$('#customTechList [data-custom-tech]').forEach(cb=>cb.onchange=()=>cb.checked?selectedCustomTools.add(cb.dataset.customTech):selectedCustomTools.delete(cb.dataset.customTech));
+  };
+  const renderCats=()=>{$('#customCatList').innerHTML=customCategories.length?customCategories.map(c=>`<div class="custom-cat-row"><div><strong>${escapeHtml(c.icon||'◈')} ${escapeHtml(c.name)}</strong><span class="muted small">${categoryTools(c).length} technologies</span></div><button class="btn danger" data-delete-custom="${escapeHtml(c.id)}">Delete</button></div>`).join(''):'<div class="empty">No custom categories yet.</div>'; $$('#customCatList [data-delete-custom]').forEach(b=>b.onclick=async()=>{const removed=customCategories.find(c=>c.id===b.dataset.deleteCustom);customCategories=customCategories.filter(c=>c.id!==b.dataset.deleteCustom);if(removed)selectedCategories.delete(removed.name);await saveCustomCategories(customCategories);fillCategories();renderCats();toast('Custom category deleted.');});};
+  selectedCustomTools=new Set();
+  $('#customTechFilter').oninput=renderTechs;
+  $('#closeModal').onclick=()=>$('#modal').classList.remove('open'); $('#cancelCustomCategory').onclick=()=>$('#modal').classList.remove('open');
+  $('#exportCustomCategories').onclick=()=>downloadBlob(new Blob([JSON.stringify({format:'devops-explorer-custom-categories',version:1,categories:customCategories},null,2)],{type:'application/json'}),`DevOps-Custom-Categories-${new Date().toISOString().slice(0,10)}.json`);
+  $('#importCustomCategories').onclick=()=>{const input=document.createElement('input');input.type='file';input.accept='application/json';input.onchange=async e=>{try{const data=JSON.parse(await e.target.files[0].text());const incoming=Array.isArray(data)?data:(data.categories||[]);if(!Array.isArray(incoming))throw new Error('Invalid category file.');const existing=new Set(allCategories().map(c=>normalizeCategoryKey(c.name)));let added=0;for(const c of incoming){if(!c?.name||existing.has(normalizeCategoryKey(c.name)))continue;customCategories.push({...c,id:c.id||makeId(),kind:'custom',tools:Array.isArray(c.tools)?c.tools:[]});existing.add(normalizeCategoryKey(c.name));added++;}await saveCustomCategories(customCategories);fillCategories();renderCats();toast(`Imported ${added} custom categories.`);}catch(err){toast(`Import failed: ${err.message}`)}};input.click()};
+  $('#saveCustomCategory').onclick=async()=>{
+    const name=$('#customCatName').value.trim(); if(!name){toast('Enter a category name.');return}
+    if(allCategories().some(c=>normalizeCategoryKey(c.name)===normalizeCategoryKey(name))){toast('That category name already exists.');return}
+    if(!selectedCustomTools.size){toast('Select at least one technology.');return}
+    const catalogMap=new Map(catalog.map(t=>[normalizeCategoryKey(t.name),t.name]));
+    const tools=[...selectedCustomTools].map(k=>catalogMap.get(k)).filter(Boolean);
+    customCategories.push({id:makeId(),name,icon:$('#customCatIcon').value.trim()||'★',tools,description:'Personal DevOps category',skillLevel:'Custom',kind:'custom',createdAt:new Date().toISOString()});
+    await saveCustomCategories(customCategories);fillCategories();renderCats();$('#customCatName').value='';$('#customCatIcon').value='★';selectedCustomTools.clear();renderTechs();toast('Custom category created.');
+  };
+  renderTechs(); renderCats();
+}
+let selectedCustomTools=new Set();
 
 async function renderStats(){
   const collections=new Set(bookmarks.flatMap(b=>b.collections||[]));
@@ -286,7 +403,7 @@ function renderToolbox(){
 }
 
 function currentSearchFilters(){
-  const cats=[...$('#searchCategory').selectedOptions].map(o=>o.value);
+  const cats=[...new Set([...$('#searchCategory').selectedOptions].map(o=>o.value).concat([...selectedCategories]))];
   const tags=$('#searchTags').value.split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
   return {q:$('#searchQuery').value.trim().toLowerCase(),cats,tags,type:$('#searchType').value,diff:$('#searchDifficulty').value,mode:$('#filterMode').value};
 }
@@ -323,7 +440,7 @@ async function runSearch(){
   const f=currentSearchFilters();
   const list=resources.filter(r=>{
     const qOk=matchesQuery(r,f.q);
-    const catOk=!f.cats.length||f.cats.includes(r.category);
+    const catOk=!f.cats.length||f.cats.some(name=>categoryMatchesResource(categoryByName(name),r));
     const resourceTags=(r.tags||[]).map(x=>String(x).toLowerCase());
     const tagMatches=f.tags.filter(t=>resourceTags.includes(t));
     const tagOk=!f.tags.length||tagMatches.length===(f.mode==='AND'?f.tags.length:Math.min(1,f.tags.length));
@@ -337,39 +454,26 @@ async function runSearch(){
 }
 
 async function githubSearch(){
-  const q=$('#searchQuery').value.trim();if(!q){toast('Enter a GitHub search query.');return}
+  const f=currentSearchFilters();
+  const query=buildGithubSearchQuery(f);
+  if(!query){toast('Enter a query or select at least one category/tag.');return}
   $('#resultsBody').innerHTML='<div class="card empty" style="grid-column:1/-1">Searching GitHub repositories…</div>';
   try{
-    const c=await getConfig();const headers=c.token?{Authorization:`Bearer ${c.token}`,Accept:'application/vnd.github+json'}:{Accept:'application/vnd.github+json'};
-    const res=await fetch(`https://api.github.com/search/repositories?q=${encodeURIComponent(q)}&per_page=30&sort=stars&order=desc`,{headers,cache:'no-store'});
-    if(!res.ok)throw new Error(`${res.status} ${res.statusText}`);
+    const c=await getConfig();
+    const headers=c.token?{Authorization:`Bearer ${c.token}`,Accept:'application/vnd.github+json'}:{Accept:'application/vnd.github+json'};
+    const url=`https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&per_page=30&sort=stars&order=desc`;
+    const res=await fetch(url,{headers,cache:'no-store'});
+    if(!res.ok){let detail='';try{const body=await res.json();detail=body.message||''}catch{};throw new Error(`${res.status} ${res.statusText}${detail?` — ${detail}`:''}`)}
     const data=await res.json();const list=data.items||[];
-    $('#resultCount').textContent=`${list.length} GitHub repositories`;
+    $('#resultCount').textContent=`${list.length} GitHub repositories · ${query}`;
     $('#resultsBody').innerHTML=list.length?list.map(r=>{
       const topics=(r.topics||[]).slice(0,8).map(t=>`<span class="pill">#${escapeHtml(t)}</span>`).join(' ');
-      const owner=r.owner?.login||'Unknown';
-      const language=r.language||'Not specified';
-      const license=r.license?.spdx_id||r.license?.name||'None';
-      return `<article class="resource-card github-resource-card">
-        <div class="resource-card-head"><div><h3 class="resource-card-title"><a href="${escapeHtml(r.html_url)}" data-result-open="${encodeURIComponent(r.html_url)}">${escapeHtml(r.full_name)}</a></h3><div class="small muted">🐙 GitHub repository</div></div><span class="github-badge">${escapeHtml(r.visibility||'public')}</span></div>
-        <p class="resource-card-description">${escapeHtml(r.description||'No description provided by the repository.')}</p>
-        <div class="resource-card-tags">${topics||'<span class="muted small">No topics</span>'}</div>
-        <div class="resource-meta">
-          <div class="resource-meta-item"><span class="label">Owner / Creator</span><strong title="${escapeHtml(owner)}">${escapeHtml(owner)}</strong></div>
-          <div class="resource-meta-item"><span class="label">Created</span><strong>${escapeHtml(formatGitHubDate(r.created_at))}</strong></div>
-          <div class="resource-meta-item"><span class="label">Updated</span><strong>${escapeHtml(formatGitHubDate(r.updated_at))}</strong></div>
-          <div class="resource-meta-item"><span class="label">Language</span><strong>${escapeHtml(language)}</strong></div>
-          <div class="resource-meta-item"><span class="label">⭐ Stars</span><strong>${Number(r.stargazers_count||0).toLocaleString()}</strong></div>
-          <div class="resource-meta-item"><span class="label">⑂ Forks</span><strong>${Number(r.forks_count||0).toLocaleString()}</strong></div>
-          <div class="resource-meta-item"><span class="label">Issues</span><strong>${Number(r.open_issues_count||0).toLocaleString()}</strong></div>
-          <div class="resource-meta-item"><span class="label">License</span><strong>${escapeHtml(license)}</strong></div>
-        </div>
-        <div class="resource-card-actions"><button class="btn" data-result-open="${encodeURIComponent(r.html_url)}">Open Repository</button><button class="btn" data-github-bookmark="${encodeURIComponent(JSON.stringify(r))}">⭐ Bookmark</button></div>
-      </article>`;
-    }).join(''):'<div class="card empty" style="grid-column:1/-1">No GitHub repositories found.</div>';
+      const owner=r.owner?.login||'Unknown'; const language=r.language||'Not specified'; const license=r.license?.spdx_id||r.license?.name||'None';
+      return `<article class="resource-card github-resource-card"><div class="resource-card-head"><div><h3 class="resource-card-title"><a href="${escapeHtml(r.html_url)}" data-result-open="${encodeURIComponent(r.html_url)}">${escapeHtml(r.full_name)}</a></h3><div class="small muted">🐙 ${escapeHtml(owner)} · GitHub repository</div></div><span class="github-badge">${escapeHtml(r.visibility||'public')}</span></div><p class="resource-card-description">${escapeHtml(r.description||'No description provided by the repository.')}</p><div class="resource-card-tags">${topics||'<span class="muted small">No topics</span>'}</div><div class="resource-meta"><div class="resource-meta-item"><span class="label">Owner</span><strong title="${escapeHtml(owner)}">${escapeHtml(owner)}</strong></div><div class="resource-meta-item"><span class="label">Created</span><strong>${escapeHtml(formatGitHubDate(r.created_at))}</strong></div><div class="resource-meta-item"><span class="label">Updated</span><strong>${escapeHtml(formatGitHubDate(r.updated_at))}</strong></div><div class="resource-meta-item"><span class="label">Language</span><strong>${escapeHtml(language)}</strong></div><div class="resource-meta-item"><span class="label">⭐ Stars</span><strong>${Number(r.stargazers_count||0).toLocaleString()}</strong></div><div class="resource-meta-item"><span class="label">⑂ Forks</span><strong>${Number(r.forks_count||0).toLocaleString()}</strong></div><div class="resource-meta-item"><span class="label">Issues</span><strong>${Number(r.open_issues_count||0).toLocaleString()}</strong></div><div class="resource-meta-item"><span class="label">License</span><strong>${escapeHtml(license)}</strong></div></div><div class="resource-card-actions"><button class="btn" data-result-open="${encodeURIComponent(r.html_url)}">Open Repository</button><button class="btn" data-github-bookmark="${encodeURIComponent(JSON.stringify(r))}">⭐ Bookmark</button></div></article>`;
+    }).join(''):'<div class="card empty" style="grid-column:1/-1">No GitHub repositories found for the selected filters.</div>';
     $$('[data-result-open]').forEach(b=>b.onclick=e=>{e.preventDefault();openUrl(decodeURIComponent(b.dataset.resultOpen));});
     $$('[data-github-bookmark]').forEach(b=>b.onclick=async()=>{const r=JSON.parse(decodeURIComponent(b.dataset.githubBookmark));if(bookmarks.some(x=>x.url===r.html_url)){toast('Already bookmarked.');return}bookmarks.unshift({id:makeId(),title:r.full_name,url:r.html_url,category:inferCategory(r.name,(r.topics||[]).join(' ')),tags:r.topics||[],type:'github-repository',difficulty:r.stargazers_count>5000?'advanced':'intermediate',description:r.description||'',collections:[],createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),github:{owner:r.owner?.login||'',createdAt:r.created_at,stars:r.stargazers_count||0,forks:r.forks_count||0,language:r.language||'',license:r.license?.spdx_id||r.license?.name||''}});await saveBookmarks(bookmarks);renderBookmarks();renderStats();toast('GitHub repository bookmarked.');});
-  }catch(e){$('#resultsBody').innerHTML='<div class="card empty" style="grid-column:1/-1">GitHub Search failed. Check network/API access and try again.</div>';toast(`GitHub search failed: ${e.message}`);}
+  }catch(e){$('#resultsBody').innerHTML=`<div class="card empty" style="grid-column:1/-1">GitHub Search failed: ${escapeHtml(e.message)}</div>`;toast(`GitHub search failed: ${e.message}`);}
 }
 
 async function runHealth(){
@@ -478,7 +582,7 @@ function openRaw(){
 function bind(){
   $$('.nav button[data-section]').forEach(b=>b.onclick=()=>showSection(b.dataset.section));$$('[data-section-jump]').forEach(b=>b.onclick=()=>showSection(b.dataset.sectionJump));
   $('#globalSearchBtn').onclick=()=>{showSection('search');$('#searchQuery').value=$('#globalSearch').value;runSearch()};$('#globalSearch').onkeydown=e=>{if(e.key==='Enter')$('#globalSearchBtn').click()};
-  $('#runSearch').onclick=runSearch;$('#githubSearchBtn').onclick=githubSearch;$('#clearSearch').onclick=()=>{['searchQuery','searchTags'].forEach(id=>$('#'+id).value='');$('#searchType').value='';$('#searchDifficulty').value='';selectedCategories.clear();$$('#categoryChips .chip').forEach(x=>x.classList.remove('selected'));[...$('#searchCategory').options].forEach(o=>o.selected=false);runSearch()};
+  $('#runSearch').onclick=runSearch;$('#githubSearchBtn').onclick=githubSearch;$('#manageCategories').onclick=openCategoryManager;$('#clearSearch').onclick=()=>{['searchQuery','searchTags'].forEach(id=>$('#'+id).value='');$('#searchType').value='';$('#searchDifficulty').value='';selectedCategories.clear();$$('#categoryChips .chip').forEach(x=>x.classList.remove('selected'));[...$('#searchCategory').options].forEach(o=>o.selected=false);runSearch()};
   $('#bookmarkSearch').oninput=renderBookmarks;$('#bookmarkCategory').onchange=renderBookmarks;$('#addBookmark').onclick=()=>openBookmarkModal();$('#exportBookmarks').onclick=exportBookmarks;$('#importBookmarks').onclick=importBookmarks;$('#importFile').addEventListener('change',handleBookmarkImport);
   $('#newCollection').onclick=()=>openBookmarkModal({collections:['New Collection']});$('#toolboxSearch').oninput=renderToolbox;$('#runFullHealth').onclick=runHealth;$('#healthHome').onclick=()=>showSection('health');$('#pullBookmarks').onclick=pullBookmarks;$('#pushBookmarks').onclick=pushBookmarks;$('#compareBookmarks').onclick=()=>toast('Compare view: pull the remote database first, then review local/remote counts.');
   $('#saveSettings').onclick=saveSettingsForm;$('#exportConfig').onclick=exportConfig;$('#importConfig').onclick=importConfig;$('#importConfigFile').addEventListener('change',handleConfigImport);$('#resetSettings').onclick=resetSettings;
@@ -488,7 +592,7 @@ function bind(){
 }
 
 async function init(){
-  config=await getConfig();bookmarks=await getBookmarks();notes=await getNotes();learning=await getLearning();bind();renderBookmarks();renderStats();renderRecent();renderRoadmap();renderLearning();renderToolbox();await loadResources();
+  config=await getConfig();bookmarks=await getBookmarks();notes=await getNotes();learning=await getLearning();customCategories=await getCustomCategories();bind();renderBookmarks();renderStats();renderRecent();renderRoadmap();renderLearning();renderToolbox();await loadResources();
   if(config.autoHealth)runHealth();
   const hash=location.hash;if(hash==='#palette')openPalette();if(hash==='#settings')showSection('settings');if(hash.startsWith('#search=')){showSection('search');$('#searchQuery').value=decodeURIComponent(hash.slice(8));runSearch();}
   applyTheme();

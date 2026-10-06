@@ -1,11 +1,11 @@
 {
-  "version": "1.0.4",
+  "version": "1.1.0",
   "released": "2026-10-05",
   "notes": [
-    "Use data/devops-categories.json as the category database.",
-    "Use data/devops-technologies.json as the technology database.",
-    "Replace the obsolete data/resources.json health check.",
-    "Search and category filters now use the repository JSON data.",
-    "Keep bookmark DB optional."
+    "Fix GitHub search so selected categories and tags are converted into GitHub repository search terms.",
+    "Add persistent custom category manager backed by the complete technology catalog.",
+    "Allow custom categories to work in Local Search and GitHub Search.",
+    "Add custom category import/export JSON.",
+    "Use the live categories and technologies databases as the source for category selection."
   ]
 }

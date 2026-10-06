@@ -55,3 +55,15 @@ matches resources containing both terms rather than requiring the exact phrase.
 - Local and GitHub results use responsive resource cards instead of a table.
 - GitHub repository cards show owner/account, creation date, last update, language, stars, forks, open issues, license, topics, description, and repository actions.
 - The GitHub API provides the repository owner/account and creation timestamp; it does not expose a guaranteed original creator field in repository search results.
+
+
+## v1.1.0 Search and Custom Categories
+
+- Local and GitHub search share the same filter state.
+- Selecting one or more categories now affects GitHub repository search.
+- Category filters are translated into compact technology-based GitHub search terms while respecting GitHub query limits.
+- Custom categories are stored locally in Chrome storage.
+- Custom categories can contain any technologies loaded from `data/devops-technologies.json`.
+- Custom categories work in Local Search and GitHub Search.
+- Custom categories can be exported/imported as JSON.
+- The category manager is the complete technology picker for the live DevOps catalog.
