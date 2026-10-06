@@ -1,11 +1,11 @@
 {
-  "version": "1.1.0",
-  "released": "2026-10-05",
+  "version": "3.1.2",
+  "name": "Charlie MJ DevOps Explorer",
+  "releaseDate": "2026-10-06",
   "notes": [
-    "Fix GitHub search so selected categories and tags are converted into GitHub repository search terms.",
-    "Add persistent custom category manager backed by the complete technology catalog.",
-    "Allow custom categories to work in Local Search and GitHub Search.",
-    "Add custom category import/export JSON.",
-    "Use the live categories and technologies databases as the source for category selection."
+    "Fixed live technology search/filtering in Labs, Projects, Roadmaps, Goals and Knowledge Collections",
+    "GitHub bookmark/tag/label actions now preserve the current search results instead of re-rendering the page",
+    "Added Technologies catalog management page with add, improve/override, delete personal override, import and export",
+    "Added local personal technology overrides with persistent storage"
   ]
 }

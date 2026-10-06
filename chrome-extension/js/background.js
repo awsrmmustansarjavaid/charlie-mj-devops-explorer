@@ -57,6 +57,10 @@ chrome.storage.onChanged.addListener(async (changes, areaName) => {
   }
 });
 
+if (chrome.sidePanel?.setPanelBehavior) {
+  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch(() => {});
+}
+
 chrome.commands.onCommand.addListener(async (command) => {
   if (command === 'open-devops-explorer' || command === 'open-command-palette') {
     const url = chrome.runtime.getURL(`pages/dashboard/dashboard.html${command === 'open-command-palette' ? '#palette' : ''}`);

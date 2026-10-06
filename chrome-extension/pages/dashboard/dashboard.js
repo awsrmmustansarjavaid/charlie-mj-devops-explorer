@@ -1,601 +1,145 @@
-import { APP_VERSION, DEFAULT_CONFIG, deriveRawBase, deriveRawIndex, deriveRawFile } from '../../js/config.js';
-import { getConfig, saveConfig, resetConfig, getBookmarks, saveBookmarks, getHistory, addHistory, getNotes, getLearning, saveLearning, getCustomCategories, saveCustomCategories } from '../../js/storage.js';
-import { CATEGORIES, TYPES, DIFFICULTIES, ROADMAP, inferCategory, makeId } from '../../js/data.js';
-import { checkEndpoint, fetchRawFile, githubGetFile, githubPutFile, getRepoMetadata } from '../../js/github.js';
+import { getConfig, saveConfig, resetConfig, getCustomCategories, saveCustomCategories, getAppData, saveAppData, getBookmarks, saveBookmarks, addHistory, getCustomTechnologies, saveCustomTechnologies } from '../../js/storage.js';
+import { APP_VERSION, DEFAULT_CONFIG } from '../../js/config.js';
+import { normalizeTechnologyRecords } from '../../core/taxonomy.js';
+import { buildGithubQuery, githubRepositorySearch } from '../../core/github-search.js';
+import { matches } from '../../core/search-engine.js';
+import { logActivity } from '../../core/activity.js';
+import { createBackup, restoreBackup } from '../../core/backup.js';
+import { advise } from '../../ai/advisor.js';
 
-const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
-let config, bookmarks = [], notes = {}, learning = {}, resources = [];
-let selectedCategories = new Set();
-let remoteCategories = [];
-let customCategories = [];
-let categoryTechnologyIndex = new Map();
-let remoteTechnologies = [];
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const uid=()=>`id-${Date.now()}-${Math.random().toString(36).slice(2,9)}`;
+let config,appData,customCategories=[],customTechnologies=[],categoryOverrides={},categories=[],technologies=[],bookmarks=[],state={page:'dashboard',query:'',categories:[],technologies:[],tags:[],language:'',repositoryType:'',difficulty:'',operator:'AND',theme:'dark',accent:'blue'};
+let githubResults=[];
 
-const builtInResources = [
-  {title:'Kubernetes Documentation',url:'https://kubernetes.io/docs/',category:'Kubernetes',tags:['kubernetes','docs','containers'],type:'documentation',difficulty:'beginner'},
-  {title:'Docker Documentation',url:'https://docs.docker.com/',category:'Containers',tags:['docker','containers'],type:'documentation',difficulty:'beginner'},
-  {title:'Jenkins Documentation',url:'https://www.jenkins.io/doc/',category:'CI/CD',tags:['jenkins','pipeline','cicd'],type:'documentation',difficulty:'beginner'},
-  {title:'Terraform Documentation',url:'https://developer.hashicorp.com/terraform/docs',category:'Infrastructure as Code',tags:['terraform','iac'],type:'documentation',difficulty:'intermediate'},
-  {title:'AWS EKS Documentation',url:'https://docs.aws.amazon.com/eks/',category:'Cloud',tags:['aws','eks','kubernetes'],type:'documentation',difficulty:'intermediate'},
-  {title:'GitHub Actions Documentation',url:'https://docs.github.com/actions',category:'CI/CD',tags:['github','actions','cicd'],type:'documentation',difficulty:'beginner'},
-  {title:'Prometheus Documentation',url:'https://prometheus.io/docs/',category:'Observability',tags:['prometheus','monitoring'],type:'documentation',difficulty:'intermediate'},
-  {title:'Grafana Documentation',url:'https://grafana.com/docs/',category:'Observability',tags:['grafana','monitoring'],type:'documentation',difficulty:'beginner'},
-  {title:'Argo CD Documentation',url:'https://argo-cd.readthedocs.io/',category:'GitOps',tags:['argocd','gitops','kubernetes'],type:'documentation',difficulty:'advanced'},
-  {title:'Trivy Documentation',url:'https://trivy.dev/',category:'Security',tags:['trivy','security','containers'],type:'documentation',difficulty:'intermediate'},
-  {title:'Ansible Documentation',url:'https://docs.ansible.com/',category:'Infrastructure as Code',tags:['ansible','automation'],type:'documentation',difficulty:'intermediate'},
-  {title:'Helm Documentation',url:'https://helm.sh/docs/',category:'Kubernetes',tags:['helm','kubernetes','package'],type:'documentation',difficulty:'intermediate'},
-  {title:'Git Documentation',url:'https://git-scm.com/doc',category:'Fundamentals',tags:['git','version-control'],type:'documentation',difficulty:'beginner'},
-  {title:'Linux Documentation',url:'https://docs.kernel.org/',category:'Fundamentals',tags:['linux','kernel'],type:'documentation',difficulty:'beginner'},
-  {title:'OpenTelemetry Documentation',url:'https://opentelemetry.io/docs/',category:'Observability',tags:['opentelemetry','tracing','metrics'],type:'documentation',difficulty:'intermediate'},
-  {title:'Flux Documentation',url:'https://fluxcd.io/docs/',category:'GitOps',tags:['flux','gitops','kubernetes'],type:'documentation',difficulty:'advanced'}
-];
+const NAV=[['dashboard','🏠','Dashboard'],['explore','🔎','Explore'],['taxonomy','🧭','Taxonomy'],['learning','📚','Learn'],['labs','🧪','Labs'],['projects','🏗️','Projects'],['roadmaps','🗺️','Roadmaps'],['collections','📦','Collections'],['favorites','⭐','Favorites'],['goals','🎯','Goals'],['activity','📊','Activity'],['ai','🤖','AI Advisor'],['admin','🛠️','Admin'],['settings','⚙️','Settings'],['libraries','🏷️','Tag & Label Library'],['technologies','🧩','Technologies']];
 
-const toast = msg => { const el=$('#toast'); if(!el) return; el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2600); };
-const escapeHtml = s => String(s ?? '').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-const openUrl = url => { if(url) { chrome.tabs.create({url}); addHistory({title:url, url}); } };
-const pct = (a,b)=>b?Math.round(a/b*100):0;
+function clone(v){return JSON.parse(JSON.stringify(v));}
+function arr(v){return Array.isArray(v)?v:[];}
+function csv(v){return String(v||'').split(',').map(x=>x.trim()).filter(Boolean);}
+function join(v){return arr(v).join(', ');}
+function systemCategories(){return categories.filter(c=>!customCategories.some(x=>x.name===c.name));}
+function effectiveCategory(c){return categoryOverrides[c.name]?{...c,...categoryOverrides[c.name],kind:'system-override'}:c;}
+function categoryTools(c){return arr(c?.tools);}
+function allCategories(){return [...systemCategories().map(effectiveCategory),...customCategories];}
+function allTech(){const map=new Map();for(const t of technologies)map.set(String(t.name).toLowerCase(),t);for(const c of allCategories())for(const n of categoryTools(c)){const k=String(n).toLowerCase();if(!map.has(k))map.set(k,{id:k.replace(/[^a-z0-9]+/g,'-'),name:n,category:c.name,subcategory:'',type:'technology',difficulty:'beginner',tags:[],prerequisites:[]});}for(const t of customTechnologies)map.set(String(t.name).toLowerCase(),t);return [...map.values()];}
+function techByName(name){return allTech().find(t=>String(t.name).toLowerCase()===String(name).toLowerCase());}
+function githubBookmarks(){return arr(bookmarks).filter(b=>b.type==='github-repository'||b.github===true);}
+function resourceItems(){return arr(bookmarks).map(b=>({id:b.id||b.url,name:b.title||b.name||b.url,title:b.title||b.name||'',description:b.description||'',url:b.url,category:b.category||'Bookmarks',tags:arr(b.tags),type:b.type||'bookmark',difficulty:b.difficulty||''}));}
+function filters(){return {...state,categories:state.categories,technologies:state.technologies,tags:state.tags};}
+function localSearch(){return [...allTech(),...resourceItems()].filter(x=>matches(x,filters()));}
+function progress(p){return `<div class="progress"><i style="width:${Math.max(0,Math.min(100,Number(p)||0))}%"></i></div>`;}
+function stat(label,value,icon){return `<div class="card"><div class="kpi"><span>${icon} ${label}</span><span class="stat">${esc(value)}</span></div></div>`;}
+function layout(content,title){return `<div class="shell"><aside class="sidebar"><div class="brand"><img src="../../icons/icon32.png"><div><b>Charlie MJ</b><small>DevOps Explorer</small></div></div><nav class="nav">${NAV.map(([k,i,n])=>`<button class="${state.page===k?'active':''}" data-action="navigate" data-page="${k}">${i} ${n}</button>`).join('')}</nav><div class="sidebar-foot"><div>🟢 System Healthy</div><div>v${APP_VERSION}</div></div></aside><main class="main"><div class="topbar"><div><h1>${title}</h1><div class="muted small">Discover → Search → Learn → Practice → Build → Track → Review</div></div><div class="actions"><button data-action="palette">⌘ Ctrl+K</button><button data-action="sidepanel">◧ Side Panel</button></div></div><section class="page">${content}</section></main></div>`;}
 
-function normalizeResource(x) {
-  const title=x.title||x.name||x.label||'Untitled resource';
-  const tags=Array.isArray(x.tags)?x.tags:String(x.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
-  return {
-    title, url:x.url||x.link||x.html_url||'',
-    category:x.category||inferCategory(title,tags.join(' ')),
-    tags, type:x.type||x.resourceType||'github-repository',
-    difficulty:String(x.difficulty||x.skillLevel||'intermediate').toLowerCase(), description:x.description||x.summary||'',
-    source:x.source||'DevOps Explorer data'
-  };
+async function fetchJSON(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error(`${r.status} ${r.statusText}`);return r.json();}
+async function loadData(){config=await getConfig();appData=await getAppData();customCategories=await getCustomCategories();customTechnologies=await getCustomTechnologies();bookmarks=await getBookmarks();const d=await chrome.storage.local.get(['devopsExplorerCategoryOverrides']);categoryOverrides=d.devopsExplorerCategoryOverrides||{};try{const raw=await fetchJSON(config.categoriesUrl);categories=Array.isArray(raw)?raw:arr(raw.categories);}catch{categories=[];}try{const raw=await fetchJSON(config.technologiesUrl);technologies=normalizeTechnologyRecords(raw);}catch{technologies=[];}if(!appData.tagLibrary)appData.tagLibrary={tags:[],labels:[]};if(!appData.githubCache)appData.githubCache=[];}
+async function persist(){appData=await saveAppData(appData);}
+async function act(type,payload={}){try{await logActivity(type,payload);}catch{}}
+function addUnique(a,v,key='name'){if(!a.some(x=>String(x?.[key]||x).toLowerCase()===String(v?.[key]||v).toLowerCase()))a.push(v);}
+function ensureLibrary(value,type){const key=type==='label'?'labels':'tags';appData.tagLibrary=appData.tagLibrary||{tags:[],labels:[]};if(!appData.tagLibrary[key].some(x=>x.toLowerCase()===value.toLowerCase()))appData.tagLibrary[key].push(value);}
+function toast(message){let t=$('#cmjToast');if(!t){document.body.insertAdjacentHTML('beforeend','<div id="cmjToast" class="cmj-toast"></div>');t=$('#cmjToast');}t.textContent=message;t.classList.add('show');clearTimeout(window.__cmjToastTimer);window.__cmjToastTimer=setTimeout(()=>t.classList.remove('show'),2200);}
+function downloadJSON(name,data){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+function openUrl(url,title=''){if(!/^https?:\/\//i.test(url))return;addHistory({url,title});chrome.tabs.create({url});}
+
+function dashboardPage(){const learn=Object.values(appData.learning||{});const lp=learn.length?Math.round(learn.reduce((a,x)=>a+(x.progress||0),0)/learn.length):0;const next=arr(appData.continueItems)[0];return layout(`<div class="hero"><div class="card"><h2>Good day 👋</h2><p class="muted">Your personal DevOps workspace is ready.</p><div class="toolbar"><button class="primary" data-action="navigate" data-page="explore">🔎 Explore</button><button data-action="navigate" data-page="learning">📚 Continue Learning</button></div></div><div class="card"><h3>🤖 Next Best Action</h3><p>${esc(next?.title||'Choose a technology and build your learning path.')}</p><button data-action="navigate" data-page="${next?'learning':'explore'}">Continue</button></div></div><div class="cards">${stat('Learning',lp+'%','📚')}${stat('Labs',appData.labs.length,'🧪')}${stat('Projects',appData.projects.length,'🏗️')}${stat('Collections',appData.collections.length,'📦')}</div><div class="two"><div class="card"><div class="section-title"><h3>📚 Continue Where I Left Off</h3><button data-action="navigate" data-page="learning">View all</button></div>${arr(appData.continueItems).slice(0,5).map(x=>`<div class="list-item"><div><b>${esc(x.title)}</b><div class="meta">${esc(x.meta||'Learning')} · ${x.progress||0}%</div></div><button data-action="technology" data-name="${esc(x.title)}">Open</button></div>`).join('')||'<div class="empty-state"><div class="empty-icon">📚</div><h3>Nothing in progress</h3><p>Add a technology to learning to create a continuation point.</p></div>'}</div><div class="card"><div class="section-title"><h3>⭐ My DevOps Stack</h3><button data-action="navigate" data-page="favorites">Manage</button></div><div class="chips">${arr(appData.stack).slice(0,15).map(x=>`<button class="chip active" data-action="technology" data-name="${esc(x)}">${esc(x)}</button>`).join('')||'<span class="muted">Add technologies from technology pages.</span>'}</div></div></div>`, 'Dashboard');}
+
+function searchBuilder(){const chips=[...state.categories.map(x=>`<span class="chip active">${esc(x)}</span>`),...state.technologies.map(x=>`<span class="chip active">${esc(x)}</span>`),...state.tags.map(x=>`<span class="chip active">#${esc(x)}</span>`)].join('');return `<div class="card"><div class="section-title"><div><h3>Universal DevOps Search</h3><div class="muted small">One search state powers Local, GitHub and your personal knowledge.</div></div><button data-action="clear-search">Clear</button></div><div class="toolbar" style="margin-top:12px"><input id="searchQuery" class="search-input" value="${esc(state.query)}" placeholder="What are you looking for? e.g. kubernetes monitoring"><select id="operator"><option ${state.operator==='AND'?'selected':''}>AND</option><option ${state.operator==='OR'?'selected':''}>OR</option></select><button data-action="local-search" class="primary">🔎 Search Local</button><button data-action="github-search">🐙 Search GitHub</button><button data-action="save-search">⭐ Save Search</button></div><details ${chips?'open':''} style="margin-top:12px"><summary>Advanced Search Builder</summary><div class="two" style="margin-top:12px"><div><label>Categories</label><select id="catFilter" multiple size="8">${allCategories().map(c=>`<option ${state.categories.includes(c.name)?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div><div><label>Technologies</label><select id="techFilter" multiple size="8">${allTech().slice(0,800).map(t=>`<option ${state.technologies.includes(t.name)?'selected':''}>${esc(t.name)}</option>`).join('')}</select></div></div><div class="two" style="margin-top:10px"><div><label>Tags</label><input id="tagsFilter" class="input" placeholder="networking, security" value="${esc(state.tags.join(', '))}"></div><div><label>Difficulty</label><select id="difficulty"><option value="">Any difficulty</option>${['beginner','intermediate','advanced'].map(x=>`<option value="${x}" ${state.difficulty===x?'selected':''}>${x}</option>`).join('')}</select></div></div><div class="muted small" style="margin-top:8px">${chips||'No filters selected'} · Enter = Local · Ctrl+Enter = GitHub · Esc = Clear</div></details><div style="margin-top:12px"><b>Saved Searches</b><div class="chips">${arr(appData.savedSearches).map((x,i)=>`<button class="chip" data-action="saved-search" data-index="${i}">⭐ ${esc(x.name)}</button>`).join('')||'<span class="muted small">None yet.</span>'}</div></div></div>`;}
+function renderLocalResults(items){if(!items.length)return '<div class="empty-state"><div class="empty-icon">🔎</div><h3>No results</h3><p>Try fewer filters or another search term.</p></div>';return `<div class="grid">${items.map(x=>`<article class="card result-card"><div class="result-title">${esc(x.name||x.title)}</div><p class="muted">${esc(x.description||x.category||'DevOps technology')}</p><div class="result-meta"><span class="badge">${esc(x.category||x.type||'Resource')}</span><span class="badge">${esc(x.difficulty||'')}</span>${arr(x.tags).slice(0,5).map(t=>`<span class="chip">#${esc(t)}</span>`).join('')}</div><div class="toolbar"><button data-action="${x.url?'open-url':'technology'}" data-url="${x.url||''}" data-name="${esc(x.name||x.title)}">Open</button><button data-action="favorite" data-name="${esc(x.name||x.title)}">⭐ Favorite</button><button data-action="collection-add" data-name="${esc(x.name||x.title)}">📦 Collection</button><button data-action="learning-add" data-name="${esc(x.name||x.title)}">📚 Learn</button></div></article>`).join('')}</div>`;}
+function githubCard(x){const topics=arr(x.topics);return `<article class="card result-card"><div class="result-title">${esc(x.title)}</div><p class="muted">${esc(x.description||'No description')}</p><div class="result-meta"><span class="badge">Created ${new Date(x.createdAt).toLocaleDateString()}</span><button class="chip" data-action="owner" data-owner="${esc(x.owner)}">👤 ${esc(x.owner)}</button><span class="badge">Updated ${new Date(x.updatedAt).toLocaleDateString()}</span><span class="badge">${esc(x.language)}</span><span class="badge">⭐ ${x.stars}</span><span class="badge">⑂ ${x.forks}</span><span class="badge">Issues ${x.issues}</span><span class="badge">License ${esc(x.license)}</span></div><div class="chips">${topics.map(t=>`<button class="chip" data-action="github-topic-library" data-id="${esc(x.id)}" data-topic="${esc(t)}">#${esc(t)} <small>＋</small></button>`).join('')||'<span class="muted small">No GitHub topics</span>'}</div><div class="toolbar"><button class="primary" data-action="open-url" data-url="${esc(x.url)}">Open</button><button data-action="github-bookmark" data-id="${esc(x.id)}">📌 Bookmark</button><button data-action="favorite-repo" data-id="${esc(x.id)}">⭐ Favorite</button><button data-action="collection-repo" data-id="${esc(x.id)}">📦 Collection</button><button data-action="tag-repo" data-id="${esc(x.id)}">🏷 Tag</button><button data-action="label-repo" data-id="${esc(x.id)}">🔖 Label</button><button data-action="owner" data-owner="${esc(x.owner)}">👤 Owner</button></div><div class="muted small" style="margin-top:8px">Click a #topic to add it to your Tag Library.</div></article>`;}
+function explorePage(){return layout(`${searchBuilder()}<div id="searchResults"><div class="notice">Enter a query or select filters, then choose Local or GitHub Search.</div></div>`, 'Explore');}
+
+function technologyModal(name){const t=techByName(name)||{name,category:'DevOps',difficulty:'beginner',tags:[]};const l=appData.learning[t.name]||{status:'Not Started',progress:0};const related=allTech().filter(x=>x.name!==t.name&&x.category===t.category).slice(0,10);return `<div class="modal-backdrop" id="techModal"><div class="modal"><div class="section-title"><div><h2>${esc(t.name)}</h2><div class="muted">${esc(t.subcategory||t.category||'Technology')}</div></div><button data-action="close-modal">✕</button></div><div class="result-meta"><span class="badge">${esc(t.category||'')}</span><span class="badge">${esc(t.difficulty||'beginner')}</span>${arr(t.tags).map(x=>`<span class="chip">#${esc(x)}</span>`).join('')}</div><div class="card" style="margin-top:12px"><b>Status:</b> ${esc(l.status)} · ${l.progress||0}% ${progress(l.progress||0)}</div><h3>OFFICIAL RESOURCES</h3><div class="toolbar">${t.official?.website?`<button data-action="open-url" data-url="${esc(t.official.website)}">Website</button>`:''}${t.official?.documentation?`<button data-action="open-url" data-url="${esc(t.official.documentation)}">Documentation</button>`:''}${t.official?.github?`<button data-action="open-url" data-url="${esc(t.official.github)}">GitHub</button>`:''}<button data-action="github-tech" data-name="${esc(t.name)}">Search GitHub</button></div><h3>LEARNING</h3><p>Prerequisites: ${esc(arr(t.prerequisites).join(', ')||'Review category fundamentals and official documentation.')}</p><div class="toolbar"><button data-action="learning-add" data-name="${esc(t.name)}">📚 Add to Learning</button><button data-action="favorite" data-name="${esc(t.name)}">⭐ Favorite</button><button data-action="stack" data-name="${esc(t.name)}">📌 My Stack</button></div><h3>PRACTICE</h3><div class="toolbar"><button data-action="new-linked" data-type="labs" data-name="${esc(t.name)}">🧪 Start Lab</button><button data-action="new-linked" data-type="projects" data-name="${esc(t.name)}">🏗 Project</button><button data-action="new-linked" data-type="roadmaps" data-name="${esc(t.name)}">🗺 Roadmap</button><button data-action="collection-add" data-name="${esc(t.name)}">📦 Collection</button></div><h3>RELATED</h3><div class="chips">${related.map(x=>`<button class="chip" data-action="technology" data-name="${esc(x.name)}">${esc(x.name)}</button>`).join('')||'<span class="muted">No related items.</span>'}</div></div></div>`;}
+function openTechnology(name){$('#techModal')?.remove();document.body.insertAdjacentHTML('beforeend',technologyModal(name));}
+
+function taxonomyPage(){return layout(`<div class="card"><div class="section-title"><div><h3>🧭 DevOps Taxonomy</h3><div class="muted small">System taxonomy + editable personal overrides. Remote system data is never overwritten.</div></div><button data-action="category-manager">🏷 Manage Personal Categories</button></div><div class="grid" style="margin-top:14px">${allCategories().map(c=>`<div class="card"><div class="section-title"><h3>${esc(c.icon||'🧩')} ${esc(c.name)}</h3><button data-action="edit-category" data-name="${esc(c.name)}">✎ Edit</button></div><div class="chips">${categoryTools(c).map(t=>`<button class="chip" data-action="technology" data-name="${esc(t)}">${esc(t)}</button>`).join('')||'<span class="muted">No technologies.</span>'}</div><div class="muted small">${customCategories.some(x=>x.name===c.name)?'Personal category':categoryOverrides[c.name]?'System category · locally edited':'System category'} · ${categoryTools(c).length} technologies</div></div>`).join('')}</div></div>`, 'Taxonomy');}
+
+function multiSelect(label,idName,items,selected=[]){return `<div><label>${label}</label><input class="input picker-filter" data-picker="${idName}" placeholder="Search ${label.toLowerCase()}..."><div class="picker" id="${idName}">${items.slice(0,600).map((x,i)=>{const v=typeof x==='string'?x:x.name;return `<label class="picker-row"><input type="checkbox" data-pick="${idName}" value="${esc(v)}" ${selected.includes(v)?'checked':''}><span>${esc(v)}</span></label>`}).join('')}</div></div>`;}
+function entityDefaults(type,name=''){const d={id:uid(),title:name?`${name} ${type.slice(0,-1)} `:'',description:'',details:'',difficulty:'beginner',tags:[],labels:[],technologies:name?[name]:[],collections:[],favorites:[],githubRepos:[],notes:'',resources:[]};if(type==='labs')Object.assign(d,{objective:'',estimatedTime:'30 min',expectedOutput:'',steps:[],commands:[],checkpoints:[],progress:0});if(type==='projects')Object.assign(d,{template:'Custom',objectives:'',milestones:[],checkpoints:[{title:'Plan',done:false},{title:'Build',done:false},{title:'Validate',done:false},{title:'Document',done:false}],progress:0});if(type==='roadmaps')Object.assign(d,{roadmapType:'Custom',priority:'Medium',nodes:[{title:'Fundamentals',done:false},{title:'Practice',done:false},{title:'Project',done:false}],progress:0});if(type==='goals')Object.assign(d,{deadline:'',plan:'',progress:0,learningItems:[],labs:[],projects:[]});if(type==='collections')Object.assign(d,{items:[]});return d;}
+function editorModal(type,entityId=null,linkedName=''){const singular=type.slice(0,-1);let entity=(appData[type]||[]).find(x=>x.id===entityId);if(!entity)entity=entityDefaults(type,linkedName);const techs=allTech().map(x=>x.name), cols=appData.collections.map(x=>x.title), favs=appData.favorites.map(x=>x.name), repos=githubBookmarks().map(x=>x.url), tags=appData.tagLibrary?.tags||[], labels=appData.tagLibrary?.labels||[];const titleMap={labs:'Lab',projects:'Project',roadmaps:'Roadmap',goals:'Goal',collections:'Knowledge Collection'};return `<div class="modal"><div class="section-title"><div><h2>${entityId?'Edit':'New'} ${titleMap[type]||singular}</h2><div class="muted">Reusable structured record with linked knowledge.</div></div><button data-action="close-modal">✕</button></div><div class="two"><div><label>Title</label><input id="ef-title" class="input" value="${esc(entity.title||'')}"><label>Description</label><textarea id="ef-description">${esc(entity.description||'')}</textarea><label>Details / Objectives</label><textarea id="ef-details">${esc(entity.details||entity.objectives||entity.plan||'')}</textarea><label>Difficulty</label><select id="ef-difficulty"><option ${entity.difficulty==='beginner'?'selected':''}>beginner</option><option ${entity.difficulty==='intermediate'?'selected':''}>intermediate</option><option ${entity.difficulty==='advanced'?'selected':''}>advanced</option></select>${type==='labs'?`<label>Estimated time</label><input id="ef-time" class="input" value="${esc(entity.estimatedTime||'30 min')}"><label>Expected Output</label><textarea id="ef-output">${esc(entity.expectedOutput||'')}</textarea><label>Steps (one per line)</label><textarea id="ef-steps">${esc(arr(entity.steps).map(x=>typeof x==='string'?x:x.title||'').join('\n'))}</textarea><label>Commands (one per line)</label><textarea id="ef-commands">${esc(arr(entity.commands).map(x=>typeof x==='string'?x:x.command||'').join('\n'))}</textarea><label>Checkpoints (one per line)</label><textarea id="ef-checkpoints">${esc(arr(entity.checkpoints).map(x=>typeof x==='string'?x:x.title||'').join('\n'))}</textarea>`:''}${type==='projects'?`<label>Template</label><input id="ef-template" class="input" value="${esc(entity.template||'Custom')}"><label>Milestones (one per line)</label><textarea id="ef-milestones">${esc(arr(entity.milestones).map(x=>typeof x==='string'?x:x.title||'').join('\n'))}</textarea>`:''}${type==='roadmaps'?`<label>Roadmap Type</label><select id="ef-roadmapType">${['Blank','Template','DevOps Master','AWS','Docker','Kubernetes','DevSecOps','SRE','Platform Engineering','Custom'].map(x=>`<option ${entity.roadmapType===x?'selected':''}>${x}</option>`).join('')}</select><label>Priority</label><select id="ef-priority">${['Low','Medium','High','Critical'].map(x=>`<option ${entity.priority===x?'selected':''}>${x}</option>`).join('')}</select><label>Nodes / Steps (one per line)</label><textarea id="ef-nodes">${esc(arr(entity.nodes).map(x=>typeof x==='string'?x:x.title||'').join('\n'))}</textarea>`:''}${type==='goals'?`<label>Deadline</label><input id="ef-deadline" class="input" type="date" value="${esc(entity.deadline||'')}"><label>Learning Plan</label><textarea id="ef-plan">${esc(entity.plan||'')}</textarea>`:''}<label>Notes</label><textarea id="ef-notes">${esc(entity.notes||'')}</textarea></div><div>${multiSelect('Technologies','pick-tech',techs,arr(entity.technologies))}${multiSelect('Collections','pick-cols',cols,arr(entity.collections))}${multiSelect('Favorites','pick-favs',favs,arr(entity.favorites))}${multiSelect('GitHub Repositories','pick-repos',repos,arr(entity.githubRepos))}${type==='goals'?multiSelect('Labs','pick-labs',appData.labs.map(x=>x.title),arr(entity.labs?.map(x=>typeof x==='string'?x:x.title))):''}${type==='goals'?multiSelect('Projects','pick-projects',appData.projects.map(x=>x.title),arr(entity.projects?.map(x=>typeof x==='string'?x:x.title))):''}${type==='collections'?multiSelect('Labs','pick-labs',appData.labs.map(x=>x.title),arr(entity.labs?.map(x=>typeof x==='string'?x:x.title))):''}${type==='collections'?multiSelect('Projects','pick-projects',appData.projects.map(x=>x.title),arr(entity.projects?.map(x=>typeof x==='string'?x:x.title))):''}${type==='collections'?multiSelect('Roadmaps','pick-roadmaps',appData.roadmaps.map(x=>x.title),arr(entity.roadmaps?.map(x=>typeof x==='string'?x:x.title))):''}${multiSelect('Tags','pick-tags',tags,arr(entity.tags))}${multiSelect('Labels','pick-labels',labels,arr(entity.labels))}</div></div><div class="modal-actions"><button data-action="close-modal">Cancel</button>${entityId?`<button class="danger" data-action="delete-entity" data-type="${type}" data-id="${entity.id}">Delete</button>`:''}<button class="primary" data-action="save-entity" data-type="${type}" data-id="${entity.id}" data-existing="${entityId?'1':'0'}">Save ${titleMap[type]||singular}</button></div></div>`;}
+function readPicker(idName){return $$(`input[data-pick="${idName}"]:checked`).map(x=>x.value);}
+function saveEntityFromModal(type,entityId){const m=$('#entityModal');const title=$('#ef-title')?.value.trim();if(!title){alert('Title is required.');return;}let e=(appData[type]||[]).find(x=>x.id===entityId);if(!e){e=entityDefaults(type);appData[type].push(e);}Object.assign(e,{title,description:$('#ef-description')?.value.trim()||'',details:$('#ef-details')?.value.trim()||'',difficulty:$('#ef-difficulty')?.value||'beginner',technologies:readPicker('pick-tech'),collections:readPicker('pick-cols'),favorites:readPicker('pick-favs'),githubRepos:readPicker('pick-repos'),labs:readPicker('pick-labs'),projects:readPicker('pick-projects'),roadmaps:readPicker('pick-roadmaps'),tags:readPicker('pick-tags'),labels:readPicker('pick-labels'),notes:$('#ef-notes')?.value.trim()||'',updatedAt:new Date().toISOString()});if(type==='labs')Object.assign(e,{estimatedTime:$('#ef-time')?.value.trim(),expectedOutput:$('#ef-output')?.value.trim(),steps:csvLines($('#ef-steps')?.value),commands:csvLines($('#ef-commands')?.value),checkpoints:csvLines($('#ef-checkpoints')?.value).map(x=>({title:x,done:arr(e.checkpoints).find(c=>c.title===x)?.done||false}) ),objective:e.details,progress:e.progress||0});if(type==='projects')Object.assign(e,{template:$('#ef-template')?.value.trim()||'Custom',milestones:csvLines($('#ef-milestones')?.value).map(x=>({title:x,done:false})),objectives:e.details,progress:e.progress||0});if(type==='roadmaps')Object.assign(e,{roadmapType:$('#ef-roadmapType')?.value||'Custom',priority:$('#ef-priority')?.value||'Medium',nodes:csvLines($('#ef-nodes')?.value).map(x=>({title:x,done:arr(e.nodes).find(n=>n.title===x)?.done||false})),progress:e.progress||0});if(type==='goals')Object.assign(e,{deadline:$('#ef-deadline')?.value||'',plan:$('#ef-plan')?.value.trim()||e.details,learningItems:e.technologies,labs:e.labs||[],projects:e.projects||[],progress:e.progress||0});return e;}
+function csvLines(v){return String(v||'').split('\n').map(x=>x.trim()).filter(Boolean);}
+function entityPage(type,title,emptyText,icon){const items=arr(appData[type]);return layout(`<div class="card"><div class="section-title"><div><h3>${icon} ${title}</h3><div class="muted">Create, open, edit and connect records to technologies, collections, favorites and GitHub repositories.</div></div><button class="primary" data-action="new-entity" data-type="${type}">+ New ${title.slice(0,-1)}</button></div></div>${items.length?`<div class="grid">${items.map(e=>`<article class="card result-card"><h3>${esc(e.title)}</h3><p class="muted">${esc(e.description||e.details||'')}</p>${progress(e.progress||0)}<div class="result-meta"><span class="badge">${esc(e.difficulty||'')}</span><span class="badge">${arr(e.technologies).length} technologies</span><span class="badge">${arr(e.collections).length} collections</span><span class="badge">${arr(e.githubRepos).length} GitHub</span></div><div class="toolbar"><button class="primary" data-action="edit-entity" data-type="${type}" data-id="${e.id}">Open / Edit</button>${type!=='collections'?`<button data-action="complete-entity" data-type="${type}" data-id="${e.id}">${Number(e.progress)>=100?'Reset':'Complete'}</button>`:''}</div></article>`).join('')}</div>`:`<div class="empty-state"><div class="empty-icon">${icon}</div><h3>${emptyText}</h3><p>Create a structured record and connect it to your DevOps knowledge.</p><button class="primary" data-action="new-entity" data-type="${type}">Create ${title.slice(0,-1)}</button></div>`}`,title);}
+
+function labsPage(){return entityPage('labs','Labs','No labs yet','🧪');}
+function projectsPage(){return entityPage('projects','Projects','No projects yet','🏗️');}
+function roadmapsPage(){return entityPage('roadmaps','Roadmaps','No roadmaps yet','🗺️');}
+function collectionsPage(){return entityPage('collections','Collections','Your collection is empty','📦');}
+function goalsPage(){return entityPage('goals','Goals','No goals yet','🎯');}
+
+function learningPage(){const items=allTech().filter(t=>appData.learning[t.name]);const statuses=['Not Started','Interested','Learning','Practicing','Used','Comfortable','Advanced','Mastered'];return layout(`<div class="card"><div class="section-title"><div><h3>📚 Learning Workspace</h3><div class="muted">Add any technology directly here, then track its progress.</div></div><button data-action="add-learning-picker" class="primary">+ Add Technology</button></div></div><div class="grid">${items.map(t=>{const l=appData.learning[t.name]||{};return `<div class="card"><h3>${esc(t.name)}</h3><div class="muted small">${esc(t.category||'')}</div>${progress(l.progress||0)}<p>${esc(l.status||'Learning')} · ${l.progress||0}%</p><select data-action="learning-status" data-name="${esc(t.name)}">${statuses.map(s=>`<option ${l.status===s?'selected':''}>${s}</option>`).join('')}</select><div class="toolbar" style="margin-top:8px"><button data-action="technology" data-name="${esc(t.name)}">Open</button><button data-action="learning-remove" data-name="${esc(t.name)}">Remove</button></div></div>`}).join('')||'<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📚</div><h3>No Learning Tasks</h3><p>Add technologies here without being redirected to Taxonomy.</p></div>'}</div>`, 'Learn');}
+
+function favoritesPage(){return layout(`<div class="card"><h3>⭐ Favorites & My DevOps Stack</h3><p class="muted">Your saved technologies and repositories.</p><h4>My DevOps Stack</h4><div class="chips">${arr(appData.stack).map(x=>`<button class="chip active" data-action="technology" data-name="${esc(x)}">${esc(x)}</button>`).join('')||'<span class="muted">Empty</span>'}</div><h4>Favorites</h4><div class="list">${arr(appData.favorites).map(x=>`<div class="list-item"><div><b>${esc(x.name||x.title)}</b><div class="meta">${esc(x.url||x.category||'Technology')}</div></div>${x.url?`<button data-action="open-url" data-url="${esc(x.url)}">Open</button>`:`<button data-action="technology" data-name="${esc(x.name)}">Open</button>`}</div>`).join('')||'<span class="muted">No favorites yet.</span>'}</div></div>`, 'Favorites');}
+function activityPage(){const a=arr(appData.activity);return layout(`<div class="cards">${stat('Searches',a.filter(x=>x.type==='search').length,'🔎')}${stat('Technologies',a.filter(x=>x.type==='technology_opened').length,'🧭')}${stat('Docs',a.filter(x=>x.type==='documentation_opened').length,'📖')}${stat('Labs',a.filter(x=>x.type==='lab_completed').length,'🧪')}</div><div class="card"><h3>📊 Activity</h3><div class="list" style="margin-top:12px">${a.slice(0,100).map(x=>`<div class="list-item"><div><b>${esc(String(x.type).replaceAll('_',' '))}</b><div class="meta">${esc(x.name||x.title||'')}</div></div><span class="meta">${x.at?new Date(x.at).toLocaleString():''}</span></div>`).join('')||'<span class="muted">No activity yet.</span>'}</div></div>`, 'Activity');}
+function aiPage(){return layout(`<div class="hero"><div class="card"><h3>🤖 AI Advisor</h3><p class="muted">Contextual intelligence; the extension remains useful without a provider.</p><div class="toolbar"><select id="aiTech"><option value="">Choose technology</option>${allTech().slice(0,500).map(t=>`<option>${esc(t.name)}</option>`).join('')}</select><select id="aiAction"><option value="explain">Explain this</option><option value="next">What should I learn next?</option><option value="gaps">Find skill gaps</option><option value="plan">Create learning plan</option><option value="lab">Create a lab</option><option value="project">Suggest project</option><option value="compare">Compare tools</option></select><button class="primary" data-action="run-ai">Run</button></div><div id="aiOutput" class="notice" style="margin-top:12px">Offline Rule-Based Advisor is ready.</div></div><div class="card"><h3>AI Providers</h3><p>● Offline Rules &nbsp; ○ Ollama &nbsp; ○ LM Studio &nbsp; ○ OpenAI-compatible</p><p class="muted small">Provider endpoints can be configured in Settings.</p></div></div>`,'AI Advisor');}
+
+function adminPage(){const all=allTech();const missing=all.filter(t=>!t.description&&!t.official?.documentation).length;return layout(`<div class="cards">${stat('Technologies',all.length,'🧩')}${stat('Categories',allCategories().length,'🏷')}${stat('Collections',appData.collections.length,'📦')}${stat('Custom Categories',customCategories.length,'⭐')}</div><div class="two"><div class="card"><h3>🩺 System Health</h3><div class="list"><div class="list-item"><b>Extension</b><span class="badge">🟢 Healthy</span></div><div class="list-item"><b>Categories</b><span class="badge">${allCategories().length} loaded</span></div><div class="list-item"><b>Technologies</b><span class="badge">${all.length} loaded</span></div><div class="list-item"><b>GitHub Search</b><span class="badge">🟢 Available</span></div><div class="list-item"><b>AI</b><span class="badge">⚪ Optional</span></div></div><button data-action="audit" style="margin-top:10px">Run Full Audit</button><div id="auditOut" class="notice" style="margin-top:10px"></div></div><div class="card"><h3>🔍 Data Quality</h3>${progress(all.length?Math.round((all.length-missing)/all.length*100):0)}<p>${all.length?Math.round((all.length-missing)/all.length*100):0}% records have more than a name.</p><div class="result-meta"><span class="badge">Needs review ${missing}</span><span class="badge">Tags ${(appData.tagLibrary?.tags||[]).length}</span><span class="badge">Labels ${(appData.tagLibrary?.labels||[]).length}</span></div></div></div><div class="card"><h3>💾 Backup / Restore</h3><p class="muted">Schema v3. Backups preserve settings, workspace data, personal categories and bookmarks.</p><div class="toolbar"><button data-action="backup" class="primary">Download Backup</button><label class="btn">Restore<input id="restoreFile" type="file" accept="application/json" hidden></label><button data-action="reset-workspace" class="danger">Reset Workspace</button></div></div>`, 'Admin');}
+
+function technologyEditor(entityId=null){const t=entityId?allTech().find(x=>String(x.id)===String(entityId)||String(x.name).toLowerCase()===String(entityId).toLowerCase()):null;const e=t||{id:uid(),name:'',category:'',subcategory:'',description:'',difficulty:'beginner',tags:[],prerequisites:[],official:{website:'',documentation:'',github:''}};modalHtml(`<div class="section-title"><div><h2>${t?'Edit Technology':'Add Technology'}</h2><p class="muted">Personal technology records override the remote catalog without modifying the repository file.</p></div><button data-action="close-modal">✕</button></div><div class="two"><div><label>Name</label><input id="tf-name" class="input" data-id="${esc(e.id||'')}" value="${esc(e.name)}"><label>Category</label><input id="tf-category" class="input" value="${esc(e.category||'DevOps')}"><label>Subcategory</label><input id="tf-subcategory" class="input" value="${esc(e.subcategory||'')}"><label>Difficulty</label><select id="tf-difficulty"><option ${e.difficulty==='beginner'?'selected':''}>beginner</option><option ${e.difficulty==='intermediate'?'selected':''}>intermediate</option><option ${e.difficulty==='advanced'?'selected':''}>advanced</option></select><label>Description</label><textarea id="tf-description">${esc(e.description||'')}</textarea></div><div><label>Tags (comma separated)</label><input id="tf-tags" class="input" value="${esc(join(e.tags))}"><label>Prerequisites (comma separated)</label><input id="tf-prereq" class="input" value="${esc(join(e.prerequisites))}"><label>Official Website</label><input id="tf-website" class="input" value="${esc(e.official?.website||'')}"><label>Documentation</label><input id="tf-docs" class="input" value="${esc(e.official?.documentation||'')}"><label>GitHub</label><input id="tf-github" class="input" value="${esc(e.official?.github||'')}"></div></div><div class="modal-actions"><button data-action="close-modal">Cancel</button>${t?`<button class="danger" data-action="delete-technology" data-id="${esc(e.id)}">Delete Personal Override</button>`:''}<button class="primary" data-action="save-technology" data-id="${esc(e.id)}">Save Technology</button></div>`, 'technologyEditor');}
+function technologiesPage(){const all=allTech();return layout(`<div class="card"><div class="section-title"><div><h3>🧩 Technology Catalog</h3><div class="muted">Browse the default DevOps technology catalog, add your own tools, improve records, and export an updated technology file.</div></div><div class="toolbar"><button data-action="new-technology" class="primary">+ Add Technology</button><button data-action="export-technologies">📤 Export Updated File</button><button data-action="import-technologies">📥 Import File</button><input id="technologyImport" type="file" accept="application/json" hidden></div></div><div class="toolbar" style="margin-top:12px"><input id="technologyCatalogSearch" class="search-input" placeholder="Search technologies, categories or tags..."><span class="badge">${all.length} technologies</span><span class="badge">${customTechnologies.length} personal overrides</span></div><div id="technologyCatalogList" class="grid" style="margin-top:14px"></div></div>`, 'Technologies');}
+function drawTechnologyCatalog(){const root=$('#technologyCatalogList');if(!root)return;const q=($('#technologyCatalogSearch')?.value||'').trim().toLowerCase();const items=allTech().filter(t=>`${t.name} ${t.category||''} ${t.subcategory||''} ${join(t.tags)}`.toLowerCase().includes(q)).slice(0,500);root.innerHTML=items.map(t=>{const personal=customTechnologies.some(x=>String(x.name).toLowerCase()===String(t.name).toLowerCase());return `<article class="card result-card"><div class="result-title">${esc(t.name)}</div><p class="muted">${esc(t.description||'No description yet.')}</p><div class="result-meta"><span class="badge">${esc(t.category||'Other')}</span><span class="badge">${esc(t.difficulty||'beginner')}</span><span class="badge">${personal?'✎ Personal override':'☁ Remote catalog'}</span></div><div class="chips">${arr(t.tags).slice(0,8).map(x=>`<span class="chip">#${esc(x)}</span>`).join('')}</div><div class="toolbar"><button data-action="technology" data-name="${esc(t.name)}">Open</button><button data-action="edit-technology" data-id="${esc(t.id)}">✎ ${personal?'Edit':'Improve / Override'}</button></div></article>`}).join('')||'<div class="empty-state" style="grid-column:1/-1"><h3>No technologies found</h3><p>Try another search or add a technology.</p></div>';}
+async function saveTechnology(){const name=$('#tf-name')?.value.trim();if(!name)return toast('Technology name is required.');const rec={id:($('#tf-name').dataset.id||uid()),name,category:$('#tf-category').value.trim()||'DevOps',subcategory:$('#tf-subcategory').value.trim(),description:$('#tf-description').value.trim(),difficulty:$('#tf-difficulty').value||'beginner',tags:csv($('#tf-tags').value),prerequisites:csv($('#tf-prereq').value),official:{website:$('#tf-website').value.trim(),documentation:$('#tf-docs').value.trim(),github:$('#tf-github').value.trim()},type:'technology',updatedAt:new Date().toISOString()};const i=customTechnologies.findIndex(x=>String(x.id)===String($('#tf-name').dataset.id)||String(x.name).toLowerCase()===name.toLowerCase());if(i>=0)customTechnologies[i]=rec;else customTechnologies.push(rec);await saveCustomTechnologies(customTechnologies);$('#technologyEditor')?.remove();if(state.page==='technologies'){render();drawTechnologyCatalog();}toast(`${name} saved to your Technology Catalog.`);}
+async function deleteTechnology(id){const i=customTechnologies.findIndex(x=>String(x.id)===String(id));if(i<0)return toast('This is a remote technology. Create an override first.');const name=customTechnologies[i].name;if(confirm(`Delete your personal override for ${name}? The remote technology will remain.`)){customTechnologies.splice(i,1);await saveCustomTechnologies(customTechnologies);$('#technologyEditor')?.remove();render();toast(`${name} personal override deleted.`);}}
+function exportTechnologies(){const data=allTech().map(t=>clone(t));downloadJSON('devops-technologies-improved.json',data);toast(`Exported ${data.length} technologies.`);}
+function settingsPage(){return layout(`<div class="card"><div class="section-title"><h3>⚙️ Settings</h3><div class="toolbar"><button data-action="reset-config">Reset Defaults</button><button data-action="import-config">📥 Import Config</button><button data-action="export-config">📤 Export Config</button><button data-action="save-settings" class="primary">Save Settings</button><input id="configImport" type="file" accept="application/json" hidden></div></div><p class="muted">All values below have working defaults for the current DevOps Explorer repository and remain fully editable.</p><div class="grid"><div><label>GitHub Repository URL</label><input id="set-repo" class="input" value="${esc(config.repositoryUrl)}"><label>Branch</label><input id="set-branch" class="input" value="${esc(config.branch)}"><label>Raw Base URL</label><input id="set-rawbase" class="input" value="${esc(config.rawBaseUrl)}"><label>Raw index.html URL</label><input id="set-rawindex" class="input" value="${esc(config.rawIndexUrl)}"></div><div><label>Raw Categories DB URL</label><input id="set-categoriesUrl" class="input" value="${esc(config.categoriesUrl)}"><label>Categories data path</label><input id="set-categoriesPath" class="input" value="${esc(config.categoriesPath)}"><label>Raw Technologies DB URL</label><input id="set-technologiesUrl" class="input" value="${esc(config.technologiesUrl)}"><label>Technologies data path</label><input id="set-technologiesPath" class="input" value="${esc(config.technologiesPath)}"></div><div><label>Bookmark database path</label><input id="set-bookmarkPath" class="input" value="${esc(config.bookmarkPath)}"><label>Tags path</label><input id="set-tagsPath" class="input" value="${esc(config.tagsPath)}"><label>Metadata path</label><input id="set-metadataPath" class="input" value="${esc(config.metadataPath)}"><label>GitHub fine-grained token</label><input id="set-token" class="input" type="password" value="${esc(config.token||'')}"></div><div><label>Theme</label><select id="set-theme"><option ${state.theme==='dark'?'selected':''}>Dark</option><option ${state.theme==='light'?'selected':''}>Light</option><option>System</option></select><label>Accent</label><select id="set-accent">${['DevOps Blue','Cyber Purple','Terminal Green','Cloud Orange'].map(x=>`<option ${String(config.accent||'blue').toLowerCase().includes(x.split(' ')[1]?.toLowerCase()||'x')?'selected':''}>${x}</option>`).join('')}</select><label><input id="set-autohealth" type="checkbox" ${config.autoHealth!==false?'checked':''}> Auto health checks</label><p class="muted small">Run checks when dashboard opens</p><label><input id="set-exportToken" type="checkbox"> Config export: Include GitHub token in exported JSON (sensitive)</label></div></div></div><div class="card"><h3>Developer diagnostics</h3><p>Extension ${APP_VERSION}. Data sources: categories + technologies JSON. GitHub write sync: ${config.githubSyncEnabled?'configured':'not configured'}.</p></div>`, 'Settings');}
+
+function librariesPage(){const tags=appData.tagLibrary?.tags||[],labels=appData.tagLibrary?.labels||[];return layout(`<div class="hero"><div class="card"><div class="section-title"><div><h3>🏷️ Tag Library</h3><p class="muted">Your reusable search tags and GitHub topics.</p></div><button data-action="new-library" data-type="tag" class="primary">+ Add Tag</button></div><div class="chips">${tags.map(t=>`<span class="chip">#${esc(t)} <button class="chip-x" data-action="delete-library" data-type="tag" data-value="${esc(t)}">×</button></span>`).join('')||'<span class="muted">No tags yet.</span>'}</div></div><div class="card"><div class="section-title"><div><h3>🔖 Label Library</h3><p class="muted">Personal labels for organizing resources and entities.</p></div><button data-action="new-library" data-type="label" class="primary">+ Add Label</button></div><div class="chips">${labels.map(t=>`<span class="chip">${esc(t)} <button class="chip-x" data-action="delete-library" data-type="label" data-value="${esc(t)}">×</button></span>`).join('')||'<span class="muted">No labels yet.</span>'}</div></div><div class="card"><div class="toolbar"><button data-action="export-library">📤 Export Library</button><button data-action="import-library">📥 Import Library</button><input id="libraryImport" type="file" accept="application/json" hidden></div></div>`, 'Tag & Label Library');}
+
+function page(){switch(state.page){case'explore':return explorePage();case'taxonomy':return taxonomyPage();case'learning':return learningPage();case'labs':return labsPage();case'projects':return projectsPage();case'roadmaps':return roadmapsPage();case'collections':return collectionsPage();case'favorites':return favoritesPage();case'goals':return goalsPage();case'activity':return activityPage();case'ai':return aiPage();case'admin':return adminPage();case'settings':return settingsPage();case'libraries':return librariesPage();case'technologies':return technologiesPage();default:return dashboardPage();}}
+function render(){document.body.classList.toggle('light',state.theme==='light');$('#app').innerHTML=page();}
+
+function syncSearch(){state.query=$('#searchQuery')?.value.trim()||'';state.operator=$('#operator')?.value||'AND';state.categories=$$('#catFilter option:checked').map(o=>o.value);state.technologies=$$('#techFilter option:checked').map(o=>o.value);state.tags=csv($('#tagsFilter')?.value);state.difficulty=$('#difficulty')?.value||'';}
+async function doLocal(){syncSearch();const r=localSearch();$('#searchResults').innerHTML=`<div class="notice">${r.length} local matches</div>${renderLocalResults(r.slice(0,100))}`;await act('search',{name:state.query||'filtered search',count:r.length,source:'local'});}
+async function doGithub(){syncSearch();const q=buildGithubQuery(filters());$('#searchResults').innerHTML='<div class="notice">Searching GitHub…</div>';try{githubResults=await githubRepositorySearch(filters());$('#searchResults').innerHTML=`<div class="notice">${githubResults.length} GitHub repositories · query: <code>${esc(q||'devops')}</code></div><div class="grid">${githubResults.map(githubCard).join('')}</div>`;await act('search',{name:q,count:githubResults.length,source:'github'});}catch(e){$('#searchResults').innerHTML=`<div class="notice error"><b>GitHub Search failed.</b><p>${esc(e.message)}</p><button data-action="github-search">Retry</button></div>`;}}
+function currentGithub(id){return githubResults.find(x=>x.id===id)||githubBookmarks().find(x=>x.id===id);}
+async function saveGithubBookmark(id,extra={}){const x=currentGithub(id);if(!x)return;const b={id:x.id,title:x.title,name:x.name,url:x.url,description:x.description,type:'github-repository',github:true,owner:x.owner,createdAt:x.createdAt,updatedAt:x.updatedAt,language:x.language,stars:x.stars,forks:x.forks,issues:x.issues,license:x.license,topics:x.topics,tags:extra.tags||x.topics||[],labels:extra.labels||[],savedAt:new Date().toISOString()};const i=bookmarks.findIndex(y=>y.id===b.id);if(i>=0)bookmarks[i]={...bookmarks[i],...b};else bookmarks.unshift(b);await saveBookmarks(bookmarks);return b;}
+async function addFavoriteRepo(id){const x=currentGithub(id);if(!x)return;await saveGithubBookmark(id);addUnique(appData.favorites,{id:x.id,name:x.title,url:x.url,category:'GitHub Repository',owner:x.owner});await persist();alert('Added to Favorites.');}
+async function addRepoCollection(id){const x=currentGithub(id);if(!x)return;await saveGithubBookmark(id);openCollectionPicker(x);}
+function openCollectionPicker(item){const cols=appData.collections;modalHtml(`<div class="section-title"><h2>Add to Collection</h2><button data-action="close-modal">✕</button></div>${cols.length?`<div class="list">${cols.map(c=>`<label class="list-item"><span><b>${esc(c.title)}</b><span class="meta"> ${arr(c.items).length} items</span></span><input type="checkbox" data-collection-pick value="${esc(c.id)}"></label>`).join('')}</div>`:'<p class="muted">No collections yet. Create one first.</p>'}<div class="modal-actions"><button data-action="new-entity" data-type="collections">+ New Collection</button><button class="primary" data-action="apply-collection" data-item-url="${esc(item.url)}" data-item-title="${esc(item.title)}">Add</button></div>`,'collectionPicker');}
+function modalHtml(inner,idName='genericModal'){document.body.insertAdjacentHTML('beforeend',`<div class="modal-backdrop" id="${idName}"><div class="modal">${inner}</div></div>`);}
+async function addRepoTag(id,type){const x=currentGithub(id);if(!x)return;const current=arr(x[type==='tag'?'topics':'labels']);const val=prompt(`Add ${type} for ${x.title}. You can enter multiple values separated by commas.`,current.join(', '));if(!val)return;const values=csv(val);values.forEach(v=>ensureLibrary(v,type));await saveGithubBookmark(id,{[type==='tag'?'tags':'labels']:[...new Set([...current,...values])]});await persist();toast(`${values.length} ${type}${values.length===1?'':'s'} added to your library and repository. Search results preserved.`);}
+function categoryManager(editName=null){const c=editName?allCategories().find(x=>x.name===editName):null;let selected=new Set(categoryTools(c));modalHtml(`<div class="section-title"><div><h2>${c?'Edit Category':'Personal Categories'}</h2><p class="muted">System categories can be locally overridden. Personal categories are separate and persistent.</p></div><button data-action="close-modal">✕</button></div><div class="two"><div><label>Name</label><input id="catName" class="input" value="${esc(c?.name||'')}"><label>Icon</label><input id="catIcon" class="input" value="${esc(c?.icon||'⭐')}"><label>Description</label><textarea id="catDesc">${esc(c?.description||'')}</textarea><label>Technology search</label><input id="catTechSearch" class="input" placeholder="Search technology catalog"><h3 style="margin-top:16px">Personal Categories</h3><div class="list">${customCategories.map(x=>`<div class="list-item"><div><b>${esc(x.icon||'⭐')} ${esc(x.name)}</b><div class="meta">${arr(x.tools).length} technologies</div></div><div class="toolbar"><button data-action="edit-category" data-name="${esc(x.name)}">Edit</button><button class="danger" data-action="delete-category" data-name="${esc(x.name)}">Delete</button></div></div>`).join('')||'<span class="muted">No personal categories yet.</span>'}</div></div><div><h3>Technologies</h3><div id="catTechList" class="picker" style="max-height:430px"></div></div></div><div class="modal-actions"><button data-action="close-modal">Cancel</button>${c?`<button data-action="save-category" data-existing="1" data-name-old="${esc(c.name)}" class="primary">Save Category</button>`:`<button data-action="save-category" class="primary">Create Personal Category</button>`}</div>`,'catModal');const draw=()=>{$('#catTechList').innerHTML=allTech().filter(t=>t.name.toLowerCase().includes(($('#catTechSearch').value||'').toLowerCase())).slice(0,700).map(t=>`<label class="picker-row"><input type="checkbox" data-cat-tech value="${esc(t.name)}" ${selected.has(t.name)?'checked':''}><span>${esc(t.name)} <small class="muted">${esc(t.category||'')}</small></span></label>`).join('');};draw();$('#catTechSearch').oninput=draw;$('#catTechList').onchange=e=>{if(e.target.matches('[data-cat-tech]'))e.target.checked?selected.add(e.target.value):selected.delete(e.target.value);};}
+async function saveCategory(existing,oldName){const name=$('#catName').value.trim();if(!name)return alert('Category name is required.');const obj={name:existing?oldName:name,icon:$('#catIcon').value.trim()||'⭐',description:$('#catDesc').value.trim(),tools:$$('[data-cat-tech]:checked').map(x=>x.value),updatedAt:new Date().toISOString()};if(existing){const orig=systemCategories().find(x=>x.name===oldName);if(orig){categoryOverrides[oldName]=obj;await chrome.storage.local.set({devopsExplorerCategoryOverrides:categoryOverrides});}else{const c=customCategories.find(x=>x.name===oldName);if(c)Object.assign(c,obj);await saveCustomCategories(customCategories);}}else{if(allCategories().some(x=>x.name.toLowerCase()===name.toLowerCase()))return alert('Category already exists.');customCategories.push({...obj,id:uid(),kind:'personal',createdAt:new Date().toISOString()});await saveCustomCategories(customCategories);}$('#catModal').remove();await loadData();render();}
+
+function settingsConfigFromDOM(){const c={...config,repositoryUrl:$('#set-repo').value.trim(),branch:$('#set-branch').value.trim()||'main',rawBaseUrl:$('#set-rawbase').value.trim(),rawIndexUrl:$('#set-rawindex').value.trim(),categoriesUrl:$('#set-categoriesUrl').value.trim(),categoriesPath:$('#set-categoriesPath').value.trim(),technologiesUrl:$('#set-technologiesUrl').value.trim(),technologiesPath:$('#set-technologiesPath').value.trim(),bookmarkPath:$('#set-bookmarkPath').value.trim(),tagsPath:$('#set-tagsPath').value.trim(),metadataPath:$('#set-metadataPath').value.trim(),token:$('#set-token').value,theme:($('#set-theme').value||'Dark').toLowerCase(),accent:($('#set-accent').value||'DevOps Blue').toLowerCase().split(' ')[1]||'blue',autoHealth:$('#set-autohealth').checked};return c;}
+async function saveSettings(){config=await saveConfig(settingsConfigFromDOM());state.theme=config.theme==='system'?'dark':config.theme;state.accent=config.accent;render();alert('Settings saved successfully.');}
+
+function libraryPrompt(type){const value=prompt(`New ${type}:`,'');if(!value)return;ensureLibrary(value.trim(),type);persist().then(render);}
+function openPicker(title,items,selected,onApply){modalHtml(`<div class="section-title"><h2>${title}</h2><button data-action="close-modal">✕</button></div><div class="picker">${items.map(x=>`<label class="picker-row"><input type="checkbox" data-generic-pick value="${esc(x)}" ${selected.includes(x)?'checked':''}><span>${esc(x)}</span></label>`).join('')}</div><div class="modal-actions"><button data-action="close-modal">Cancel</button><button class="primary" id="genericApply">Apply</button></div>`,'genericPicker');$('#genericApply').onclick=()=>{onApply($$('input[data-generic-pick]:checked').map(x=>x.value));$('#genericPicker').remove();};}
+
+function bindRoot(){const root=$('#app');if(root.dataset.bound)return;root.dataset.bound='1';document.addEventListener('click',async e=>{const b=e.target.closest('[data-action]');if(!b)return;const a=b.dataset.action;try{
+ if(a==='navigate'){state.page=b.dataset.page;history.pushState({},'',`#${state.page}`);render();return;}
+ if(a==='palette'){openPalette();return;} if(a==='sidepanel'){await chrome.sidePanel?.open({windowId:chrome.windows.WINDOW_ID_CURRENT});return;} if(a==='close-modal'){b.closest('.modal-backdrop')?.remove();return;}
+ if(a==='clear-search'){state={...state,query:'',categories:[],technologies:[],tags:[],difficulty:''};render();return;} if(a==='local-search'){await doLocal();return;} if(a==='github-search'){await doGithub();return;} if(a==='save-search'){syncSearch();const n=prompt('Saved search name',state.query||state.categories[0]||'My DevOps Search');if(n){appData.savedSearches.push({id:uid(),name:n,filters:clone(filters())});await persist();render();}return;} if(a==='saved-search'){const x=appData.savedSearches[Number(b.dataset.index)];if(x){state={...state,...clone(x.filters)};render();}return;}
+ if(a==='open-url'){openUrl(b.dataset.url,b.dataset.url);return;} if(a==='technology'){openTechnology(b.dataset.name);await act('technology_opened',{name:b.dataset.name});return;}
+ if(a==='favorite'){const n=b.dataset.name;if(!appData.favorites.some(x=>x.name===n)){appData.favorites.push({id:uid(),name:n,category:'Technology'});await persist();}alert(`${n} added to Favorites.`);return;} if(a==='stack'){if(!appData.stack.includes(b.dataset.name))appData.stack.push(b.dataset.name);await persist();alert('Added to My DevOps Stack.');return;}
+ if(a==='learning-add'){const n=b.dataset.name;appData.learning[n]={...(appData.learning[n]||{}),status:'Interested',progress:10,updatedAt:new Date().toISOString()};appData.continueItems=[{title:n,meta:'Learning',progress:10},...arr(appData.continueItems).filter(x=>x.title!==n)].slice(0,10);await persist();alert(`${n} added to Learning.`);return;}
+ if(a==='learning-remove'){delete appData.learning[b.dataset.name];appData.continueItems=arr(appData.continueItems).filter(x=>x.title!==b.dataset.name);await persist();render();return;}
+ if(a==='collection-add'){addCollectionItem(b.dataset.name);return;}
+ if(a==='github-bookmark'){await saveGithubBookmark(b.dataset.id);toast('Repository bookmarked. Search results preserved.');return;} if(a==='favorite-repo'){await addFavoriteRepo(b.dataset.id);return;} if(a==='collection-repo'){const x=currentGithub(b.dataset.id);if(x)openCollectionPicker(x);return;} if(a==='tag-repo'){await addRepoTag(b.dataset.id,'tag');return;} if(a==='label-repo'){await addRepoTag(b.dataset.id,'label');return;} if(a==='github-topic-library'){const topic=String(b.dataset.topic||'').trim();if(topic){ensureLibrary(topic,'tag');const x=currentGithub(b.dataset.id);if(x){await saveGithubBookmark(b.dataset.id,{tags:[...new Set([...(x.topics||[]),topic])]});}await persist();alert(`#${topic} added to your Tag Library.`);}return;} if(a==='owner'){openUrl(`https://github.com/${encodeURIComponent(b.dataset.owner)}`,`${b.dataset.owner} GitHub`);return;} if(a==='use-tag'){state.tags=[...new Set([...state.tags,b.dataset.tag])];state.page='explore';render();return;}
+ if(a==='github-tech'){state.page='explore';state.query=b.dataset.name;render();setTimeout(doGithub,0);return;}
+ if(a==='new-technology'){technologyEditor();return;} if(a==='edit-technology'){technologyEditor(b.dataset.id);return;} if(a==='save-technology'){await saveTechnology();return;} if(a==='delete-technology'){await deleteTechnology(b.dataset.id);return;} if(a==='export-technologies'){exportTechnologies();return;} if(a==='import-technologies'){$('#technologyImport').click();return;} if(a==='category-manager'){categoryManager();return;} if(a==='edit-category'){categoryManager(b.dataset.name);return;} if(a==='delete-category'){if(confirm(`Delete personal category \"${b.dataset.name}\"?`)){customCategories=customCategories.filter(x=>x.name!==b.dataset.name);await saveCustomCategories(customCategories);$('#catModal')?.remove();await loadData();render();}return;} if(a==='save-category'){await saveCategory(b.dataset.existing==='1',b.dataset.nameOld);return;}
+ if(a==='new-entity'){modalHtml(editorModal(b.dataset.type), 'entityModal');return;} if(a==='edit-entity'){modalHtml(editorModal(b.dataset.type,b.dataset.id),'entityModal');return;} if(a==='save-entity'){const e=saveEntityFromModal(b.dataset.type,b.dataset.id);if(!e)return;await persist();$('#entityModal')?.remove();render();return;} if(a==='delete-entity'){if(confirm('Delete this record?')){appData[b.dataset.type]=arr(appData[b.dataset.type]).filter(x=>x.id!==b.dataset.id);await persist();$('#entityModal')?.remove();render();}return;} if(a==='complete-entity'){const e=appData[b.dataset.type].find(x=>x.id===b.dataset.id);if(e){e.progress=Number(e.progress)>=100?0:100;await persist();render();}return;}
+ if(a==='new-linked'){modalHtml(editorModal(b.dataset.type,null,b.dataset.name),'entityModal');return;}
+ if(a==='learning-status'){return;}
+ if(a==='add-learning-picker'){openPicker('Add Technologies to Learning',allTech().map(x=>x.name),Object.keys(appData.learning),async names=>{for(const n of names)appData.learning[n]={...(appData.learning[n]||{}),status:'Interested',progress:10};appData.continueItems=names.map(n=>({title:n,meta:'Learning',progress:10}));await persist();render();});return;}
+ if(a==='run-ai'){const n=$('#aiTech')?.value||'DevOps';$('#aiOutput').textContent=advise($('#aiAction')?.value||'explain',n,appData);return;} if(a==='audit'){const all=allTech();$('#auditOut').textContent=`Audit complete: ${all.length} technologies, ${allCategories().length} categories, ${(appData.tagLibrary?.tags||[]).length} tags, ${(appData.tagLibrary?.labels||[]).length} labels. Schema v${appData.schemaVersion}.`;return;}
+ if(a==='backup'){downloadJSON('charlie-mj-devops-backup.json',await createBackup());return;} if(a==='reset-workspace'){if(confirm('Reset workspace data? Remote taxonomy and settings are preserved.')){appData={schemaVersion:3,collections:[],favorites:[],learning:{},labs:[],projects:[],roadmaps:[],activity:[],goals:[],savedSearches:[],stack:[],notes:{},settings:{},continueItems:[],achievements:[],backupMeta:{lastBackupAt:null},tagLibrary:{tags:[],labels:[]},githubCache:[]};await persist();render();}return;}
+ if(a==='save-settings'){await saveSettings();return;} if(a==='reset-config'){config=await resetConfig();state.theme=config.theme;state.accent=config.accent;render();return;} if(a==='export-config'){const include=$('#set-exportToken')?.checked;const c=clone(config);if(!include)delete c.token;downloadJSON('charlie-mj-devops-config.json',c);return;} if(a==='import-config'){$('#configImport').click();return;}
+ if(a==='new-library'){libraryPrompt(b.dataset.type);return;} if(a==='delete-library'){const k=b.dataset.type==='label'?'labels':'tags';appData.tagLibrary[k]=appData.tagLibrary[k].filter(x=>x!==b.dataset.value);await persist();render();return;} if(a==='export-library'){downloadJSON('charlie-mj-tag-label-library.json',appData.tagLibrary);return;} if(a==='import-library'){$('#libraryImport').click();return;}
+ if(a==='apply-collection'){const ids=$$('input[data-collection-pick]:checked').map(x=>x.value);const item={type:'github-repository',title:b.dataset.itemTitle,url:b.dataset.itemUrl};for(const cid of ids){const c=appData.collections.find(x=>x.id===cid);if(c){c.items=arr(c.items);if(!c.items.some(i=>i.url===item.url))c.items.push(item);}}await persist();$('#collectionPicker')?.remove();alert('Added to selected collections.');return;}
+ }catch(err){console.error(err);alert(`Action failed: ${err.message}`);}});
+ document.addEventListener('change',async e=>{if(e.target.id==='technologyImport'&&e.target.files[0]){try{const raw=JSON.parse(await e.target.files[0].text());const imported=normalizeTechnologyRecords(raw);const map=new Map(customTechnologies.map(x=>[String(x.name).toLowerCase(),x]));for(const t of imported)map.set(String(t.name).toLowerCase(),{...t,id:t.id||uid(),updatedAt:new Date().toISOString()});customTechnologies=[...map.values()];await saveCustomTechnologies(customTechnologies);e.target.value='';render();toast(`Imported ${imported.length} technology records as personal catalog data.`);}catch(err){toast(`Technology import failed: ${err.message}`);}}if(e.target.matches('[data-action="learning-status"]')){const n=e.target.dataset.name;const map={'Not Started':0,'Interested':10,'Learning':35,'Practicing':55,'Used':70,'Comfortable':80,'Advanced':90,'Mastered':100};appData.learning[n]={...(appData.learning[n]||{}),status:e.target.value,progress:map[e.target.value],updatedAt:new Date().toISOString()};appData.continueItems=[{title:n,meta:e.target.value,progress:map[e.target.value]},...arr(appData.continueItems).filter(x=>x.title!==n)].slice(0,10);await persist();render();}if(e.target.id==='restoreFile'&&e.target.files[0]){try{await restoreBackup(JSON.parse(await e.target.files[0].text()));await loadData();render();alert('Backup restored successfully.');}catch(err){alert(`Restore failed: ${err.message}`);}}if(e.target.id==='configImport'&&e.target.files[0]){try{const c=JSON.parse(await e.target.files[0].text());config=await saveConfig(c);state.theme=config.theme;render();alert('Configuration imported.');}catch(err){alert(`Config import failed: ${err.message}`);}}if(e.target.id==='libraryImport'&&e.target.files[0]){try{const x=JSON.parse(await e.target.files[0].text());if(x.tags)appData.tagLibrary.tags=[...new Set([...appData.tagLibrary.tags,...x.tags.filter(Boolean)])];if(x.labels)appData.tagLibrary.labels=[...new Set([...appData.tagLibrary.labels,...x.labels.filter(Boolean)])];await persist();render();alert('Tag/label library imported.');}catch(err){alert(`Library import failed: ${err.message}`);}}});
+ document.addEventListener('input',e=>{if(e.target.matches('.picker-filter')){const q=(e.target.value||'').trim().toLowerCase();const id=e.target.dataset.picker;$$(`label.picker-row`,e.target.parentElement).forEach(row=>{row.style.display=row.textContent.toLowerCase().includes(q)?'':'none';});}if(e.target.id==='technologyCatalogSearch')drawTechnologyCatalog();});
+document.addEventListener('keydown',e=>{if(e.target.id==='searchQuery'){if(e.key==='Escape'){state.query='';render();}else if(e.key==='Enter'){e.preventDefault();e.ctrlKey?doGithub():doLocal();}}});
 }
 
-function jsonArray(data, keys=[]) {
-  if (Array.isArray(data)) return data;
-  for (const key of keys) if (Array.isArray(data?.[key])) return data[key];
-  return [];
-}
+function openPalette(){modalHtml(`<div class="section-title"><h2>Command Palette</h2><button data-action="close-modal">✕</button></div><input id="paletteInput" class="search-input" autofocus placeholder="> Search commands, pages or technologies"><div id="paletteList" class="list" style="margin-top:12px"></div>`,'palette');const cmds=[...NAV.map(([k,i,n])=>({label:n,icon:i,fn:()=>{state.page=k;render();}})),...allTech().slice(0,120).map(t=>({label:`Open ${t.name}`,icon:'🧩',fn:()=>openTechnology(t.name)}))];const draw=()=>{const q=$('#paletteInput').value.toLowerCase();$('#paletteList').innerHTML=cmds.filter(x=>x.label.toLowerCase().includes(q)).slice(0,25).map((x,i)=>`<button data-palette-index="${i}">${x.icon} ${esc(x.label)}</button>`).join('');};$('#paletteInput').oninput=draw;$('#paletteList').onclick=e=>{const b=e.target.closest('[data-palette-index]');if(!b)return;const q=$('#paletteInput').value.toLowerCase();const x=cmds.filter(x=>x.label.toLowerCase().includes(q)).slice(0,25)[Number(b.dataset.paletteIndex)];$('#palette').remove();x?.fn();};draw();}
 
-function technologyUrl(technology) {
-  const name=technology?.name||technology?.title||'';
-  const slug=technology?.slug||technology?.id||'';
-  const exact=TOOL_LINKS[name] || TOOL_LINKS[slug];
-  return technology?.url || technology?.website || technology?.documentation || technology?.documentationUrl || exact || `https://github.com/search?q=${encodeURIComponent(name||slug)}&type=repositories`;
-}
+async function addCollectionItem(name){if(!appData.collections.length){modalHtml(editorModal('collections',null,name),'entityModal');return;}openPicker('Add to Collection',appData.collections.map(x=>x.title),[],async names=>{for(const title of names){const c=appData.collections.find(x=>x.title===title);if(c){c.items=arr(c.items);if(!c.items.some(i=>i.name===name))c.items.push({type:'technology',name});}}await persist();alert(`${name} added to selected collections.`);});}
 
-function normalizeTechnology(technology) {
-  const name=technology?.name||technology?.title||technology?.slug||technology?.id||'Untitled technology';
-  const category=technology?.category||'Other';
-  const tags=[
-    name, technology?.slug, technology?.subcategory, category,
-    ...(Array.isArray(technology?.aliases)?technology.aliases:[]),
-    ...(Array.isArray(technology?.keywords)?technology.keywords:[]),
-    ...(Array.isArray(technology?.relatedTechnologies)?technology.relatedTechnologies:[])
-  ].filter(Boolean).map(String);
-  return {
-    id:technology?.id||technology?.slug||name.toLowerCase().replace(/[^a-z0-9]+/g,'-'),
-    title:name, url:technologyUrl(technology), category, tags:[...new Set(tags)],
-    type:'tool', difficulty:String(technology?.skillLevel||'intermediate').toLowerCase(),
-    description:technology?.description||technology?.shortDescription||'',
-    source:'GitHub devops-technologies.json'
-  };
-}
-
-
-function allCategories(){ return [...CATEGORIES, ...customCategories]; }
-function categoryByName(name){ return allCategories().find(c=>c.name===name); }
-function categoryTools(category){ return Array.isArray(category?.tools) ? category.tools : []; }
-function normalizeCategoryKey(value=''){ return String(value).trim().toLowerCase(); }
-function getTechnologyCatalog(){
-  const map = new Map();
-  remoteTechnologies.forEach(t=>{
-    const name=t?.name||t?.title||t?.slug||t?.id;
-    if(name) map.set(normalizeCategoryKey(name), {...t, name});
-  });
-  allCategories().forEach(c=>categoryTools(c).forEach(name=>{
-    const key=normalizeCategoryKey(name);
-    if(!map.has(key)) map.set(key,{id:key,name,category:c.name,subcategory:'',aliases:[],keywords:[]});
-  }));
-  return [...map.values()];
-}
-function rebuildCategoryTechnologyIndex(){
-  categoryTechnologyIndex=new Map();
-  allCategories().forEach(c=>categoryTechnologyIndex.set(c.name, new Set(categoryTools(c).map(normalizeCategoryKey))));
-}
-function categoryMatchesResource(category, resource){
-  if(!category) return false;
-  if(category.kind==='custom'){
-    const keys=categoryTechnologyIndex.get(category.name)||new Set();
-    const hay=new Set([resource.title, resource.name, ...(resource.tags||[]), resource.id].filter(Boolean).map(normalizeCategoryKey));
-    if([...keys].some(k=>hay.has(k))) return true;
-    const text=JSON.stringify(resource).toLowerCase();
-    return [...keys].some(k=>k && text.includes(k));
-  }
-  return resource.category===category.name || categoryTools(category).some(t=>normalizeCategoryKey(t)===normalizeCategoryKey(resource.title) || (resource.tags||[]).some(tag=>normalizeCategoryKey(tag)===normalizeCategoryKey(t)));
-}
-function githubTermsForCategory(category){
-  const tools=categoryTools(category).map(String).filter(Boolean);
-  const terms=[];
-  for(const tool of tools){
-    const tech=remoteTechnologies.find(t=>normalizeCategoryKey(t?.name||t?.slug||t?.id)===normalizeCategoryKey(tool));
-    const candidates=[tech?.name, ...(Array.isArray(tech?.aliases)?tech.aliases.slice(0,2):[])].filter(Boolean);
-    terms.push(candidates[0]||tool);
-    if(terms.length>=4) break;
-  }
-  return [...new Set(terms)];
-}
-function buildGithubSearchQuery(filters){
-  const parts=[];
-  if(filters.q) parts.push(filters.q);
-  const cats=filters.cats.map(categoryByName).filter(Boolean);
-  if(cats.length){
-    const groups=cats.map(c=>githubTermsForCategory(c)).filter(Boolean).map(terms=>terms.slice(0,2).map(t=>`"${String(t).replace(/"/g,'')}"`).join(' OR ')).filter(Boolean);
-    if(filters.mode==='AND'){
-      // GitHub repository search has a five-operator query limit. Keep each group compact.
-      groups.slice(0,3).forEach(g=>parts.push(`(${g})`));
-      
-    } else if(groups.length){
-      parts.push(`(${groups.slice(0,3).join(' OR ')})`);
-    }
-  }
-  if(filters.tags.length){
-    const tagTerms=filters.tags.slice(0,4).map(t=>`topic:${t.replace(/[^a-zA-Z0-9-]/g,'')}`).filter(Boolean);
-    if(filters.mode==='AND') parts.push(...tagTerms.slice(0,2)); else if(tagTerms.length) parts.push(`(${tagTerms.join(' OR ')})`);
-  }
-  if(filters.diff) parts.push(filters.diff==='beginner'?'stars:<5000':filters.diff==='advanced'?'stars:>=5000':'stars:100..50000');
-  return parts.join(' ').slice(0,250).trim();
-}
-
-function applyRemoteCategories(categoryData, technologyData) {
-  const categories=jsonArray(categoryData);
-  const technologies=jsonArray(technologyData);
-  if (!categories.length) return;
-  const techById=new Map(technologies.map(t=>[String(t.id||t.slug||'').toLowerCase(),t]));
-  const normalized=categories.map((c,index)=>{
-    const tools=(Array.isArray(c.technologies)?c.technologies:[]).map(id=>techById.get(String(id).toLowerCase())?.name||String(id));
-    return {
-      id:c.id||c.slug||`category-${index+1}`, name:c.name||c.title||'Other', icon:c.icon||'◈',
-      tools, description:c.description||'', skillLevel:c.skillLevel||'Intermediate'
-    };
-  }).filter(c=>c.name);
-  if (normalized.length) {
-    CATEGORIES.splice(0,CATEGORIES.length,...normalized);
-    remoteCategories=normalized;
-    rebuildCategoryTechnologyIndex();
-  }
-}
-
-const TOOL_LINKS={
-  'Linux':'https://docs.kernel.org/',
-  'Networking':'https://www.cloudflare.com/learning/network-layer/what-is-a-computer-network/',
-  'Git':'https://git-scm.com/doc',
-  'GitHub':'https://docs.github.com/',
-  'GitLab':'https://docs.gitlab.com/',
-  'Shell Scripting':'https://www.gnu.org/software/bash/manual/bash.html',
-  'Docker':'https://docs.docker.com/',
-  'Docker Compose':'https://docs.docker.com/compose/',
-  'Podman':'https://docs.podman.io/',
-  'Containerd':'https://containerd.io/docs/',
-  'Docker Swarm':'https://docs.docker.com/engine/swarm/',
-  'Kubernetes':'https://kubernetes.io/docs/',
-  'kubectl':'https://kubernetes.io/docs/reference/kubectl/',
-  'Helm':'https://helm.sh/docs/',
-  'Kustomize':'https://kubectl.docs.kubernetes.io/guides/introduction/kustomize/',
-  'Ingress':'https://kubernetes.io/docs/concepts/services-networking/ingress/',
-  'Services':'https://kubernetes.io/docs/concepts/services-networking/service/',
-  'Operators':'https://kubernetes.io/docs/concepts/extend-kubernetes/operator/',
-  'Istio':'https://istio.io/latest/docs/',
-  'Argo CD':'https://argo-cd.readthedocs.io/en/stable/',
-  'Jenkins':'https://www.jenkins.io/doc/',
-  'GitHub Actions':'https://docs.github.com/actions',
-  'GitLab CI/CD':'https://docs.gitlab.com/ee/ci/',
-  'CircleCI':'https://circleci.com/docs/',
-  'Tekton':'https://tekton.dev/docs/',
-  'TeamCity':'https://www.jetbrains.com/help/teamcity/',
-  'Terraform':'https://developer.hashicorp.com/terraform/docs',
-  'OpenTofu':'https://opentofu.org/docs/',
-  'CloudFormation':'https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html',
-  'Pulumi':'https://www.pulumi.com/docs/',
-  'Ansible':'https://docs.ansible.com/',
-  'AWS':'https://docs.aws.amazon.com/',
-  'Azure':'https://learn.microsoft.com/azure/',
-  'Google Cloud':'https://cloud.google.com/docs',
-  'EKS':'https://docs.aws.amazon.com/eks/',
-  'ECS':'https://docs.aws.amazon.com/ecs/',
-  'ECR':'https://docs.aws.amazon.com/ecr/',
-  'GKE':'https://cloud.google.com/kubernetes-engine/docs',
-  'AKS':'https://learn.microsoft.com/azure/aks/',
-  'Prometheus':'https://prometheus.io/docs/',
-  'Grafana':'https://grafana.com/docs/',
-  'Loki':'https://grafana.com/docs/loki/',
-  'OpenTelemetry':'https://opentelemetry.io/docs/',
-  'Jaeger':'https://www.jaegertracing.io/docs/',
-  'Elasticsearch':'https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html',
-  'Trivy':'https://trivy.dev/latest/',
-  'SonarQube':'https://docs.sonarsource.com/sonarqube-server/',
-  'OWASP':'https://owasp.org/',
-  'Snyk':'https://docs.snyk.io/',
-  'Vault':'https://developer.hashicorp.com/vault/docs',
-  'Flux':'https://fluxcd.io/flux/',
-  'NGINX':'https://docs.nginx.com/',
-  'HAProxy':'https://www.haproxy.org/documentation/',
-  'Traefik':'https://doc.traefik.io/traefik/',
-  'Envoy':'https://www.envoyproxy.io/docs/envoy/latest/',
-  'PostgreSQL':'https://www.postgresql.org/docs/',
-  'MySQL':'https://dev.mysql.com/doc/',
-  'Redis':'https://redis.io/docs/latest/',
-  'MongoDB':'https://www.mongodb.com/docs/'
-};
-
-function buildTechnologyCatalog(){
-  return CATEGORIES.flatMap(category=>category.tools.map(tool=>({
-    title:`${tool} — DevOps Resource`,
-    url:TOOL_LINKS[tool]||`https://github.com/search?q=${encodeURIComponent(tool)}&type=repositories`,
-    category:category.name,
-    tags:[tool.toLowerCase().replace(/\s+/g,'-'),category.name.toLowerCase().replace(/\s+/g,'-'),'devops'],
-    type:TOOL_LINKS[tool]?'documentation':'github-repository',
-    difficulty:['Linux','Git','GitHub','Docker'].includes(tool)?'beginner':'intermediate',
-    description:`${tool} resources, documentation and GitHub projects.`
-  })));
-}
-
-async function loadResources(showNotice=false){
-  // Always keep the extension usable offline/when GitHub is temporarily unavailable.
-  resources=[...builtInResources,...buildTechnologyCatalog()];
-  remoteCategories=[];
-  remoteTechnologies=[];
-
-  const base=config.rawBaseUrl ? config.rawBaseUrl.replace(/\/+$/,'') : '';
-  const categoriesUrl=config.categoriesUrl || (base && config.categoriesPath ? `${base}/${String(config.categoriesPath).replace(/^\/+/, '')}` : '');
-  const technologiesUrl=config.technologiesUrl || (base && config.technologiesPath ? `${base}/${String(config.technologiesPath).replace(/^\/+/, '')}` : '');
-
-  try {
-    const [categoriesResponse, technologiesResponse] = await Promise.all([
-      categoriesUrl ? fetch(categoriesUrl,{cache:'no-store'}) : Promise.resolve(null),
-      technologiesUrl ? fetch(technologiesUrl,{cache:'no-store'}) : Promise.resolve(null)
-    ]);
-    if (categoriesResponse && !categoriesResponse.ok) throw new Error(`Categories ${categoriesResponse.status} ${categoriesResponse.statusText}`);
-    if (technologiesResponse && !technologiesResponse.ok) throw new Error(`Technologies ${technologiesResponse.status} ${technologiesResponse.statusText}`);
-
-    const categoriesData=categoriesResponse ? await categoriesResponse.json() : [];
-    const technologiesData=technologiesResponse ? await technologiesResponse.json() : [];
-    const categoryArray=jsonArray(categoriesData);
-    const technologyArray=jsonArray(technologiesData);
-
-    if (!categoryArray.length) throw new Error('devops-categories.json did not contain a category array.');
-    if (!technologyArray.length) throw new Error('devops-technologies.json did not contain a technology array.');
-
-    remoteTechnologies=technologyArray;
-    applyRemoteCategories(categoriesData, technologyArray);
-    const remote=technologyArray.map(normalizeTechnology).filter(x=>x.url);
-    if(remote.length) resources=[...builtInResources,...remote];
-
-    if(showNotice) toast(`Loaded ${remote.length} technologies and ${categoryArray.length} categories from GitHub.`);
-  } catch(error) {
-    // Restore built-in categories if remote data could not be loaded.
-    if (remoteCategories.length === 0) {
-      // CATEGORIES was not mutated unless applyRemoteCategories completed.
-    }
-    if(showNotice) toast(`GitHub data unavailable; using built-in catalog. ${error.message}`);
-  }
-
-  fillCategories();
-  renderQuick();
-}
-
-function renderQuick(){
-  $('#quickAccess').innerHTML=CATEGORIES.map(c=>`<button class="tech" data-tool="${escapeHtml(c.name)}">${c.icon}<br><span class="small">${escapeHtml(c.name)}</span></button>`).join('');
-  $$('#quickAccess [data-tool]').forEach(b=>b.onclick=()=>{showSection('search');$('#searchQuery').value=b.dataset.tool;runSearch();});
-}
-
-function fillCategories(){
-  rebuildCategoryTechnologyIndex();
-  const categories=allCategories();
-  $('#searchCategory').innerHTML=categories.map(c=>`<option value="${escapeHtml(c.name)}">${c.icon||'◈'} ${escapeHtml(c.name)}${c.kind==='custom'?' · Custom':''}</option>`).join('');
-  $('#bookmarkCategory').innerHTML='<option value="">All categories</option>'+categories.map(c=>`<option>${escapeHtml(c.name)}</option>`).join('');
-  $('#categoryChips').innerHTML=categories.map(c=>`<button class="chip ${c.kind==='custom'?'custom-chip':''}" data-cat="${escapeHtml(c.name)}">${c.icon||'◈'} ${escapeHtml(c.name)}${c.kind==='custom'?' · Custom':''}</button>`).join('');
-  $$('#categoryChips [data-cat]').forEach(btn=>btn.onclick=()=>{
-    const v=btn.dataset.cat;
-    selectedCategories.has(v)?(selectedCategories.delete(v),btn.classList.remove('selected')):(selectedCategories.add(v),btn.classList.add('selected'));
-    [...$('#searchCategory').options].forEach(o=>o.selected=selectedCategories.has(o.value));
-  });
-  $('#searchCategory').onchange=()=>{
-    selectedCategories=new Set([...$('#searchCategory').selectedOptions].map(o=>o.value));
-    $$('#categoryChips [data-cat]').forEach(btn=>btn.classList.toggle('selected',selectedCategories.has(btn.dataset.cat)));
-  };
-  renderCustomCategorySummary();
-}
-function renderCustomCategorySummary(){
-  const el=$('#customCategorySummary'); if(!el) return;
-  el.innerHTML=customCategories.length
-    ? customCategories.map(c=>`<span class="pill">${escapeHtml(c.icon||'◈')} ${escapeHtml(c.name)} · ${categoryTools(c).length} tools</span>`).join(' ')
-    : '<span class="muted small">No custom categories yet.</span>';
-}
-function openCategoryManager(){
-  const catalog=getTechnologyCatalog();
-  $('#modalContent').innerHTML=`<div class="section-title"><h2>🏷️ Custom Category Manager</h2><button class="btn" id="closeModal">✕</button></div>
-    <p class="muted small">Select any technologies from your complete DevOps catalog and save them as your own category. These categories work in Local Search and GitHub Search.</p>
-    <div class="form-grid"><div class="field"><label>Category name</label><input id="customCatName" class="input" placeholder="My AWS Tools"></div><div class="field"><label>Icon / short code</label><input id="customCatIcon" class="input" value="★" maxlength="4"></div><div class="field full"><label>Find technologies</label><input id="customTechFilter" class="input" placeholder="Search Docker, AWS, Terraform, Python…"></div></div>
-    <div class="category-manager-list" id="customTechList"></div>
-    <div class="section-title"><h3>My custom categories</h3></div><div id="customCatList"></div>
-    <div class="toolbar modal-actions"><button class="btn" id="exportCustomCategories">📤 Export</button><button class="btn" id="importCustomCategories">📥 Import</button><button class="btn" id="cancelCustomCategory">Cancel</button><button class="btn primary" id="saveCustomCategory">＋ Save Custom Category</button></div>`;
-  $('#modal').classList.add('open');
-  const renderTechs=()=>{
-    const q=($('#customTechFilter').value||'').trim().toLowerCase();
-    const filtered=catalog.filter(t=>!q||JSON.stringify(t).toLowerCase().includes(q));
-    $('#customTechList').innerHTML=filtered.map((t,i)=>{
-      const key=normalizeCategoryKey(t.name); const checked=selectedCustomTools.has(key);
-      return `<label class="category-tech-row"><input type="checkbox" data-custom-tech="${escapeHtml(key)}" ${checked?'checked':''}><span><strong>${escapeHtml(t.name)}</strong><small>${escapeHtml(t.category||'Uncategorized')}${t.subcategory?' · '+escapeHtml(t.subcategory):''}</small></span></label>`;
-    }).join('') || '<div class="empty">No technologies match.</div>';
-    $$('#customTechList [data-custom-tech]').forEach(cb=>cb.onchange=()=>cb.checked?selectedCustomTools.add(cb.dataset.customTech):selectedCustomTools.delete(cb.dataset.customTech));
-  };
-  const renderCats=()=>{$('#customCatList').innerHTML=customCategories.length?customCategories.map(c=>`<div class="custom-cat-row"><div><strong>${escapeHtml(c.icon||'◈')} ${escapeHtml(c.name)}</strong><span class="muted small">${categoryTools(c).length} technologies</span></div><button class="btn danger" data-delete-custom="${escapeHtml(c.id)}">Delete</button></div>`).join(''):'<div class="empty">No custom categories yet.</div>'; $$('#customCatList [data-delete-custom]').forEach(b=>b.onclick=async()=>{const removed=customCategories.find(c=>c.id===b.dataset.deleteCustom);customCategories=customCategories.filter(c=>c.id!==b.dataset.deleteCustom);if(removed)selectedCategories.delete(removed.name);await saveCustomCategories(customCategories);fillCategories();renderCats();toast('Custom category deleted.');});};
-  selectedCustomTools=new Set();
-  $('#customTechFilter').oninput=renderTechs;
-  $('#closeModal').onclick=()=>$('#modal').classList.remove('open'); $('#cancelCustomCategory').onclick=()=>$('#modal').classList.remove('open');
-  $('#exportCustomCategories').onclick=()=>downloadBlob(new Blob([JSON.stringify({format:'devops-explorer-custom-categories',version:1,categories:customCategories},null,2)],{type:'application/json'}),`DevOps-Custom-Categories-${new Date().toISOString().slice(0,10)}.json`);
-  $('#importCustomCategories').onclick=()=>{const input=document.createElement('input');input.type='file';input.accept='application/json';input.onchange=async e=>{try{const data=JSON.parse(await e.target.files[0].text());const incoming=Array.isArray(data)?data:(data.categories||[]);if(!Array.isArray(incoming))throw new Error('Invalid category file.');const existing=new Set(allCategories().map(c=>normalizeCategoryKey(c.name)));let added=0;for(const c of incoming){if(!c?.name||existing.has(normalizeCategoryKey(c.name)))continue;customCategories.push({...c,id:c.id||makeId(),kind:'custom',tools:Array.isArray(c.tools)?c.tools:[]});existing.add(normalizeCategoryKey(c.name));added++;}await saveCustomCategories(customCategories);fillCategories();renderCats();toast(`Imported ${added} custom categories.`);}catch(err){toast(`Import failed: ${err.message}`)}};input.click()};
-  $('#saveCustomCategory').onclick=async()=>{
-    const name=$('#customCatName').value.trim(); if(!name){toast('Enter a category name.');return}
-    if(allCategories().some(c=>normalizeCategoryKey(c.name)===normalizeCategoryKey(name))){toast('That category name already exists.');return}
-    if(!selectedCustomTools.size){toast('Select at least one technology.');return}
-    const catalogMap=new Map(catalog.map(t=>[normalizeCategoryKey(t.name),t.name]));
-    const tools=[...selectedCustomTools].map(k=>catalogMap.get(k)).filter(Boolean);
-    customCategories.push({id:makeId(),name,icon:$('#customCatIcon').value.trim()||'★',tools,description:'Personal DevOps category',skillLevel:'Custom',kind:'custom',createdAt:new Date().toISOString()});
-    await saveCustomCategories(customCategories);fillCategories();renderCats();$('#customCatName').value='';$('#customCatIcon').value='★';selectedCustomTools.clear();renderTechs();toast('Custom category created.');
-  };
-  renderTechs(); renderCats();
-}
-let selectedCustomTools=new Set();
-
-async function renderStats(){
-  const collections=new Set(bookmarks.flatMap(b=>b.collections||[]));
-  const learningDone=ROADMAP.filter(([name,status])=>(learning[name]||status)==='Completed').length;
-  $('#statBookmarks').textContent=bookmarks.length;$('#statCollections').textContent=collections.size;$('#statNotes').textContent=Object.keys(notes).length;$('#statProgress').textContent=`${pct(learningDone,ROADMAP.length)}%`;
-  $('#homeBookmarks').textContent=bookmarks.length;$('#statProgress').title=`${learningDone}/${ROADMAP.length} completed`;
-}
-
-async function renderRecent(){
-  const list=await getHistory();
-  $('#recentList').innerHTML=list.length?list.slice(0,8).map(x=>`<div class="health-row"><span><strong>${escapeHtml(x.title)}</strong><br><span class="muted small">${escapeHtml(x.url)}</span></span><button class="btn" data-open="${encodeURIComponent(x.url)}">Open</button></div>`).join(''):'<div class="empty">No recently opened resources yet.</div>';
-  $$('#recentList [data-open]').forEach(b=>b.onclick=()=>openUrl(decodeURIComponent(b.dataset.open)));
-}
-
-function renderBookmarks(){
-  const q=($('#bookmarkSearch').value||'').toLowerCase(); const cat=$('#bookmarkCategory').value;
-  const list=bookmarks.filter(b=>(!cat||b.category===cat)&&(!q||JSON.stringify(b).toLowerCase().includes(q)));
-  $('#bookmarkBody').innerHTML=list.length?list.map(b=>`<tr><td><strong>${escapeHtml(b.title)}</strong><br><span class="muted small">${escapeHtml(b.url)}</span></td><td>${escapeHtml(b.category||'Other')}</td><td>${(b.tags||[]).map(t=>`<span class="pill">#${escapeHtml(t)}</span> `).join('')}</td><td>${escapeHtml(b.difficulty||'—')}</td><td>${(b.collections||[]).map(c=>`<span class="pill">${escapeHtml(c)}</span> `).join('')}</td><td><div class="toolbar"><button class="btn" data-open="${encodeURIComponent(b.url)}">Open</button><button class="btn" data-edit="${b.id}">Edit</button><button class="btn danger" data-delete="${b.id}">Delete</button></div></td></tr>`).join(''):'<tr><td colspan="6"><div class="empty">No bookmarks match your filters.</div></td></tr>';
-  $$('#bookmarkBody [data-open]').forEach(b=>b.onclick=()=>openUrl(decodeURIComponent(b.dataset.open)));
-  $$('#bookmarkBody [data-edit]').forEach(b=>b.onclick=()=>openBookmarkModal(bookmarks.find(x=>x.id===b.dataset.edit)));
-  $$('#bookmarkBody [data-delete]').forEach(b=>b.onclick=async()=>{bookmarks=bookmarks.filter(x=>x.id!==b.dataset.delete);await saveBookmarks(bookmarks);renderBookmarks();renderStats();toast('Bookmark deleted.');});
-}
-
-function openBookmarkModal(item={}){
-  $('#modalContent').innerHTML=`<div class="section-title"><h2>${item.id?'Edit':'Add'} Bookmark</h2><button class="btn" id="closeModal">✕</button></div><div class="form-grid"><div class="field full"><label>Title</label><input id="mTitle" class="input" value="${escapeHtml(item.title||'')}"></div><div class="field full"><label>URL</label><input id="mUrl" class="input" value="${escapeHtml(item.url||'')}"></div><div class="field"><label>Category</label><select id="mCategory" class="select">${CATEGORIES.map(c=>`<option ${c.name===(item.category||'')?'selected':''}>${escapeHtml(c.name)}</option>`).join('')}<option ${item.category==='Other'?'selected':''}>Other</option></select></div><div class="field"><label>Difficulty</label><select id="mDifficulty" class="select">${DIFFICULTIES.map(x=>`<option ${x===(item.difficulty||'beginner')?'selected':''}>${x}</option>`).join('')}</select></div><div class="field full"><label>Tags (comma separated)</label><input id="mTags" class="input" value="${escapeHtml((item.tags||[]).join(', '))}"></div><div class="field full"><label>Collections (comma separated)</label><input id="mCollections" class="input" value="${escapeHtml((item.collections||[]).join(', '))}"></div><div class="field full"><label>Description</label><textarea id="mDescription" class="textarea" rows="4">${escapeHtml(item.description||'')}</textarea></div><div class="field full"><label>Personal notes</label><textarea id="mNotes" class="textarea" rows="4">${escapeHtml(item.notes||'')}</textarea></div></div><div class="toolbar modal-actions"><button class="btn primary" id="saveBookmark">Save Bookmark</button></div>`;
-  $('#modal').classList.add('open');$('#closeModal').onclick=()=>$('#modal').classList.remove('open');
-  $('#saveBookmark').onclick=async()=>{
-    const b={id:item.id||makeId(),title:$('#mTitle').value.trim(),url:$('#mUrl').value.trim(),category:$('#mCategory').value,tags:$('#mTags').value.split(',').map(x=>x.trim()).filter(Boolean),collections:$('#mCollections').value.split(',').map(x=>x.trim()).filter(Boolean),difficulty:$('#mDifficulty').value,type:item.type||'documentation',description:$('#mDescription').value.trim(),notes:$('#mNotes').value.trim(),createdAt:item.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};
-    if(!b.title||!b.url){toast('Title and URL are required.');return}
-    const i=bookmarks.findIndex(x=>x.id===b.id);if(i>=0)bookmarks[i]=b;else bookmarks.unshift(b);await saveBookmarks(bookmarks);$('#modal').classList.remove('open');renderBookmarks();renderStats();renderCollections();toast('Bookmark saved.');
-  };
-}
-
-function renderCollections(){
-  const map={};bookmarks.forEach(b=>(b.collections||[]).forEach(c=>(map[c]??=[]).push(b)));const names=Object.keys(map);
-  $('#collectionGrid').innerHTML=names.length?names.map(c=>`<div class="card"><h3>📚 ${escapeHtml(c)}</h3><div class="stat">${map[c].length}</div><div class="muted small">resources</div><button class="btn collection-open" data-collection="${escapeHtml(c)}">Open Collection</button></div>`).join(''):'<div class="empty">No collections yet. Add a collection name while editing a bookmark.</div>';
-  $$('#collectionGrid [data-collection]').forEach(b=>b.onclick=()=>{showSection('bookmarks');$('#bookmarkSearch').value=b.dataset.collection;renderBookmarks();});
-}
-
-function renderRoadmap(){
-  const done=ROADMAP.filter(([n,s])=>(learning[n]||s)==='Completed').length;const progress=pct(done,ROADMAP.length);$('#roadmapProgress').textContent=`${progress}%`;
-  $('#roadmapList').innerHTML=ROADMAP.map(([name,defaultStatus],i)=>{const status=learning[name]||defaultStatus;return `<div class="health-row"><span><strong>${String(i+1).padStart(2,'0')}</strong> · ${escapeHtml(name)}</span><select class="select roadmap-select" data-learn="${escapeHtml(name)}"><option ${status==='Not Started'?'selected':''}>Not Started</option><option ${status==='Learning'?'selected':''}>Learning</option><option ${status==='Completed'?'selected':''}>Completed</option></select></div>`}).join('');
-  $$('#roadmapList [data-learn]').forEach(s=>s.onchange=async()=>{learning[s.dataset.learn]=s.value;await saveLearning(learning);renderRoadmap();renderLearning();renderStats();});
-}
-
-function renderLearning(){
-  $('#learningList').innerHTML=ROADMAP.map(([name,status])=>{const v=learning[name]||status;return `<div class="health-row"><span>${escapeHtml(name)}</span><span class="pill">${escapeHtml(v)}</span></div>`}).join('');
-  const done=ROADMAP.filter(([n,s])=>(learning[n]||s)==='Completed').length;
-  $('#learningStats').innerHTML=`<div class="stat">${pct(done,ROADMAP.length)}%</div><p class="muted">${done} of ${ROADMAP.length} roadmap stages completed.</p><div class="health-row"><span>Bookmarks</span><strong>${bookmarks.length}</strong></div><div class="health-row"><span>Notes</span><strong>${Object.keys(notes).length}</strong></div><div class="health-row"><span>Technologies</span><strong>${new Set(bookmarks.map(b=>b.category).filter(Boolean)).size}</strong></div>`;
-}
-
-function renderToolbox(){
-  const q=($('#toolboxSearch').value||'').toLowerCase();const tools=CATEGORIES.flatMap(c=>c.tools.map(t=>({tool:t,category:c.name,icon:c.icon}))).filter(x=>x.tool.toLowerCase().includes(q)||x.category.toLowerCase().includes(q));
-  $('#toolboxGrid').innerHTML=tools.map(x=>`<button class="tech" data-toolbox="${escapeHtml(x.tool)}">${x.icon}<br><strong>${escapeHtml(x.tool)}</strong><br><span class="small muted">${escapeHtml(x.category)}</span></button>`).join('');
-  $$('#toolboxGrid [data-toolbox]').forEach(b=>b.onclick=()=>{showSection('search');$('#searchQuery').value=b.dataset.toolbox;runSearch();});
-}
-
-function currentSearchFilters(){
-  const cats=[...new Set([...$('#searchCategory').selectedOptions].map(o=>o.value).concat([...selectedCategories]))];
-  const tags=$('#searchTags').value.split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
-  return {q:$('#searchQuery').value.trim().toLowerCase(),cats,tags,type:$('#searchType').value,diff:$('#searchDifficulty').value,mode:$('#filterMode').value};
-}
-
-function textTokens(q){return q.split(/\s+/).map(x=>x.trim()).filter(Boolean);}
-function matchesQuery(resource,q){if(!q)return true;const text=JSON.stringify(resource).toLowerCase();return textTokens(q).every(token=>text.includes(token));}
-
-function formatGitHubDate(value){
-  if(!value) return '—';
-  const d=new Date(value);
-  if(Number.isNaN(d.getTime())) return '—';
-  return new Intl.DateTimeFormat(undefined,{year:'numeric',month:'short',day:'numeric'}).format(d);
-}
-
-function renderResourceCards(list, emptyMessage='No resources matched.'){
-  $('#resultsBody').innerHTML=list.length?list.map(r=>{
-    const tags=(r.tags||[]).slice(0,8).map(t=>`<span class="pill">#${escapeHtml(t)}</span>`).join(' ');
-    return `<article class="resource-card">
-      <div class="resource-card-head"><div><h3 class="resource-card-title"><a href="${escapeHtml(r.url||'#')}" data-result-open="${encodeURIComponent(r.url||'')}" title="Open resource">${escapeHtml(r.title)}</a></h3><div class="small muted">${escapeHtml(r.category||'Uncategorized')}</div></div><span class="difficulty-badge">${escapeHtml(r.difficulty||'intermediate')}</span></div>
-      <p class="resource-card-description">${escapeHtml(r.description||r.url||'No description')}</p>
-      <div class="resource-card-tags">${tags||'<span class="muted small">No tags</span>'}</div>
-      <div class="resource-meta">
-        <div class="resource-meta-item"><span class="label">Type</span><strong>${escapeHtml(r.type||'resource')}</strong></div>
-        <div class="resource-meta-item"><span class="label">Source</span><strong>${escapeHtml(r.source||'Local')}</strong></div>
-      </div>
-      <div class="resource-card-actions"><button class="btn" data-result-open="${encodeURIComponent(r.url||'')}">Open</button><button class="btn" data-result-bookmark="${encodeURIComponent(JSON.stringify(r))}">⭐ Bookmark</button></div>
-    </article>`;
-  }).join(''):`<div class="card empty" style="grid-column:1/-1">${escapeHtml(emptyMessage)}</div>`;
-  $$('[data-result-open]').forEach(b=>b.onclick=e=>{e.preventDefault();openUrl(decodeURIComponent(b.dataset.resultOpen));});
-  $$('#resultsBody [data-result-bookmark]').forEach(b=>b.onclick=async()=>{const r=JSON.parse(decodeURIComponent(b.dataset.resultBookmark));if(!bookmarks.some(x=>x.url===r.url)){bookmarks.unshift({...r,id:makeId(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),collections:[]});await saveBookmarks(bookmarks);renderBookmarks();renderStats();toast('Added to bookmarks.')}else toast('Already bookmarked.');});
-}
-
-async function runSearch(){
-  const f=currentSearchFilters();
-  const list=resources.filter(r=>{
-    const qOk=matchesQuery(r,f.q);
-    const catOk=!f.cats.length||f.cats.some(name=>categoryMatchesResource(categoryByName(name),r));
-    const resourceTags=(r.tags||[]).map(x=>String(x).toLowerCase());
-    const tagMatches=f.tags.filter(t=>resourceTags.includes(t));
-    const tagOk=!f.tags.length||tagMatches.length===(f.mode==='AND'?f.tags.length:Math.min(1,f.tags.length));
-    const typeOk=!f.type||r.type===f.type;
-    const diffOk=!f.diff||r.difficulty===f.diff;
-    if(f.mode==='OR' && (f.cats.length||f.tags.length||f.type||f.diff)) return qOk && ((catOk&&f.cats.length) || (tagMatches.length>0&&f.tags.length) || (typeOk&&f.type) || (diffOk&&f.diff));
-    return qOk&&catOk&&tagOk&&typeOk&&diffOk;
-  });
-  $('#resultCount').textContent=`${list.length} local results`;
-  renderResourceCards(list,'No local resources matched. Try different filters or use Search GitHub.');
-}
-
-async function githubSearch(){
-  const f=currentSearchFilters();
-  const query=buildGithubSearchQuery(f);
-  if(!query){toast('Enter a query or select at least one category/tag.');return}
-  $('#resultsBody').innerHTML='<div class="card empty" style="grid-column:1/-1">Searching GitHub repositories…</div>';
-  try{
-    const c=await getConfig();
-    const headers=c.token?{Authorization:`Bearer ${c.token}`,Accept:'application/vnd.github+json'}:{Accept:'application/vnd.github+json'};
-    const url=`https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&per_page=30&sort=stars&order=desc`;
-    const res=await fetch(url,{headers,cache:'no-store'});
-    if(!res.ok){let detail='';try{const body=await res.json();detail=body.message||''}catch{};throw new Error(`${res.status} ${res.statusText}${detail?` — ${detail}`:''}`)}
-    const data=await res.json();const list=data.items||[];
-    $('#resultCount').textContent=`${list.length} GitHub repositories · ${query}`;
-    $('#resultsBody').innerHTML=list.length?list.map(r=>{
-      const topics=(r.topics||[]).slice(0,8).map(t=>`<span class="pill">#${escapeHtml(t)}</span>`).join(' ');
-      const owner=r.owner?.login||'Unknown'; const language=r.language||'Not specified'; const license=r.license?.spdx_id||r.license?.name||'None';
-      return `<article class="resource-card github-resource-card"><div class="resource-card-head"><div><h3 class="resource-card-title"><a href="${escapeHtml(r.html_url)}" data-result-open="${encodeURIComponent(r.html_url)}">${escapeHtml(r.full_name)}</a></h3><div class="small muted">🐙 ${escapeHtml(owner)} · GitHub repository</div></div><span class="github-badge">${escapeHtml(r.visibility||'public')}</span></div><p class="resource-card-description">${escapeHtml(r.description||'No description provided by the repository.')}</p><div class="resource-card-tags">${topics||'<span class="muted small">No topics</span>'}</div><div class="resource-meta"><div class="resource-meta-item"><span class="label">Owner</span><strong title="${escapeHtml(owner)}">${escapeHtml(owner)}</strong></div><div class="resource-meta-item"><span class="label">Created</span><strong>${escapeHtml(formatGitHubDate(r.created_at))}</strong></div><div class="resource-meta-item"><span class="label">Updated</span><strong>${escapeHtml(formatGitHubDate(r.updated_at))}</strong></div><div class="resource-meta-item"><span class="label">Language</span><strong>${escapeHtml(language)}</strong></div><div class="resource-meta-item"><span class="label">⭐ Stars</span><strong>${Number(r.stargazers_count||0).toLocaleString()}</strong></div><div class="resource-meta-item"><span class="label">⑂ Forks</span><strong>${Number(r.forks_count||0).toLocaleString()}</strong></div><div class="resource-meta-item"><span class="label">Issues</span><strong>${Number(r.open_issues_count||0).toLocaleString()}</strong></div><div class="resource-meta-item"><span class="label">License</span><strong>${escapeHtml(license)}</strong></div></div><div class="resource-card-actions"><button class="btn" data-result-open="${encodeURIComponent(r.html_url)}">Open Repository</button><button class="btn" data-github-bookmark="${encodeURIComponent(JSON.stringify(r))}">⭐ Bookmark</button></div></article>`;
-    }).join(''):'<div class="card empty" style="grid-column:1/-1">No GitHub repositories found for the selected filters.</div>';
-    $$('[data-result-open]').forEach(b=>b.onclick=e=>{e.preventDefault();openUrl(decodeURIComponent(b.dataset.resultOpen));});
-    $$('[data-github-bookmark]').forEach(b=>b.onclick=async()=>{const r=JSON.parse(decodeURIComponent(b.dataset.githubBookmark));if(bookmarks.some(x=>x.url===r.html_url)){toast('Already bookmarked.');return}bookmarks.unshift({id:makeId(),title:r.full_name,url:r.html_url,category:inferCategory(r.name,(r.topics||[]).join(' ')),tags:r.topics||[],type:'github-repository',difficulty:r.stargazers_count>5000?'advanced':'intermediate',description:r.description||'',collections:[],createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),github:{owner:r.owner?.login||'',createdAt:r.created_at,stars:r.stargazers_count||0,forks:r.forks_count||0,language:r.language||'',license:r.license?.spdx_id||r.license?.name||''}});await saveBookmarks(bookmarks);renderBookmarks();renderStats();toast('GitHub repository bookmarked.');});
-  }catch(e){$('#resultsBody').innerHTML=`<div class="card empty" style="grid-column:1/-1">GitHub Search failed: ${escapeHtml(e.message)}</div>`;toast(`GitHub search failed: ${e.message}`);}
-}
-
-async function runHealth(){
-  $('#healthRows').innerHTML='<div class="empty">Running checks…</div>';
-  const c=config;
-  const base=c.rawBaseUrl ? c.rawBaseUrl.replace(/\/+$/,'') : '';
-  const categoryUrl=c.categoriesUrl || (base && c.categoriesPath ? `${base}/${String(c.categoriesPath).replace(/^\/+/, '')}` : '');
-  const technologyUrlValue=c.technologiesUrl || (base && c.technologiesPath ? `${base}/${String(c.technologiesPath).replace(/^\/+/, '')}` : '');
-  const bookmarkUrl=base && c.bookmarkPath ? `${base}/${String(c.bookmarkPath).replace(/^\/+/, '')}` : '';
-  const urls=[
-    ['Repository URL',c.repositoryUrl,true],
-    ['Raw index.html',c.rawIndexUrl,true],
-    ['Raw categories DB',categoryUrl,true],
-    ['Raw technologies DB',technologyUrlValue,true],
-    ['Raw bookmark DB',bookmarkUrl,false]
-  ];
-  const checks=[];
-  for(const [name,url,required] of urls){
-    checks.push(url?{name,required,...await checkEndpoint(url)}:{name,required,url:'',ok:false,status:0,ms:0,error:'Not configured'});
-  }
-  if(c.repositoryUrl){
-    try{const repoMeta=await getRepoMetadata();checks.push({name:'GitHub API / repository',required:false,url:c.repositoryUrl,ok:true,status:200,ms:0,details:`${repoMeta.full_name} · ${repoMeta.default_branch}`});}
-    catch(error){checks.push({name:'GitHub API / repository',required:false,url:c.repositoryUrl,ok:false,status:0,ms:0,error:error.message});}
-  }
-  $('#healthRows').innerHTML=checks.map(x=>`<div class="health-row"><span>${escapeHtml(x.name)}${x.required?'':' <span class="pill">optional</span>'}<br><span class="muted small">${escapeHtml(x.url||x.error||x.details||'')}</span></span><span class="${x.ok?'healthy':x.required?'bad':'warning'}">${x.ok?'● Healthy':x.required?'● Failed':'● Not available'} ${x.status||''} ${x.ms?`· ${x.ms}ms`:''}</span></div>`).join('');
-  const requiredOk=checks.filter(x=>x.required).every(x=>x.ok);
-  $('#terminal').textContent=['$ devops-explorer health',...checks.map(x=>`[${x.ok?'OK':x.required?'FAIL':'SKIP'}] ${x.name}${x.ms?` (${x.ms}ms)`:''}`),'',`SYSTEM: ${requiredOk?'HEALTHY':'CHECK REQUIRED'}`].join('\n');
-  $('#githubStatus').innerHTML=requiredOk?'<span class="dot"></span>Healthy':'<span class="dot warning-dot"></span>Check required';
-  $('#homeRepo').innerHTML=c.repositoryUrl?'<span class="healthy">● Configured</span>':'<span class="warning">● Configure</span>';
-  $('#homeRaw').innerHTML=c.rawIndexUrl?'<span class="healthy">● Configured</span>':'<span class="warning">● Configure</span>';
-}
-
-async function pullBookmarks(){try{const c=await getConfig();const raw=await fetchRawFile(c.bookmarkPath);const data=JSON.parse(raw);const remote=Array.isArray(data)?data:(data.bookmarks||[]);bookmarks=remote;await saveBookmarks(bookmarks);renderBookmarks();renderStats();renderCollections();logSync(`Pulled ${remote.length} bookmarks from ${c.bookmarkPath}.`);toast('Bookmarks pulled from GitHub.')}catch(e){logSync(`Pull failed: ${e.message}`);toast(e.message)}}
-async function pushBookmarks(){try{const c=await getConfig();if(!c.token)throw new Error('Add a GitHub token in Settings before pushing.');const current=await githubGetFile(c.bookmarkPath);const payload={version:1,updatedAt:new Date().toISOString(),bookmarks};const result=await githubPutFile(c.bookmarkPath,JSON.stringify(payload,null,2),`Update DevOps Explorer bookmarks (${bookmarks.length})`,current.sha);logSync(`Pushed ${bookmarks.length} bookmarks. Commit: ${result.commit?.sha?.slice(0,8)||'done'}`);toast('Bookmarks pushed to GitHub.')}catch(e){logSync(`Push failed: ${e.message}`);toast(e.message)}}
-function logSync(msg){$('#syncLog').textContent=`${new Date().toLocaleString()} — ${msg}`;$('#homeSync').textContent='Last sync updated';}
-
-function exportBookmarks(){const blob=new Blob([JSON.stringify({format:'devops-explorer-bookmarks',version:1,exportedAt:new Date().toISOString(),bookmarks},null,2)],{type:'application/json'});downloadBlob(blob,`DevOps-Bookmarks-${new Date().toISOString().slice(0,10)}.json`);toast('Bookmarks exported.');}
-function importBookmarks(){ $('#importFile').click(); }
-
-async function handleBookmarkImport(e){const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());const incoming=Array.isArray(data)?data:(data.bookmarks||[]);if(!Array.isArray(incoming))throw new Error('The JSON file does not contain a bookmarks array.');const existing=new Map(bookmarks.map(x=>[x.url,x]));let added=0;for(const b of incoming){if(!b.url)continue;if(!existing.has(b.url)){existing.set(b.url,{...b,id:b.id||makeId(),createdAt:b.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()});added++;}}bookmarks=[...existing.values()];await saveBookmarks(bookmarks);renderBookmarks();renderStats();toast(`Imported ${added} new bookmarks.`)}catch(err){toast(`Import failed: ${err.message}`)}e.target.value='';}
-
-function downloadBlob(blob,filename){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
-
-function exportConfig(){
-  const includeToken=$('#includeTokenInConfigExport')?.checked===true;
-  const exported={...config};if(!includeToken)delete exported.token;
-  const payload={format:'devops-explorer-config',version:1,exportedAt:new Date().toISOString(),tokenIncluded:includeToken,config:exported};
-  downloadBlob(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),`DevOps-Explorer-Config-${new Date().toISOString().slice(0,10)}.json`);
-  toast(includeToken?'Configuration exported with token. Keep this file private.':'Configuration exported without token.');
-}
-
-function importConfig(){ $('#importConfigFile').click(); }
-async function handleConfigImport(e){
-  const file=e.target.files?.[0];if(!file)return;
-  try{
-    const data=JSON.parse(await file.text());const incoming=data?.config&&typeof data.config==='object'?data.config:data;
-    if(!incoming||typeof incoming!=='object'||Array.isArray(incoming))throw new Error('Invalid configuration JSON.');
-    const allowed=['repositoryUrl','branch','rawBaseUrl','rawIndexUrl','categoriesPath','categoriesUrl','technologiesPath','technologiesUrl','bookmarkPath','tagsPath','metadataPath','versionPath','token','theme','accent','autoHealth','githubSyncEnabled'];
-    const next={...config};for(const key of allowed)if(Object.prototype.hasOwnProperty.call(incoming,key))next[key]=incoming[key];
-    config=await saveConfig(next);loadSettings();await loadResources(true);await runHealth();toast('Configuration imported successfully.');
-  }catch(err){toast(`Configuration import failed: ${err.message}`)}e.target.value='';
-}
-
-async function resetSettings(){
-  if(!confirm('Reset all DevOps Explorer configuration to the built-in defaults?'))return;
-  config=await resetConfig();loadSettings();await loadResources(true);await runHealth();toast('Settings reset to defaults.');
-}
-
-function applyTheme(){
-  const root=document.documentElement;const accents={blue:['#168cff','#00d8ff'],purple:['#9b6cff','#e16cff'],green:['#19c987','#72f5ae'],orange:['#ff8b2c','#ffd166']};const [a,b]=accents[config.accent]||accents.blue;root.style.setProperty('--accent',a);root.style.setProperty('--accent2',b);
-  const light=config.theme==='light'||(config.theme==='system'&&window.matchMedia?.('(prefers-color-scheme: light)').matches);
-  root.classList.toggle('light-theme',light);
-}
-
-function loadSettings(){
-  config={...DEFAULT_CONFIG,...config};
-  for(const id of ['repositoryUrl','rawBaseUrl','rawIndexUrl','categoriesUrl','technologiesUrl','branch','categoriesPath','technologiesPath','bookmarkPath','tagsPath','metadataPath','token','theme','accent'])if($('#'+id))$('#'+id).value=config[id]??'';
-  $('#autoHealth').checked=!!config.autoHealth;
-  $('#settingsDiagnostics').textContent=`Extension ${APP_VERSION}. Data sources: categories + technologies JSON. GitHub write sync: ${config.token?'configured':'not configured'}.`;
-  applyTheme();
-}
-
-async function saveSettingsForm(){
-  const repo=$('#repositoryUrl').value.trim();const branch=$('#branch').value.trim()||'main';
-  const suppliedBase=$('#rawBaseUrl').value.trim();const suppliedIndex=$('#rawIndexUrl').value.trim();const categoriesPath=$('#categoriesPath').value.trim()||'data/devops-categories.json';const technologiesPath=$('#technologiesPath').value.trim()||'data/devops-technologies.json';
-  const next={...config,repositoryUrl:repo,branch,rawBaseUrl:suppliedBase||deriveRawBase(repo,branch),rawIndexUrl:suppliedIndex||deriveRawIndex(repo,branch),categoriesPath,technologiesPath,categoriesUrl:$('#categoriesUrl').value.trim()||deriveRawFile(repo,branch,categoriesPath),technologiesUrl:$('#technologiesUrl').value.trim()||deriveRawFile(repo,branch,technologiesPath),bookmarkPath:$('#bookmarkPath').value.trim()||'chrome-extension/bookmark-db/bookmarks.json',tagsPath:$('#tagsPath').value.trim()||'chrome-extension/bookmark-db/tags.json',metadataPath:$('#metadataPath').value.trim()||'chrome-extension/bookmark-db/metadata.json',token:$('#token').value.trim(),theme:$('#theme').value,accent:$('#accent').value,autoHealth:$('#autoHealth').checked};
-  config=await saveConfig(next);loadSettings();await loadResources(true);await renderStats();await runHealth();toast('Settings saved.');
-}
-
-const commands=[['🔎','Search DevOps resources',()=>showSection('search')],['⭐','Open Bookmarks',()=>showSection('bookmarks')],['📚','Open Collections',()=>showSection('collections')],['🩺','Run Health Check',()=>{showSection('health');runHealth()}],['🔄','Sync Bookmarks',()=>showSection('sync')],['📥','Import Bookmarks',importBookmarks],['📤','Export Bookmarks',exportBookmarks],['⚙️','Settings',()=>showSection('settings')],['🚀','Open Raw Explorer',openRaw]];
-function openPalette(){$('#palette').classList.add('open');$('#paletteInput').focus();renderCommands('');}
-function closePalette(){$('#palette').classList.remove('open');}
-function renderCommands(q){const list=commands.filter(x=>x[1].toLowerCase().includes(q.toLowerCase()));$('#commands').innerHTML=list.map((x,i)=>`<div class="command" data-command="${i}"><span>${x[0]} ${x[1]}</span><span class="muted">↵</span></div>`).join('');$$('#commands [data-command]').forEach(el=>el.onclick=()=>{closePalette();list[Number(el.dataset.command)][2]()});}
-
-function showSection(id){
-  $$('.section').forEach(s=>s.classList.toggle('active',s.id===id));$$('.nav button[data-section]').forEach(b=>b.classList.toggle('active',b.dataset.section===id));
-  const title=document.querySelector(`.nav button[data-section="${id}"]`)?.textContent?.replace(/^\S+\s*/,'')||'My DevOps Workspace';$('#pageTitle').textContent=title;
-  if(id==='bookmarks')renderBookmarks();if(id==='collections')renderCollections();if(id==='roadmap')renderRoadmap();if(id==='learning')renderLearning();if(id==='toolbox')renderToolbox();if(id==='health')runHealth();if(id==='settings')loadSettings();
-}
-
-function openRaw(){
-  if(!config.rawIndexUrl){toast('Configure the raw index URL first.');showSection('settings');return;}
-  chrome.tabs.create({url:config.rawIndexUrl});
-}
-
-function bind(){
-  $$('.nav button[data-section]').forEach(b=>b.onclick=()=>showSection(b.dataset.section));$$('[data-section-jump]').forEach(b=>b.onclick=()=>showSection(b.dataset.sectionJump));
-  $('#globalSearchBtn').onclick=()=>{showSection('search');$('#searchQuery').value=$('#globalSearch').value;runSearch()};$('#globalSearch').onkeydown=e=>{if(e.key==='Enter')$('#globalSearchBtn').click()};
-  $('#runSearch').onclick=runSearch;$('#githubSearchBtn').onclick=githubSearch;$('#manageCategories').onclick=openCategoryManager;$('#clearSearch').onclick=()=>{['searchQuery','searchTags'].forEach(id=>$('#'+id).value='');$('#searchType').value='';$('#searchDifficulty').value='';selectedCategories.clear();$$('#categoryChips .chip').forEach(x=>x.classList.remove('selected'));[...$('#searchCategory').options].forEach(o=>o.selected=false);runSearch()};
-  $('#bookmarkSearch').oninput=renderBookmarks;$('#bookmarkCategory').onchange=renderBookmarks;$('#addBookmark').onclick=()=>openBookmarkModal();$('#exportBookmarks').onclick=exportBookmarks;$('#importBookmarks').onclick=importBookmarks;$('#importFile').addEventListener('change',handleBookmarkImport);
-  $('#newCollection').onclick=()=>openBookmarkModal({collections:['New Collection']});$('#toolboxSearch').oninput=renderToolbox;$('#runFullHealth').onclick=runHealth;$('#healthHome').onclick=()=>showSection('health');$('#pullBookmarks').onclick=pullBookmarks;$('#pushBookmarks').onclick=pushBookmarks;$('#compareBookmarks').onclick=()=>toast('Compare view: pull the remote database first, then review local/remote counts.');
-  $('#saveSettings').onclick=saveSettingsForm;$('#exportConfig').onclick=exportConfig;$('#importConfig').onclick=importConfig;$('#importConfigFile').addEventListener('change',handleConfigImport);$('#resetSettings').onclick=resetSettings;
-  $('#openRaw').onclick=openRaw;$('#openRepo').onclick=()=>{if(config.repositoryUrl)openUrl(config.repositoryUrl);else toast('Configure repository URL first.')};
-  $('#paletteBtn').onclick=openPalette;$('#palette').onclick=e=>{if(e.target.id==='palette')closePalette()};$('#paletteInput').oninput=e=>renderCommands(e.target.value);$('#paletteInput').onkeydown=e=>{if(e.key==='Escape')closePalette();if(e.key==='Enter')document.querySelector('#commands .command')?.click()};
-  window.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPalette()}});
-}
-
-async function init(){
-  config=await getConfig();bookmarks=await getBookmarks();notes=await getNotes();learning=await getLearning();customCategories=await getCustomCategories();bind();renderBookmarks();renderStats();renderRecent();renderRoadmap();renderLearning();renderToolbox();await loadResources();
-  if(config.autoHealth)runHealth();
-  const hash=location.hash;if(hash==='#palette')openPalette();if(hash==='#settings')showSection('settings');if(hash.startsWith('#search=')){showSection('search');$('#searchQuery').value=decodeURIComponent(hash.slice(8));runSearch();}
-  applyTheme();
-}
-
-init().catch(error=>{console.error(error);toast(`Dashboard initialization failed: ${error.message}`);});
+window.addEventListener('popstate',()=>{state.page=location.hash.slice(1)||'dashboard';render();});
+window.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPalette();}if(e.key==='Escape'){$$('.modal-backdrop').forEach(x=>x.remove());}});
+await loadData();state.page=location.hash.slice(1)||'dashboard';state.theme=config.theme==='light'?'light':'dark';state.accent=config.accent||'blue';bindRoot();render();if(state.page==='technologies')drawTechnologyCatalog();

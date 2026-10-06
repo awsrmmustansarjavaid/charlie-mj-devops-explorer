@@ -1,0 +1,21 @@
+# v3 Features
+
+- Dashboard and persistent Side Panel
+- Popup quick launcher
+- Unified Local/GitHub search
+- Search Builder and saved searches
+- System vs Personal Categories
+- Live data-driven taxonomy
+- Technology detail actions
+- Learning statuses and progress
+- Continue Where I Left Off
+- Labs and Projects with reusable records
+- Roadmaps and Goals
+- Knowledge Collections
+- Favorites and My DevOps Stack
+- Activity analytics
+- Offline AI Advisor
+- Admin health/data-quality dashboard
+- Backup/restore, schema versioning and migrations
+- Command palette
+- Dark/light responsive design system

@@ -19,7 +19,7 @@ A modern **Manifest V3 Chrome extension** that turns the existing **DevOps Explo
 
 It lives inside the same repository under `chrome-extension/` and **does not duplicate the main DevOps Explorer application**. The extension reads the application and resource data from your configured raw GitHub paths.
 
-![DevOps Explorer Chrome Extension](/chrome-extension/assets/images/25656fce-6771-45f7-ba28-2b26f7e9d7c8.png)
+![DevOps Explorer Chrome Extension](/assets/images/charlie-mj-devops-explorer-mockup-thumbnail.png)
 
 ## What is included
 
@@ -65,7 +65,7 @@ It lives inside the same repository under `chrome-extension/` and **does not dup
 ## Download
 
 <p align="center">
-  <a href="/downloads/devops-explorer-chrome-extension-final-v1.0.4.zip">
+  <a href="/downloads/charlie-mj-devops-explorer-v3.1.2.zip">
     <img src="https://img.shields.io/badge/⬇%20Download%20Chrome%20Extension-2ea44f?style=for-the-badge" alt="Download Chrome Extension">
   </a>
 </p>

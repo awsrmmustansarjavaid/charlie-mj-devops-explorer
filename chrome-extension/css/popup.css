@@ -1,1 +1,1 @@
-body{width:390px;min-height:560px}.main{padding:15px}.sidebar{display:none}.topbar{margin-bottom:12px}.hero{grid-template-columns:1fr;padding:16px}.hero h2{font-size:23px}.quick-grid{grid-template-columns:repeat(3,1fr)}.grid-4{grid-template-columns:repeat(2,1fr)}.card{padding:13px}.stat{font-size:20px}
+body{min-width:360px}

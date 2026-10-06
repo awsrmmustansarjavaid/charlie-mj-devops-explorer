@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "DevOps Explorer Command Center",
-  "version": "1.1.0",
-  "description": "A professional Chrome extension for the existing DevOps Explorer GitHub project: raw GitHub launcher, live categories and technologies search, bookmarks, collections, health diagnostics, learning roadmap, toolbox, JSON import/export and optional GitHub bookmark sync.",
+  "name": "Charlie MJ DevOps Explorer",
+  "version": "3.1.2",
+  "description": "A local-first DevOps command center for discovery, search, learning, practice, projects, roadmaps, collections and activity.",
   "action": {
     "default_title": "DevOps Explorer",
     "default_popup": "popup/popup.html"
@@ -16,7 +16,8 @@
     "storage",
     "tabs",
     "clipboardWrite",
-    "declarativeNetRequestWithHostAccess"
+    "declarativeNetRequestWithHostAccess",
+    "sidePanel"
   ],
   "host_permissions": [
     "https://raw.githubusercontent.com/*",
@@ -44,5 +45,8 @@
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
+  },
+  "side_panel": {
+    "default_path": "sidepanel/index.html"
   }
 }

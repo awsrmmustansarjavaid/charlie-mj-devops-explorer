@@ -1,0 +1,1 @@
+export async function auditUrls(urls=[]){const results=[];for(const url of urls.slice(0,50)){try{const r=await fetch(url,{method:'HEAD',redirect:'follow'});results.push({url,status:r.status,ok:r.ok,redirected:r.redirected});}catch(e){results.push({url,status:0,ok:false,error:e.message});}}return results;}
