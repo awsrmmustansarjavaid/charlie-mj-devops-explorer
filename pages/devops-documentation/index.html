@@ -13,7 +13,8 @@
 
          Purpose:
              Dedicated documentation library for browsing DevOps tools,
-             technologies, platforms, frameworks and official resources.
+             technologies, platforms, frameworks, services and official
+             documentation.
 
          Data source:
              ../../data/devops-tools.json
@@ -31,18 +32,28 @@
          PAGE FEATURES
          ================================================================
 
+         Core documentation features:
+
          - DevOps documentation search
+         - Dynamic category system
+         - Dynamic category sidebar
+         - Dynamic category counts
          - Category filtering
          - Provider filtering
          - Subcategory filtering
          - Learning-level filtering
          - Tool-type filtering
+         - Tag-based discovery
          - Favorites
          - Recently viewed
          - Quick category filters
          - Grid view
          - List view
          - Sorting
+         - Pagination
+         - Page numbers
+         - Previous / next pagination
+         - Explore More buttons
          - Tool details modal
          - Official documentation links
          - Official website links
@@ -50,14 +61,47 @@
          - Tags
          - Related technologies
          - Result counter
+         - Dynamic statistics
+         - Breadcrumb navigation
+         - Reset filters
          - Responsive layout
+         - Mobile category navigation
+
+         ================================================================
+         DATA-DRIVEN DESIGN
+         ================================================================
+
+         Categories are NOT hard-coded into this HTML page.
+
+         The JavaScript reads categories directly from:
+
+             ../../data/devops-tools.json
+
+         Therefore, when a new category is added to the JSON database,
+         the JavaScript can automatically update:
+
+             - Category sidebar
+             - Category counts
+             - Category dropdown
+             - Quick category buttons
+             - Filter system
+             - Pagination results
+
+         This keeps the documentation page scalable as the database
+         grows beyond 508+ tools.
 
          ================================================================
          DESIGN
          ================================================================
 
-         The documentation page uses the same Charlie MJ DevOps Explorer
-         branding and technical interface style as the main application.
+         The documentation page follows the same Charlie MJ DevOps
+         Explorer branding as the main homepage:
+
+             >_ CHARLIE MJ
+                DEVOPS EXPLORER
+
+         The page uses the same dark technical / terminal-inspired
+         interface with responsive desktop, tablet and mobile layouts.
 
          ================================================================
     -->
@@ -67,20 +111,21 @@
          BASIC DOCUMENT SETTINGS
          ================================================================ -->
 
+    <!-- Character encoding -->
     <meta charset="UTF-8">
 
 
-    <!-- Responsive layout for desktop, tablet and mobile -->
+    <!-- Responsive layout -->
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
 
-    <!-- Search-engine / browser description -->
+    <!-- Search-engine description -->
     <meta
         name="description"
-        content="Charlie MJ DevOps Explorer official DevOps documentation library containing DevOps tools, cloud platforms, infrastructure as code, CI/CD, Kubernetes, security, monitoring and more."
+        content="Charlie MJ DevOps Explorer official DevOps documentation library containing DevOps tools, cloud platforms, infrastructure as code, CI/CD, Kubernetes, security, monitoring, observability and more."
     >
 
 
@@ -101,13 +146,15 @@
          FAVICON
          ================================================================
 
-         The favicon is shared with the main application.
+         Shared favicon from the main application.
 
-         Path from this page:
+         Current page:
+
              pages/devops-documentation/
 
-         Therefore:
-             ../../assets/images/favicon.png
+         Therefore the root assets folder is:
+
+             ../../assets/images/
          ================================================================ -->
 
     <link
@@ -135,10 +182,10 @@
          BACKGROUND DECORATION
          ================================================================
 
-         These elements provide the technical grid / terminal-style
-         visual background used by the Charlie MJ DevOps Explorer UI.
+         These elements create the technical DevOps / terminal-style
+         background.
 
-         They are decorative only and are hidden from screen readers.
+         They are purely decorative and are hidden from screen readers.
          ================================================================ -->
 
     <div
@@ -149,11 +196,14 @@
         <!-- Technical background grid -->
         <div class="background-grid"></div>
 
-        <!-- Decorative glow -->
+
+        <!-- Primary decorative glow -->
         <div class="background-glow background-glow-one"></div>
+
 
         <!-- Secondary decorative glow -->
         <div class="background-glow background-glow-two"></div>
+
 
         <!-- Terminal-style scan line -->
         <div class="scan-line"></div>
@@ -169,19 +219,21 @@
 
 
         <!-- ============================================================
-             TOP STATUS BAR
+             TOP SYSTEM STATUS BAR
              ============================================================
 
-             This matches the main Charlie MJ DevOps Explorer status
-             branding.
+             This matches the Charlie MJ DevOps Explorer homepage.
 
              Example:
 
-                 ● CHARLIE MJ DEVOPS EXPLORER
-                 //
-                 SYSTEM ONLINE
+                 ● CHARLIE MJ DEVOPS EXPLORER // SYSTEM ONLINE
 
-             Keep this branding consistent across all project pages.
+             Right side:
+
+                 DOCUMENTATION // 508+ DEVOPS TOOLS
+
+             The number is a visual project label. The actual tool count
+             is calculated dynamically by JavaScript from the JSON data.
              ============================================================ -->
 
         <div class="top-status">
@@ -190,7 +242,7 @@
 
 
                 <!-- ====================================================
-                     STATUS BAR - LEFT SIDE
+                     STATUS BAR - LEFT
                      ==================================================== -->
 
                 <div class="status-left">
@@ -202,19 +254,19 @@
                     ></span>
 
 
-                    <!-- Main project name -->
+                    <!-- Project name -->
                     <span>
                         CHARLIE MJ DEVOPS EXPLORER
                     </span>
 
 
-                    <!-- Terminal-style separator -->
+                    <!-- Terminal separator -->
                     <span>
                         //
                     </span>
 
 
-                    <!-- Current system state -->
+                    <!-- System state -->
                     <span>
                         SYSTEM ONLINE
                     </span>
@@ -223,7 +275,7 @@
 
 
                 <!-- ====================================================
-                     STATUS BAR - RIGHT SIDE
+                     STATUS BAR - RIGHT
                      ==================================================== -->
 
                 <div class="status-right">
@@ -236,7 +288,7 @@
                         //
                     </span>
 
-                    <span>
+                    <span id="topToolCount">
                         508+ DEVOPS TOOLS
                     </span>
 
@@ -255,16 +307,15 @@
 
 
             <!-- ========================================================
-                 BRAND / TEXT LOGO
+                 CHARLIE MJ TEXT LOGO
                  ========================================================
 
-                 This is the main text-based Charlie MJ logo.
+                 This intentionally uses the same text-based logo style
+                 as the main homepage.
 
-                 It links back to the root homepage.
+                 It links back to:
 
-                 The logo intentionally uses text instead of an image
-                 so it remains lightweight and consistent with the
-                 main application.
+                     ../../index.html
                  ======================================================== -->
 
             <div class="header-brand">
@@ -308,7 +359,7 @@
 
             <div class="header-status">
 
-                <!-- Online status indicator -->
+                <!-- Online indicator -->
                 <span
                     class="status-dot"
                     aria-hidden="true"
@@ -324,12 +375,6 @@
 
             <!-- ========================================================
                  MAIN NAVIGATION
-                 ========================================================
-
-                 Links back to sections of the main homepage.
-
-                 Documentation is marked active because this is the
-                 current page.
                  ======================================================== -->
 
             <nav
@@ -343,19 +388,19 @@
                 </a>
 
 
-                <!-- Technologies section -->
+                <!-- Technologies -->
                 <a href="../../index.html#technologies">
                     Technologies
                 </a>
 
 
-                <!-- Labs section -->
+                <!-- Labs -->
                 <a href="../../index.html#labs">
                     Labs
                 </a>
 
 
-                <!-- Current documentation page -->
+                <!-- Documentation -->
                 <a
                     class="active"
                     href="./"
@@ -377,25 +422,71 @@
 
 
             <!-- ========================================================
+                 BREADCRUMB NAVIGATION
+                 ========================================================
+
+                 Provides a clear navigation path:
+
+                     Home
+                       >
+                     Documentation
+
+                 JavaScript can optionally extend this when a category
+                 or tool is selected.
+                 ======================================================== -->
+
+            <nav
+                class="breadcrumb"
+                aria-label="Breadcrumb"
+            >
+
+                <a href="../../index.html">
+                    Explorer
+                </a>
+
+                <span aria-hidden="true">
+                    /
+                </span>
+
+                <span>
+                    Documentation
+                </span>
+
+                <!--
+                    JavaScript may use this element later to display:
+
+                        / Documentation / Kubernetes
+
+                    when a category or tool is selected.
+                -->
+                <span
+                    id="breadcrumbCurrent"
+                    class="breadcrumb-current hidden"
+                ></span>
+
+            </nav>
+
+
+            <!-- ========================================================
                  DOCUMENTATION HERO
                  ======================================================== -->
 
             <section class="documentation-hero">
 
 
-                <!-- Terminal-style section label -->
+                <!-- Terminal-style label -->
                 <div class="hero-terminal-label">
                     // DEVOPS KNOWLEDGE DATABASE
                 </div>
 
 
-                <!-- Main page heading -->
+                <!-- Main heading -->
                 <h1>
                     DevOps Documentation
                 </h1>
 
 
-                <!-- Page description -->
+                <!-- Description -->
                 <p class="hero-description">
 
                     Explore DevOps tools, cloud platforms, infrastructure,
@@ -407,12 +498,12 @@
 
 
                 <!-- ====================================================
-                     DOCUMENTATION SEARCH
+                     HERO SEARCH
                      ==================================================== -->
 
                 <div class="hero-search">
 
-                    <!-- Accessible search label -->
+                    <!-- Accessible label -->
                     <label
                         class="sr-only"
                         for="toolSearch"
@@ -430,7 +521,7 @@
                     </span>
 
 
-                    <!-- Search input -->
+                    <!-- Search field -->
                     <input
                         id="toolSearch"
                         type="search"
@@ -440,7 +531,7 @@
                     >
 
 
-                    <!-- Clear search button -->
+                    <!-- Clear search -->
                     <button
                         id="clearSearch"
                         class="search-clear"
@@ -455,6 +546,16 @@
 
                 <!-- ====================================================
                      DOCUMENTATION STATISTICS
+                     ====================================================
+
+                     Values are populated dynamically by JavaScript.
+
+                     Example:
+
+                         508 Tools
+                         25 Categories
+                         50 Providers
+                         12 Favorites
                      ==================================================== -->
 
                 <div class="documentation-stats">
@@ -511,7 +612,7 @@
                     </div>
 
 
-                    <!-- User favorites -->
+                    <!-- Favorites -->
                     <div class="stat-card">
 
                         <span
@@ -533,400 +634,774 @@
 
 
             <!-- ========================================================
-                 FILTER SYSTEM
-                 ======================================================== -->
-
-            <section class="filter-section">
-
-
-                <!-- Section heading -->
-                <div class="section-heading">
-
-                    <div>
-
-                        <span class="section-kicker">
-                            // FILTER SYSTEM
-                        </span>
-
-                        <h2>
-                            Explore the Library
-                        </h2>
-
-                    </div>
-
-
-                    <!-- Reset all filters -->
-                    <button
-                        id="clearFilters"
-                        class="secondary-button"
-                        type="button"
-                    >
-                        Reset Filters
-                    </button>
-
-                </div>
-
-
-                <!-- ====================================================
-                     FILTER CONTROLS
-                     ==================================================== -->
-
-                <div class="filters-grid">
-
-
-                    <!-- ==================================================
-                         CLOUD PROVIDER FILTER
-                         ================================================== -->
-
-                    <div class="filter-control">
-
-                        <label for="providerFilter">
-                            Cloud Provider
-                        </label>
-
-                        <select id="providerFilter">
-
-                            <option value="all">
-                                All Providers
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- ==================================================
-                         CATEGORY FILTER
-                         ================================================== -->
-
-                    <div class="filter-control">
-
-                        <label for="categoryFilter">
-                            Category
-                        </label>
-
-                        <select id="categoryFilter">
-
-                            <option value="all">
-                                All Categories
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- ==================================================
-                         SUBCATEGORY FILTER
-                         ================================================== -->
-
-                    <div class="filter-control">
-
-                        <label for="subcategoryFilter">
-                            Subcategory
-                        </label>
-
-                        <select id="subcategoryFilter">
-
-                            <option value="all">
-                                All Subcategories
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- ==================================================
-                         LEARNING LEVEL FILTER
-                         ================================================== -->
-
-                    <div class="filter-control">
-
-                        <label for="levelFilter">
-                            Learning Level
-                        </label>
-
-                        <select id="levelFilter">
-
-                            <option value="all">
-                                All Levels
-                            </option>
-
-                            <option value="Beginner">
-                                Beginner
-                            </option>
-
-                            <option value="Intermediate">
-                                Intermediate
-                            </option>
-
-                            <option value="Advanced">
-                                Advanced
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- ==================================================
-                         TOOL TYPE FILTER
-                         ================================================== -->
-
-                    <div class="filter-control">
-
-                        <label for="typeFilter">
-                            Tool Type
-                        </label>
-
-                        <select id="typeFilter">
-
-                            <option value="all">
-                                All Types
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- ==================================================
-                         PERSONAL LIBRARY FILTER
-                         ================================================== -->
-
-                    <div class="filter-control">
-
-                        <label for="favoriteFilter">
-                            Personal Library
-                        </label>
-
-                        <select id="favoriteFilter">
-
-                            <option value="all">
-                                All Tools
-                            </option>
-
-                            <option value="favorites">
-                                Favorites
-                            </option>
-
-                            <option value="recent">
-                                Recently Viewed
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-
-                <!-- ====================================================
-                     QUICK CATEGORY FILTERS
-                     ==================================================== -->
-
-                <div class="category-toolbar">
-
-
-                    <!-- Toolbar title -->
-                    <span class="toolbar-label">
-                        Quick Categories
-                    </span>
-
-
-                    <!--
-                        JavaScript dynamically creates category buttons
-                        inside this container.
-                    -->
-                    <div
-                        id="categoryChips"
-                        class="category-chips"
-                    ></div>
-
-                </div>
-
-            </section>
-
-
-            <!-- ========================================================
-                 RESULTS TOOLBAR
-                 ======================================================== -->
-
-            <section class="results-toolbar">
-
-
-                <!-- ====================================================
-                     RESULTS INFORMATION
-                     ==================================================== -->
-
-                <div class="results-summary">
-
-                    <span class="section-kicker">
-                        // TECHNOLOGY LIBRARY
-                    </span>
-
-                    <h2>
-                        DevOps Tools
-                    </h2>
-
-                    <p>
-
-                        Showing
-
-                        <strong id="resultCount">
-                            0
-                        </strong>
-
-                        technologies.
-
-                    </p>
-
-                </div>
-
-
-                <!-- ====================================================
-                     RESULTS CONTROLS
-                     ==================================================== -->
-
-                <div class="results-controls">
-
-
-                    <!-- Sort selector -->
-                    <label
-                        class="sr-only"
-                        for="sortSelect"
-                    >
-                        Sort tools
-                    </label>
-
-
-                    <select id="sortSelect">
-
-                        <option value="name-asc">
-                            Name A–Z
-                        </option>
-
-                        <option value="name-desc">
-                            Name Z–A
-                        </option>
-
-                        <option value="category">
-                            Category
-                        </option>
-
-                        <option value="level">
-                            Learning Level
-                        </option>
-
-                    </select>
-
-
-                    <!-- ==================================================
-                         GRID / LIST VIEW SWITCHER
-                         ================================================== -->
-
-                    <div
-                        class="view-switcher"
-                        aria-label="Change result view"
-                    >
-
-
-                        <!-- Grid view -->
-                        <button
-                            id="gridViewButton"
-                            class="view-button active"
-                            type="button"
-                            aria-label="Grid view"
-                            title="Grid view"
-                            aria-pressed="true"
-                        >
-                            ▦
-                        </button>
-
-
-                        <!-- List view -->
-                        <button
-                            id="listViewButton"
-                            class="view-button"
-                            type="button"
-                            aria-label="List view"
-                            title="List view"
-                            aria-pressed="false"
-                        >
-                            ☷
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- ========================================================
-                 DEVOPS TOOL GRID
+                 DOCUMENTATION WORKSPACE
                  ========================================================
 
-                 JavaScript dynamically renders the documentation cards
-                 into this container.
+                 The workspace contains:
+
+                     LEFT:
+                         Dynamic category sidebar
+
+                     RIGHT:
+                         Filters
+                         Results
+                         Tool cards
+                         Pagination
+
+                 On mobile, the category sidebar can become a collapsible
+                 category drawer controlled by the button below.
                  ======================================================== -->
 
-            <section
-                id="toolGrid"
-                class="tool-grid"
-                aria-live="polite"
-                aria-label="DevOps documentation tools"
-            >
-
-                <!--
-                    Tool cards are generated by:
-
-                        js/devops-documentation.js
-                -->
-
-            </section>
+            <section class="documentation-workspace">
 
 
-            <!-- ========================================================
-                 EMPTY SEARCH STATE
-                 ======================================================== -->
+                <!-- ====================================================
+                     MOBILE CATEGORY TOGGLE
+                     ====================================================
 
-            <section
-                id="emptyState"
-                class="empty-state hidden"
-                aria-live="polite"
-            >
+                     This button is primarily intended for smaller
+                     screens where the sidebar becomes a drawer.
+                     ==================================================== -->
 
-                <!-- Empty-state icon -->
-                <div
-                    class="empty-icon"
-                    aria-hidden="true"
-                >
-                    ∅
-                </div>
-
-
-                <!-- Empty-state heading -->
-                <h2>
-                    No tools found
-                </h2>
-
-
-                <!-- Empty-state description -->
-                <p>
-                    Try another search term or reset your filters.
-                </p>
-
-
-                <!-- Reset search button -->
                 <button
-                    id="emptyResetButton"
-                    class="primary-button"
+                    id="categorySidebarToggle"
+                    class="category-sidebar-toggle"
                     type="button"
+                    aria-expanded="false"
+                    aria-controls="categorySidebar"
                 >
-                    Reset Search
+
+                    <span aria-hidden="true">
+                        ☰
+                    </span>
+
+                    <span>
+                        Explore Categories
+                    </span>
+
                 </button>
+
+
+                <!-- ====================================================
+                     CATEGORY SIDEBAR
+                     ====================================================
+
+                     IMPORTANT:
+
+                     Categories are NOT manually written here.
+
+                     JavaScript reads the JSON database and automatically
+                     generates this sidebar.
+
+                     Example generated structure:
+
+                         All Categories        508
+                         Cloud                 60
+                         CI/CD                 45
+                         Containers            30
+                         Kubernetes            25
+                         Security              40
+                         Monitoring            35
+                         ...
+
+                     If a new category is added to devops-tools.json,
+                     JavaScript can automatically add it here.
+                     ==================================================== -->
+
+                <aside
+                    id="categorySidebar"
+                    class="category-sidebar"
+                    aria-label="DevOps documentation categories"
+                >
+
+
+                    <!-- Sidebar heading -->
+                    <div class="sidebar-header">
+
+                        <div>
+
+                            <span class="section-kicker">
+                                // DIRECTORY
+                            </span>
+
+                            <h2>
+                                Categories
+                            </h2>
+
+                        </div>
+
+
+                        <!-- Sidebar close button for mobile -->
+                        <button
+                            id="categorySidebarClose"
+                            class="sidebar-close"
+                            type="button"
+                            aria-label="Close categories"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         DYNAMIC CATEGORY SEARCH
+                         =================================================
+
+                         Allows the user to search categories when the
+                         project grows to a large number of categories.
+                         ================================================= -->
+
+                    <div class="sidebar-search">
+
+                        <label
+                            class="sr-only"
+                            for="categorySearch"
+                        >
+                            Search categories
+                        </label>
+
+                        <input
+                            id="categorySearch"
+                            type="search"
+                            placeholder="Search categories..."
+                            autocomplete="off"
+                            spellcheck="false"
+                        >
+
+                    </div>
+
+
+                    <!-- =================================================
+                         DYNAMIC CATEGORY LIST
+                         =================================================
+
+                         JavaScript populates this container.
+
+                         No categories should be hard-coded in HTML.
+                         ================================================= -->
+
+                    <div
+                        id="categorySidebarList"
+                        class="category-sidebar-list"
+                    >
+
+                        <!--
+                            Dynamic category buttons are inserted here.
+                        -->
+
+                    </div>
+
+
+                    <!-- =================================================
+                         SIDEBAR FOOTER
+                         ================================================= -->
+
+                    <div class="sidebar-footer">
+
+                        <span>
+                            Dynamic directory
+                        </span>
+
+                        <span id="sidebarCategoryCount">
+                            0 categories
+                        </span>
+
+                    </div>
+
+                </aside>
+
+
+                <!-- ====================================================
+                     MAIN LIBRARY CONTENT
+                     ==================================================== -->
+
+                <div class="documentation-library">
+
+
+                    <!-- =================================================
+                         FILTER SYSTEM
+                         ================================================= -->
+
+                    <section class="filter-section">
+
+
+                        <!-- Section heading -->
+                        <div class="section-heading">
+
+                            <div>
+
+                                <span class="section-kicker">
+                                    // FILTER SYSTEM
+                                </span>
+
+                                <h2>
+                                    Explore the Library
+                                </h2>
+
+                            </div>
+
+
+                            <!-- Reset all filters -->
+                            <button
+                                id="clearFilters"
+                                class="secondary-button"
+                                type="button"
+                            >
+                                Reset Filters
+                            </button>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             FILTER CONTROLS
+                             ================================================= -->
+
+                        <div class="filters-grid">
+
+
+                            <!-- =============================================
+                                 CLOUD PROVIDER
+                                 ============================================= -->
+
+                            <div class="filter-control">
+
+                                <label for="providerFilter">
+                                    Cloud Provider
+                                </label>
+
+                                <select id="providerFilter">
+
+                                    <option value="all">
+                                        All Providers
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- =============================================
+                                 CATEGORY
+                                 ============================================= -->
+
+                            <div class="filter-control">
+
+                                <label for="categoryFilter">
+                                    Category
+                                </label>
+
+                                <select id="categoryFilter">
+
+                                    <option value="all">
+                                        All Categories
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- =============================================
+                                 SUBCATEGORY
+                                 ============================================= -->
+
+                            <div class="filter-control">
+
+                                <label for="subcategoryFilter">
+                                    Subcategory
+                                </label>
+
+                                <select id="subcategoryFilter">
+
+                                    <option value="all">
+                                        All Subcategories
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- =============================================
+                                 LEARNING LEVEL
+                                 ============================================= -->
+
+                            <div class="filter-control">
+
+                                <label for="levelFilter">
+                                    Learning Level
+                                </label>
+
+                                <select id="levelFilter">
+
+                                    <option value="all">
+                                        All Levels
+                                    </option>
+
+                                    <option value="Beginner">
+                                        Beginner
+                                    </option>
+
+                                    <option value="Intermediate">
+                                        Intermediate
+                                    </option>
+
+                                    <option value="Advanced">
+                                        Advanced
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- =============================================
+                                 TOOL TYPE
+                                 ============================================= -->
+
+                            <div class="filter-control">
+
+                                <label for="typeFilter">
+                                    Tool Type
+                                </label>
+
+                                <select id="typeFilter">
+
+                                    <option value="all">
+                                        All Types
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- =============================================
+                                 PERSONAL LIBRARY
+                                 ============================================= -->
+
+                            <div class="filter-control">
+
+                                <label for="favoriteFilter">
+                                    Personal Library
+                                </label>
+
+                                <select id="favoriteFilter">
+
+                                    <option value="all">
+                                        All Tools
+                                    </option>
+
+                                    <option value="favorites">
+                                        Favorites
+                                    </option>
+
+                                    <option value="recent">
+                                        Recently Viewed
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             QUICK CATEGORY FILTERS
+                             ================================================= -->
+
+                        <div class="category-toolbar">
+
+
+                            <!-- Toolbar label -->
+                            <span class="toolbar-label">
+                                Quick Categories
+                            </span>
+
+
+                            <!--
+                                JavaScript dynamically creates category
+                                buttons here.
+
+                                These are synchronized with the sidebar.
+                            -->
+
+                            <div
+                                id="categoryChips"
+                                class="category-chips"
+                            ></div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =================================================
+                         RESULTS TOOLBAR
+                         ================================================= -->
+
+                    <section class="results-toolbar">
+
+
+                        <!-- =================================================
+                             RESULTS INFORMATION
+                             ================================================= -->
+
+                        <div class="results-summary">
+
+                            <span class="section-kicker">
+                                // TECHNOLOGY LIBRARY
+                            </span>
+
+                            <h2>
+                                DevOps Tools
+                            </h2>
+
+                            <p>
+
+                                Showing
+
+                                <strong id="resultCount">
+                                    0
+                                </strong>
+
+                                technologies.
+
+                            </p>
+
+                        </div>
+
+
+                        <!-- =================================================
+                             RESULTS CONTROLS
+                             ================================================= -->
+
+                        <div class="results-controls">
+
+
+                            <!-- Sort selector -->
+                            <label
+                                class="sr-only"
+                                for="sortSelect"
+                            >
+                                Sort tools
+                            </label>
+
+
+                            <select id="sortSelect">
+
+                                <option value="name-asc">
+                                    Name A–Z
+                                </option>
+
+                                <option value="name-desc">
+                                    Name Z–A
+                                </option>
+
+                                <option value="category">
+                                    Category
+                                </option>
+
+                                <option value="level">
+                                    Learning Level
+                                </option>
+
+                            </select>
+
+
+                            <!-- =================================================
+                                 ITEMS PER PAGE
+                                 =================================================
+
+                                 Allows the user to control how many tools
+                                 are shown on each page.
+                                 ================================================= -->
+
+                            <label
+                                class="sr-only"
+                                for="itemsPerPage"
+                            >
+                                Tools per page
+                            </label>
+
+                            <select id="itemsPerPage">
+
+                                <option value="12">
+                                    12 / page
+                                </option>
+
+                                <option
+                                    value="24"
+                                    selected
+                                >
+                                    24 / page
+                                </option>
+
+                                <option value="48">
+                                    48 / page
+                                </option>
+
+                                <option value="96">
+                                    96 / page
+                                </option>
+
+                            </select>
+
+
+                            <!-- =================================================
+                                 GRID / LIST VIEW
+                                 ================================================= -->
+
+                            <div
+                                class="view-switcher"
+                                aria-label="Change result view"
+                            >
+
+
+                                <!-- Grid view -->
+                                <button
+                                    id="gridViewButton"
+                                    class="view-button active"
+                                    type="button"
+                                    aria-label="Grid view"
+                                    title="Grid view"
+                                    aria-pressed="true"
+                                >
+                                    ▦
+                                </button>
+
+
+                                <!-- List view -->
+                                <button
+                                    id="listViewButton"
+                                    class="view-button"
+                                    type="button"
+                                    aria-label="List view"
+                                    title="List view"
+                                    aria-pressed="false"
+                                >
+                                    ☷
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- =================================================
+                         ACTIVE FILTER SUMMARY
+                         =================================================
+
+                         JavaScript can dynamically display active filters.
+
+                         Example:
+
+                             Category: Kubernetes
+                             Level: Beginner
+                             Search: Docker
+                         ================================================= -->
+
+                    <div
+                        id="activeFilters"
+                        class="active-filters"
+                        aria-live="polite"
+                    >
+
+                        <!-- Dynamic active-filter badges -->
+
+                    </div>
+
+
+                    <!-- =================================================
+                         DEVOPS TOOL GRID
+                         =================================================
+
+                         JavaScript renders only the current page of tools
+                         here.
+
+                         Pagination controls determine which tools appear.
+                         ================================================= -->
+
+                    <section
+                        id="toolGrid"
+                        class="tool-grid"
+                        aria-live="polite"
+                        aria-label="DevOps documentation tools"
+                    >
+
+                        <!--
+                            Tool cards are generated by:
+
+                                js/devops-documentation.js
+                        -->
+
+                    </section>
+
+
+                    <!-- =================================================
+                         EXPLORE MORE / LOAD MORE AREA
+                         =================================================
+
+                         This area provides a secondary discovery action.
+
+                         Depending on the JavaScript implementation,
+                         Explore More can:
+
+                             - move to the next page
+                             - open more technologies
+                             - reveal additional results
+
+                         It is intentionally separate from numbered
+                         pagination so the page remains easy to navigate.
+                         ================================================= -->
+
+                    <div
+                        id="exploreMoreContainer"
+                        class="explore-more-container"
+                    >
+
+                        <button
+                            id="exploreMoreButton"
+                            class="primary-button explore-more-button"
+                            type="button"
+                        >
+
+                            <span>
+                                Explore More
+                            </span>
+
+                            <span
+                                aria-hidden="true"
+                            >
+                                →
+                            </span>
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         PAGINATION
+                         =================================================
+
+                         IMPORTANT:
+
+                         The JavaScript generates the page numbers
+                         dynamically.
+
+                         Example:
+
+                             ← Previous
+                             1
+                             2
+                             3
+                             4
+                             ...
+                             22
+                             Next →
+
+                         With 508 tools and 24 tools per page, this
+                         automatically results in approximately 22 pages.
+
+                         The number of pages should NEVER be hard-coded.
+                         ================================================= -->
+
+                    <nav
+                        id="pagination"
+                        class="pagination"
+                        aria-label="Documentation pagination"
+                    >
+
+                        <!--
+                            JavaScript dynamically inserts:
+
+                                Previous button
+                                Page numbers
+                                Ellipsis
+                                Next button
+
+                            Example:
+
+                                ← Previous
+                                1
+                                2
+                                3
+                                ...
+                                22
+                                Next →
+                        -->
+
+                    </nav>
+
+
+                    <!-- =================================================
+                         PAGINATION INFORMATION
+                         =================================================
+
+                         Provides a readable summary such as:
+
+                             Page 1 of 22
+                             Showing 1–24 of 508 tools
+                         ================================================= -->
+
+                    <div
+                        id="paginationInfo"
+                        class="pagination-info"
+                        aria-live="polite"
+                    >
+                        Page 1
+                    </div>
+
+
+                    <!-- =================================================
+                         EMPTY SEARCH STATE
+                         ================================================= -->
+
+                    <section
+                        id="emptyState"
+                        class="empty-state hidden"
+                        aria-live="polite"
+                    >
+
+                        <!-- Empty icon -->
+                        <div
+                            class="empty-icon"
+                            aria-hidden="true"
+                        >
+                            ∅
+                        </div>
+
+
+                        <!-- Empty heading -->
+                        <h2>
+                            No tools found
+                        </h2>
+
+
+                        <!-- Empty description -->
+                        <p>
+                            Try another search term or reset your filters.
+                        </p>
+
+
+                        <!-- Reset button -->
+                        <button
+                            id="emptyResetButton"
+                            class="primary-button"
+                            type="button"
+                        >
+                            Reset Search
+                        </button>
+
+                    </section>
+
+                </div>
 
             </section>
 
@@ -934,13 +1409,33 @@
 
 
         <!-- ============================================================
+             CATEGORY SIDEBAR MOBILE OVERLAY
+             ============================================================
+
+             Used when the category sidebar becomes a mobile drawer.
+
+             JavaScript can toggle:
+
+                 body.category-sidebar-open
+
+             or the equivalent sidebar state.
+             ============================================================ -->
+
+        <div
+            id="categorySidebarOverlay"
+            class="category-sidebar-overlay hidden"
+            aria-hidden="true"
+        ></div>
+
+
+        <!-- ============================================================
              TOOL DETAILS MODAL
              ============================================================
 
-             This modal displays detailed information about the selected
-             DevOps technology.
+             Displays complete information about the selected DevOps
+             technology.
 
-             The JavaScript controller fills the fields dynamically.
+             JavaScript fills all fields dynamically.
              ============================================================ -->
 
         <div
@@ -952,16 +1447,16 @@
         >
 
 
-            <!-- Modal background overlay -->
+            <!-- Modal background -->
             <div class="modal-overlay"></div>
 
 
-            <!-- Modal content -->
+            <!-- Modal panel -->
             <div class="modal-panel">
 
 
                 <!-- ====================================================
-                     CLOSE MODAL BUTTON
+                     CLOSE MODAL
                      ==================================================== -->
 
                 <button
@@ -981,7 +1476,7 @@
                 <div class="modal-header">
 
 
-                    <!-- Tool icon / abbreviation -->
+                    <!-- Tool icon -->
                     <div
                         id="modalToolIcon"
                         class="modal-tool-icon"
@@ -994,7 +1489,7 @@
                     <div>
 
 
-                        <!-- Tool category -->
+                        <!-- Category -->
                         <span
                             id="modalToolCategory"
                             class="tool-category"
@@ -1009,7 +1504,7 @@
                         </h2>
 
 
-                        <!-- Tool provider -->
+                        <!-- Provider -->
                         <p id="modalToolProvider">
                             Provider
                         </p>
@@ -1041,13 +1536,45 @@
                 >
 
                     <!--
-                        JavaScript inserts metadata such as:
+                        JavaScript inserts:
 
-                        - Learning level
-                        - Tool type
-                        - Category
-                        - Subcategory
-                        - Provider
+                            - Learning level
+                            - Tool type
+                            - Category
+                            - Subcategory
+                            - Provider
+                            - Other useful metadata
+                    -->
+
+                </div>
+
+
+                <!-- ====================================================
+                     EXPLORE MORE ACTIONS
+                     ====================================================
+
+                     The modal contains an explicit Explore More action.
+
+                     JavaScript can populate the target dynamically.
+
+                     Recommended behavior:
+
+                         Explore More
+                             ↓
+                         Open official documentation / detailed view
+
+                     This keeps the main card compact while providing a
+                     stronger discovery action inside the modal.
+                     ==================================================== -->
+
+                <div
+                    id="modalExploreMore"
+                    class="modal-explore-more"
+                >
+
+                    <!--
+                        JavaScript dynamically inserts the Explore More
+                        button or official resource action here.
                     -->
 
                 </div>
@@ -1098,7 +1625,7 @@
                         class="tool-tags"
                     >
 
-                        <!-- JavaScript inserts tool tags -->
+                        <!-- JavaScript inserts tags -->
 
                     </div>
 
@@ -1123,7 +1650,7 @@
 
                         <!--
                             JavaScript inserts related DevOps
-                            technologies here.
+                            technologies.
                         -->
 
                     </div>
@@ -1148,7 +1675,7 @@
             </div>
 
 
-            <!-- Project technology categories -->
+            <!-- Project categories -->
             <div>
                 DEVOPS // CLOUD // AUTOMATION // KUBERNETES
             </div>
@@ -1163,28 +1690,35 @@
          ================================================================
 
          File:
+
              pages/devops-documentation/js/devops-documentation.js
 
-         The script is loaded after the page markup.
+         The JavaScript is loaded with "defer".
 
-         "defer" ensures the browser parses the HTML first while still
-         allowing the script to load without blocking page rendering.
-
-         The JavaScript is responsible for:
+         It is responsible for:
 
              - Loading devops-tools.json
-             - Rendering tools
+             - Rendering documentation tools
+             - Dynamic categories
+             - Dynamic category sidebar
+             - Category counts
              - Search
              - Filters
              - Sorting
              - Favorites
              - Recently viewed
+             - Pagination
+             - Page numbers
+             - Explore More
              - Grid / list view
-             - Modal
+             - Tool details modal
              - Statistics
              - Category chips
              - Official resource links
              - Related technologies
+             - Mobile sidebar
+             - Active filters
+             - Result counters
 
          ================================================================ -->
 
