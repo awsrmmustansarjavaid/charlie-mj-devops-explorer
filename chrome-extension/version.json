@@ -1,16 +1,16 @@
 {
-  "version": "3.2.1",
+  "version": "3.3.1",
   "name": "Charlie MJ DevOps Explorer",
   "releaseDate": "2026-10-07",
   "notes": [
-    "Learn is now a learning-resource organizer with Add Learning cards",
-    "Learning cards can link technologies, bookmarks, favorites, GitHub, YouTube, Medium, LinkedIn, courses, tutorials and official documentation",
-    "Technologies includes a dedicated Official Documentation database with multiple docs per technology",
-    "Official documentation supports add/edit/delete, import/export JSON and URL health checks",
-    "Settings includes Documentation Health controls and repository documentation data-source configuration",
-    "Schema migrated to v4",
-    "Fixed missing Technology catalog handlers for save, render and export actions",
-    "Fixed Official Documentation repository URL/path persistence in Settings",
-    "Hardened Side Panel opening to avoid Chrome runtime errors and provide a fallback"
+    "Bug-fix release: corrected dashboard module syntax caused by await inside deleteDocumentation and malformed Learning resource newline literals",
+    "Added Category and Subcategory to Official Documentation records and upgraded the registry to JSON schema v2",
+    "Official Documentation JSON now includes category taxonomy, tags, and the GitHub Actions example",
+    "Learning cards can link existing Labs, Projects, Goals and Roadmaps through Add Additional Details",
+    "Linked Learning cards are visible from existing Lab, Project, Goal and Roadmap records through Additional Details",
+    "Labs and Projects now support JSON Import and Export",
+    "Official Documentation selection in Learning now has search and multi-select instead of a full unfiltered list",
+    "Learning cards now have an Open detail view",
+    "Workspace schema migrated to v5 while preserving existing data and features"
   ]
 }

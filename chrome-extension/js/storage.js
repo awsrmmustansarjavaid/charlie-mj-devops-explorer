@@ -4,7 +4,7 @@ export const CUSTOM_CATEGORIES_KEY = 'devopsExplorerCustomCategories';
 export const CUSTOM_TECHNOLOGIES_KEY = 'devopsExplorerCustomTechnologies';
 export const OFFICIAL_DOCS_KEY = 'devopsExplorerOfficialDocumentation';
 export const APP_DATA_KEY = 'devopsExplorerAppData';
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 
 const DEFAULT_APP_DATA = {
   schemaVersion: SCHEMA_VERSION,
@@ -44,6 +44,7 @@ export async function migrateAppData(){
   if(v<2){data.savedSearches=data.savedSearches||[];data.goals=data.goals||[];v=2;}
   if(v<3){data.achievements=data.achievements||[];data.backupMeta=data.backupMeta||{lastBackupAt:null};v=3;}
   if(v<4){data.learningCards=data.learningCards||[];v=4;}
+  if(v<5){data.learningCards=(data.learningCards||[]).map(x=>({...x,labIds:Array.isArray(x.labIds)?x.labIds:[],projectIds:Array.isArray(x.projectIds)?x.projectIds:[],goalIds:Array.isArray(x.goalIds)?x.goalIds:[],roadmapIds:Array.isArray(x.roadmapIds)?x.roadmapIds:[]}));for(const type of ['labs','projects','goals','roadmaps'])data[type]=(data[type]||[]).map(x=>({...x,learningCardIds:Array.isArray(x.learningCardIds)?x.learningCardIds:[]}));v=5;}
   data.schemaVersion=SCHEMA_VERSION; await chrome.storage.local.set({[APP_DATA_KEY]:data}); return data;
 }
 export async function getAppData(){const d=await migrateAppData();return {...clone(DEFAULT_APP_DATA),...d};}

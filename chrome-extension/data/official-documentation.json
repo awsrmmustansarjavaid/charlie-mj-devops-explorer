@@ -1,594 +1,1167 @@
 {
-  "version": 1,
-  "description": "Official documentation registry seed. The extension completes and synchronizes this registry against the loaded technology catalog.",
+  "version": 2,
+  "generatedAt": "2026-10-07T14:59:45.498014Z",
+  "count": 50,
   "documentation": [
     {
       "id": "doc-kubernetes",
       "technologyId": "kubernetes",
       "technology": "Kubernetes",
+      "categoryId": "container-orchestration",
+      "category": "Container Orchestration",
+      "subcategoryId": "kubernetes",
+      "subcategory": "Kubernetes",
       "title": "Kubernetes Documentation",
       "url": "https://kubernetes.io/docs/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "kubernetes",
+        "orchestration",
+        "cloud-native"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497649Z"
     },
     {
       "id": "doc-docker",
       "technologyId": "docker",
       "technology": "Docker",
+      "categoryId": "containers",
+      "category": "Containers",
+      "subcategoryId": "docker",
+      "subcategory": "Docker",
       "title": "Docker Docs",
       "url": "https://docs.docker.com/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "docker",
+        "containers",
+        "cloud-native"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497692Z"
     },
     {
       "id": "doc-terraform",
       "technologyId": "terraform",
       "technology": "Terraform",
+      "categoryId": "infrastructure-as-code",
+      "category": "Infrastructure as Code",
+      "subcategoryId": "terraform",
+      "subcategory": "Terraform",
       "title": "Terraform Documentation",
       "url": "https://developer.hashicorp.com/terraform/docs",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "terraform",
+        "iac",
+        "automation",
+        "infrastructure"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497700Z"
     },
     {
       "id": "doc-ansible",
       "technologyId": "ansible",
       "technology": "Ansible",
+      "categoryId": "configuration-management",
+      "category": "Configuration Management",
+      "subcategoryId": "ansible",
+      "subcategory": "Ansible",
       "title": "Ansible Documentation",
       "url": "https://docs.ansible.com/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "ansible",
+        "devops"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497705Z"
     },
     {
       "id": "doc-jenkins",
       "technologyId": "jenkins",
       "technology": "Jenkins",
+      "categoryId": "ci-cd",
+      "category": "CI/CD",
+      "subcategoryId": "continuous-integration",
+      "subcategory": "Continuous Integration",
       "title": "Jenkins Documentation",
       "url": "https://www.jenkins.io/doc/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "jenkins",
+        "automation",
+        "pipeline",
+        "ci-cd"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497709Z"
     },
     {
       "id": "doc-github",
       "technologyId": "github",
       "technology": "GitHub",
+      "categoryId": "devops-platform",
+      "category": "DevOps Platform",
+      "subcategoryId": "version-control",
+      "subcategory": "Version Control",
       "title": "GitHub Docs",
       "url": "https://docs.github.com/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "github",
+        "devops",
+        "developer-platform"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497713Z"
     },
     {
       "id": "doc-gitlab",
       "technologyId": "gitlab",
       "technology": "GitLab",
+      "categoryId": "devops-platform",
+      "category": "DevOps Platform",
+      "subcategoryId": "version-control",
+      "subcategory": "Version Control",
       "title": "GitLab Documentation",
       "url": "https://docs.gitlab.com/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "gitlab",
+        "devops",
+        "developer-platform"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497718Z"
     },
     {
       "id": "doc-prometheus",
       "technologyId": "prometheus",
       "technology": "Prometheus",
+      "categoryId": "monitoring-and-observability",
+      "category": "Monitoring & Observability",
+      "subcategoryId": "metrics",
+      "subcategory": "Metrics",
       "title": "Prometheus Documentation",
       "url": "https://prometheus.io/docs/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "prometheus",
+        "monitoring",
+        "observability"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497722Z"
     },
     {
       "id": "doc-grafana",
       "technologyId": "grafana",
       "technology": "Grafana",
+      "categoryId": "monitoring-and-observability",
+      "category": "Monitoring & Observability",
+      "subcategoryId": "visualization",
+      "subcategory": "Visualization",
       "title": "Grafana Documentation",
       "url": "https://grafana.com/docs/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "grafana",
+        "monitoring",
+        "observability"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497726Z"
     },
     {
       "id": "doc-helm",
       "technologyId": "helm",
       "technology": "Helm",
+      "categoryId": "container-orchestration",
+      "category": "Container Orchestration",
+      "subcategoryId": "package-management",
+      "subcategory": "Package Management",
       "title": "Helm Documentation",
       "url": "https://helm.sh/docs/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "helm",
+        "kubernetes",
+        "orchestration",
+        "cloud-native"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497731Z"
     },
     {
       "id": "doc-argo-cd",
       "technologyId": "argo-cd",
       "technology": "Argo CD",
+      "categoryId": "ci-cd",
+      "category": "CI/CD",
+      "subcategoryId": "gitops",
+      "subcategory": "GitOps",
       "title": "Argo CD Documentation",
       "url": "https://argo-cd.readthedocs.io/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "argo-cd",
+        "automation",
+        "pipeline",
+        "ci-cd"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497736Z"
     },
     {
       "id": "doc-istio",
       "technologyId": "istio",
       "technology": "Istio",
+      "categoryId": "service-mesh",
+      "category": "Service Mesh",
+      "subcategoryId": "traffic-management",
+      "subcategory": "Traffic Management",
       "title": "Istio Documentation",
       "url": "https://istio.io/latest/docs/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "istio",
+        "service-mesh",
+        "cloud-native"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497740Z"
     },
     {
       "id": "doc-nginx",
       "technologyId": "nginx",
       "technology": "NGINX",
+      "categoryId": "networking",
+      "category": "Networking",
+      "subcategoryId": "web-server",
+      "subcategory": "Web Server",
       "title": "NGINX Documentation",
       "url": "https://docs.nginx.com/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "nginx",
+        "networking",
+        "infrastructure"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497744Z"
     },
     {
       "id": "doc-haproxy",
       "technologyId": "haproxy",
       "technology": "HAProxy",
+      "categoryId": "networking",
+      "category": "Networking",
+      "subcategoryId": "load-balancing",
+      "subcategory": "Load Balancing",
       "title": "HAProxy Documentation",
       "url": "https://www.haproxy.org/documentation/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "haproxy",
+        "networking",
+        "infrastructure"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497747Z"
     },
     {
       "id": "doc-traefik",
       "technologyId": "traefik",
       "technology": "Traefik",
+      "categoryId": "networking",
+      "category": "Networking",
+      "subcategoryId": "ingress",
+      "subcategory": "Ingress",
       "title": "Traefik Documentation",
       "url": "https://doc.traefik.io/traefik/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "traefik",
+        "networking",
+        "infrastructure"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497751Z"
     },
     {
       "id": "doc-vault",
       "technologyId": "vault",
       "technology": "Vault",
+      "categoryId": "security",
+      "category": "Security",
+      "subcategoryId": "secrets-management",
+      "subcategory": "Secrets Management",
       "title": "HashiCorp Vault Documentation",
       "url": "https://developer.hashicorp.com/vault/docs",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "vault",
+        "security",
+        "devsecops"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497755Z"
     },
     {
       "id": "doc-opentelemetry",
       "technologyId": "opentelemetry",
       "technology": "OpenTelemetry",
+      "categoryId": "monitoring-and-observability",
+      "category": "Monitoring & Observability",
+      "subcategoryId": "telemetry",
+      "subcategory": "Telemetry",
       "title": "OpenTelemetry Documentation",
       "url": "https://opentelemetry.io/docs/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "opentelemetry",
+        "monitoring",
+        "observability"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497759Z"
     },
     {
       "id": "doc-jaeger",
       "technologyId": "jaeger",
       "technology": "Jaeger",
+      "categoryId": "monitoring-and-observability",
+      "category": "Monitoring & Observability",
+      "subcategoryId": "tracing",
+      "subcategory": "Distributed Tracing",
       "title": "Jaeger Documentation",
       "url": "https://www.jaegertracing.io/docs/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "jaeger",
+        "monitoring",
+        "observability"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497762Z"
     },
     {
       "id": "doc-elasticsearch",
       "technologyId": "elasticsearch",
       "technology": "Elasticsearch",
+      "categoryId": "logging-and-search",
+      "category": "Logging & Search",
+      "subcategoryId": "search",
+      "subcategory": "Search",
       "title": "Elasticsearch Documentation",
       "url": "https://www.elastic.co/docs",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "elasticsearch",
+        "logging",
+        "observability"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497766Z"
     },
     {
       "id": "doc-postgresql",
       "technologyId": "postgresql",
       "technology": "PostgreSQL",
+      "categoryId": "databases",
+      "category": "Databases",
+      "subcategoryId": "relational-database",
+      "subcategory": "Relational Database",
       "title": "PostgreSQL Documentation",
       "url": "https://www.postgresql.org/docs/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "postgresql",
+        "database",
+        "data"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497770Z"
     },
     {
       "id": "doc-mysql",
       "technologyId": "mysql",
       "technology": "MySQL",
+      "categoryId": "databases",
+      "category": "Databases",
+      "subcategoryId": "relational-database",
+      "subcategory": "Relational Database",
       "title": "MySQL Documentation",
       "url": "https://dev.mysql.com/doc/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "mysql",
+        "database",
+        "data"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497775Z"
     },
     {
       "id": "doc-redis",
       "technologyId": "redis",
       "technology": "Redis",
+      "categoryId": "databases",
+      "category": "Databases",
+      "subcategoryId": "in-memory-data-store",
+      "subcategory": "In-Memory Data Store",
       "title": "Redis Documentation",
       "url": "https://redis.io/docs/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "redis",
+        "database",
+        "data"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497778Z"
     },
     {
       "id": "doc-mongodb",
       "technologyId": "mongodb",
       "technology": "MongoDB",
+      "categoryId": "databases",
+      "category": "Databases",
+      "subcategoryId": "document-database",
+      "subcategory": "Document Database",
       "title": "MongoDB Documentation",
       "url": "https://www.mongodb.com/docs/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "mongodb",
+        "database",
+        "data"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497781Z"
     },
     {
       "id": "doc-linux",
       "technologyId": "linux",
       "technology": "Linux",
+      "categoryId": "operating-systems",
+      "category": "Operating Systems",
+      "subcategoryId": "linux",
+      "subcategory": "Linux",
       "title": "Linux Documentation",
       "url": "https://docs.kernel.org/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "linux",
+        "system"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497785Z"
     },
     {
       "id": "doc-git",
       "technologyId": "git",
       "technology": "Git",
+      "categoryId": "version-control",
+      "category": "Version Control",
+      "subcategoryId": "git",
+      "subcategory": "Git",
       "title": "Git Documentation",
       "url": "https://git-scm.com/doc",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "git",
+        "developer-tools"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497789Z"
     },
     {
       "id": "doc-podman",
       "technologyId": "podman",
       "technology": "Podman",
+      "categoryId": "containers",
+      "category": "Containers",
+      "subcategoryId": "container-engine",
+      "subcategory": "Container Engine",
       "title": "Podman Documentation",
       "url": "https://docs.podman.io/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "podman",
+        "containers",
+        "cloud-native"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497793Z"
     },
     {
       "id": "doc-pulumi",
       "technologyId": "pulumi",
       "technology": "Pulumi",
+      "categoryId": "infrastructure-as-code",
+      "category": "Infrastructure as Code",
+      "subcategoryId": "pulumi",
+      "subcategory": "Pulumi",
       "title": "Pulumi Documentation",
       "url": "https://www.pulumi.com/docs/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "pulumi",
+        "iac",
+        "automation",
+        "infrastructure"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497796Z"
     },
     {
       "id": "doc-opentofu",
       "technologyId": "opentofu",
       "technology": "OpenTofu",
+      "categoryId": "infrastructure-as-code",
+      "category": "Infrastructure as Code",
+      "subcategoryId": "opentofu",
+      "subcategory": "OpenTofu",
       "title": "OpenTofu Documentation",
       "url": "https://opentofu.org/docs/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "opentofu",
+        "iac",
+        "automation",
+        "infrastructure"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497800Z"
     },
     {
       "id": "doc-circleci",
       "technologyId": "circleci",
       "technology": "CircleCI",
+      "categoryId": "ci-cd",
+      "category": "CI/CD",
+      "subcategoryId": "continuous-integration",
+      "subcategory": "Continuous Integration",
       "title": "CircleCI Documentation",
       "url": "https://circleci.com/docs/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "circleci",
+        "automation",
+        "pipeline",
+        "ci-cd"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497804Z"
     },
     {
       "id": "doc-tekton",
       "technologyId": "tekton",
       "technology": "Tekton",
+      "categoryId": "ci-cd",
+      "category": "CI/CD",
+      "subcategoryId": "cloud-native-pipelines",
+      "subcategory": "Cloud Native Pipelines",
       "title": "Tekton Documentation",
       "url": "https://tekton.dev/docs/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "tekton",
+        "automation",
+        "pipeline",
+        "ci-cd"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497807Z"
     },
     {
       "id": "doc-teamcity",
       "technologyId": "teamcity",
       "technology": "TeamCity",
+      "categoryId": "ci-cd",
+      "category": "CI/CD",
+      "subcategoryId": "continuous-integration",
+      "subcategory": "Continuous Integration",
       "title": "TeamCity Documentation",
       "url": "https://www.jetbrains.com/help/teamcity/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "teamcity",
+        "automation",
+        "pipeline",
+        "ci-cd"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497811Z"
     },
     {
       "id": "doc-trivy",
       "technologyId": "trivy",
       "technology": "Trivy",
+      "categoryId": "security",
+      "category": "Security",
+      "subcategoryId": "container-security",
+      "subcategory": "Container Security",
       "title": "Trivy Documentation",
       "url": "https://trivy.dev/latest/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "trivy",
+        "security",
+        "devsecops"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497815Z"
     },
     {
       "id": "doc-sonarqube",
       "technologyId": "sonarqube",
       "technology": "SonarQube",
+      "categoryId": "security",
+      "category": "Security",
+      "subcategoryId": "code-quality",
+      "subcategory": "Code Quality",
       "title": "SonarQube Documentation",
       "url": "https://docs.sonarsource.com/sonarqube-server/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "sonarqube",
+        "security",
+        "devsecops"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497818Z"
     },
     {
       "id": "doc-snyk",
       "technologyId": "snyk",
       "technology": "Snyk",
+      "categoryId": "security",
+      "category": "Security",
+      "subcategoryId": "dependency-security",
+      "subcategory": "Dependency Security",
       "title": "Snyk Documentation",
       "url": "https://docs.snyk.io/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "snyk",
+        "security",
+        "devsecops"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497822Z"
     },
     {
       "id": "doc-flux",
       "technologyId": "flux",
       "technology": "Flux",
+      "categoryId": "ci-cd",
+      "category": "CI/CD",
+      "subcategoryId": "gitops",
+      "subcategory": "GitOps",
       "title": "Flux Documentation",
       "url": "https://fluxcd.io/flux/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "flux",
+        "automation",
+        "pipeline",
+        "ci-cd"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497825Z"
     },
     {
       "id": "doc-cloudformation",
       "technologyId": "cloudformation",
       "technology": "CloudFormation",
+      "categoryId": "infrastructure-as-code",
+      "category": "Infrastructure as Code",
+      "subcategoryId": "aws",
+      "subcategory": "AWS",
       "title": "AWS CloudFormation Documentation",
       "url": "https://docs.aws.amazon.com/cloudformation/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "cloudformation",
+        "iac",
+        "automation",
+        "infrastructure"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497829Z"
     },
     {
       "id": "doc-aws",
       "technologyId": "aws",
       "technology": "AWS",
+      "categoryId": "cloud-provider",
+      "category": "Cloud Provider",
+      "subcategoryId": "aws",
+      "subcategory": "AWS",
       "title": "AWS Documentation",
       "url": "https://docs.aws.amazon.com/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "aws",
+        "cloud",
+        "infrastructure"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497832Z"
     },
     {
       "id": "doc-eks",
       "technologyId": "eks",
       "technology": "EKS",
+      "categoryId": "cloud-provider",
+      "category": "Cloud Provider",
+      "subcategoryId": "kubernetes",
+      "subcategory": "Amazon EKS",
       "title": "Amazon EKS Documentation",
       "url": "https://docs.aws.amazon.com/eks/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "eks",
+        "cloud",
+        "infrastructure"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497836Z"
     },
     {
       "id": "doc-ecs",
       "technologyId": "ecs",
       "technology": "ECS",
+      "categoryId": "cloud-provider",
+      "category": "Cloud Provider",
+      "subcategoryId": "containers",
+      "subcategory": "Amazon ECS",
       "title": "Amazon ECS Documentation",
       "url": "https://docs.aws.amazon.com/ecs/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "ecs",
+        "cloud",
+        "infrastructure"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497839Z"
     },
     {
       "id": "doc-ecr",
       "technologyId": "ecr",
       "technology": "ECR",
+      "categoryId": "cloud-provider",
+      "category": "Cloud Provider",
+      "subcategoryId": "container-registry",
+      "subcategory": "Amazon ECR",
       "title": "Amazon ECR Documentation",
       "url": "https://docs.aws.amazon.com/ecr/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "ecr",
+        "cloud",
+        "infrastructure"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497842Z"
     },
     {
       "id": "doc-azure",
       "technologyId": "azure",
       "technology": "Azure",
+      "categoryId": "cloud-provider",
+      "category": "Cloud Provider",
+      "subcategoryId": "azure",
+      "subcategory": "Microsoft Azure",
       "title": "Microsoft Azure Documentation",
       "url": "https://learn.microsoft.com/azure/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "azure",
+        "cloud",
+        "infrastructure"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497846Z"
     },
     {
       "id": "doc-aks",
       "technologyId": "aks",
       "technology": "AKS",
+      "categoryId": "cloud-provider",
+      "category": "Cloud Provider",
+      "subcategoryId": "kubernetes",
+      "subcategory": "Azure Kubernetes Service",
       "title": "Azure Kubernetes Service Documentation",
       "url": "https://learn.microsoft.com/azure/aks/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "aks",
+        "cloud",
+        "infrastructure"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497849Z"
     },
     {
       "id": "doc-google-cloud",
       "technologyId": "google-cloud",
       "technology": "Google Cloud",
+      "categoryId": "cloud-provider",
+      "category": "Cloud Provider",
+      "subcategoryId": "google-cloud",
+      "subcategory": "Google Cloud",
       "title": "Google Cloud Documentation",
       "url": "https://cloud.google.com/docs",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "google-cloud",
+        "cloud",
+        "infrastructure"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497853Z"
     },
     {
       "id": "doc-gke",
       "technologyId": "gke",
       "technology": "GKE",
+      "categoryId": "cloud-provider",
+      "category": "Cloud Provider",
+      "subcategoryId": "kubernetes",
+      "subcategory": "Google Kubernetes Engine",
       "title": "Google Kubernetes Engine Documentation",
       "url": "https://cloud.google.com/kubernetes-engine/docs",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "gke",
+        "cloud",
+        "infrastructure"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497856Z"
     },
     {
       "id": "doc-cloudwatch",
       "technologyId": "cloudwatch",
       "technology": "CloudWatch",
+      "categoryId": "cloud-provider",
+      "category": "Cloud Provider",
+      "subcategoryId": "monitoring",
+      "subcategory": "Amazon CloudWatch",
       "title": "Amazon CloudWatch Documentation",
       "url": "https://docs.aws.amazon.com/cloudwatch/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "cloudwatch",
+        "cloud",
+        "infrastructure"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497861Z"
     },
     {
       "id": "doc-loki",
       "technologyId": "loki",
       "technology": "Loki",
+      "categoryId": "logging-and-search",
+      "category": "Logging & Search",
+      "subcategoryId": "logs",
+      "subcategory": "Grafana Loki",
       "title": "Grafana Loki Documentation",
       "url": "https://grafana.com/docs/loki/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "loki",
+        "logging",
+        "observability"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497870Z"
     },
     {
       "id": "doc-owasp",
       "technologyId": "owasp",
       "technology": "OWASP",
+      "categoryId": "security",
+      "category": "Security",
+      "subcategoryId": "application-security",
+      "subcategory": "Application Security",
       "title": "OWASP Documentation",
       "url": "https://owasp.org/www-project-top-ten/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "owasp",
+        "security",
+        "devsecops"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497876Z"
     },
     {
       "id": "doc-docker-compose",
       "technologyId": "docker-compose",
       "technology": "Docker Compose",
+      "categoryId": "containers",
+      "category": "Containers",
+      "subcategoryId": "orchestration",
+      "subcategory": "Docker Compose",
       "title": "Docker Compose Documentation",
       "url": "https://docs.docker.com/compose/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "docker-compose",
+        "containers",
+        "cloud-native"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.497994Z"
     },
     {
       "id": "doc-kustomize",
       "technologyId": "kustomize",
       "technology": "Kustomize",
+      "categoryId": "container-orchestration",
+      "category": "Container Orchestration",
+      "subcategoryId": "kubernetes-configuration",
+      "subcategory": "Kubernetes Configuration",
       "title": "Kustomize Documentation",
       "url": "https://kubectl.docs.kubernetes.io/references/kustomize/",
       "type": "official-documentation",
       "source": "official-website",
       "status": "active",
       "health": "unknown",
-      "lastChecked": null
+      "tags": [
+        "kustomize",
+        "kubernetes",
+        "orchestration",
+        "cloud-native"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.498003Z"
+    },
+    {
+      "id": "doc-github-actions",
+      "technologyId": "github-actions",
+      "technology": "GitHub Actions",
+      "categoryId": "ci-cd",
+      "category": "CI/CD",
+      "subcategoryId": "github",
+      "subcategory": "GitHub",
+      "title": "GitHub Actions Documentation",
+      "url": "https://docs.github.com/en/actions",
+      "type": "official-documentation",
+      "source": "official-website",
+      "status": "active",
+      "health": "unknown",
+      "tags": [
+        "github",
+        "automation",
+        "workflow",
+        "ci-cd"
+      ],
+      "lastChecked": null,
+      "notes": "",
+      "updatedAt": "2026-10-07T14:59:45.498012Z"
     }
   ]
 }
