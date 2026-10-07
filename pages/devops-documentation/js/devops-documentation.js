@@ -1,183 +1,280 @@
 /**
- * ============================================================
+ * ================================================================
  * CHARLIE MJ DEVOPS EXPLORER
- * Documentation Library JavaScript
- * ============================================================
+ * Documentation Library
+ * ================================================================
  *
  * File:
  * pages/devops-documentation/js/devops-documentation.js
  *
- * Database:
+ * Shared Database:
  * ../../data/official-documentation.json
  *
- * Main responsibilities:
- * ------------------------------------------------------------
- * 1. Load DevOps tools from JSON
- * 2. Generate statistics dynamically
- * 3. Generate category sidebar dynamically
- * 4. Generate category quick filters
- * 5. Search tools
- * 6. Filter tools
- * 7. Sort tools
- * 8. Paginate results
- * 9. Explore More
- * 10. Grid / List view
- * 11. Favorites
- * 12. Recently viewed tools
- * 13. Active filter indicators
- * 14. Tool details modal
- * 15. Related technologies
- * 16. Official resources
- * 17. Mobile category sidebar
- * 18. Copy/share tool links
- * 19. LocalStorage persistence
- * 20. Keyboard accessibility
+ * ================================================================
  *
- * IMPORTANT:
- * ------------------------------------------------------------
- * This file does NOT hard-code DevOps tools or categories.
+ * IMPORTANT DATABASE ARCHITECTURE
+ * ----------------------------------------------------------------
  *
- * Everything is generated from:
+ * The SAME official-documentation.json file is now shared between:
  *
- *     ../../data/official-documentation.json
+ *     1. Charlie MJ DevOps Explorer Website
+ *     2. Charlie MJ DevOps Explorer Chrome Extension
  *
- * Therefore, when you add a new category or tool to JSON,
- * the UI automatically discovers it.
- * ============================================================
+ * The current JSON structure is:
+ *
+ * {
+ *     "version": 1,
+ *     "generatedAt": "...",
+ *     "count": 749,
+ *     "documentation": [
+ *         {
+ *             "id": "doc-aws",
+ *             "technologyId": "aws",
+ *             "technology": "Amazon Web Services",
+ *             "title": "Amazon Web Services Documentation",
+ *             "url": "https://docs.aws.amazon.com/",
+ *             "type": "official-documentation",
+ *             "source": "official-website",
+ *             "status": "active",
+ *             "health": "unknown",
+ *             "lastChecked": null,
+ *             "notes": "",
+ *             "updatedAt": "..."
+ *         }
+ *     ]
+ * }
+ *
+ * Therefore this website MUST read:
+ *
+ *     database.documentation
+ *
+ * instead of:
+ *
+ *     database.tools
+ *
+ * This JavaScript converts the documentation records into the
+ * internal "tool" format used by the website UI.
+ *
+ * ================================================================
+ *
+ * FEATURES
+ * ----------------------------------------------------------------
+ *
+ * ✓ Shared official-documentation.json support
+ * ✓ documentation[] database support
+ * ✓ Legacy tools[] compatibility
+ * ✓ Dynamic technology count
+ * ✓ Dynamic categories
+ * ✓ Dynamic providers
+ * ✓ Dynamic category sidebar
+ * ✓ Category counts
+ * ✓ Category search
+ * ✓ Technology search
+ * ✓ Provider filtering
+ * ✓ Category filtering
+ * ✓ Subcategory filtering
+ * ✓ Learning level filtering
+ * ✓ Tool type filtering
+ * ✓ Favorites
+ * ✓ Recently Viewed
+ * ✓ Sorting
+ * ✓ Pagination
+ * ✓ Explore More
+ * ✓ Grid/List view
+ * ✓ Active filters
+ * ✓ Tool details modal
+ * ✓ Official documentation links
+ * ✓ Official website links
+ * ✓ GitHub links when available
+ * ✓ Related technologies
+ * ✓ Copy technology link
+ * ✓ URL deep linking
+ * ✓ Mobile category sidebar
+ * ✓ LocalStorage persistence
+ * ✓ Safe URL handling
+ * ✓ Keyboard shortcuts
+ * ✓ Dynamic database architecture
+ *
+ * ================================================================
  */
 
 "use strict";
 
-/* ============================================================
+
+/* ================================================================
    1. CONFIGURATION
-   ============================================================ */
+   ================================================================ */
 
 const CONFIG = {
+
     /**
-     * JSON database location relative to:
+     * Shared JSON database.
+     *
+     * IMPORTANT:
+     *
+     * This path is relative to:
      *
      * pages/devops-documentation/js/
      */
     dataUrl: "../../data/official-documentation.json",
 
+
     /**
      * LocalStorage keys.
      */
     storageKeys: {
-        favorites: "charlieMJDevOpsFavorites",
-        recent: "charlieMJDevOpsRecent",
-        viewMode: "charlieMJDevOpsDocumentationView"
+
+        favorites:
+            "charlieMJDevOpsFavorites",
+
+        recent:
+            "charlieMJDevOpsRecent",
+
+        viewMode:
+            "charlieMJDevOpsDocumentationView"
     },
 
+
     /**
-     * Default number of tools displayed per page.
+     * Default number of technologies per page.
      */
     defaultItemsPerPage: 24,
 
+
     /**
-     * Maximum recently viewed tools stored.
+     * Maximum recently viewed technologies.
      */
     maxRecentTools: 12,
 
+
     /**
-     * Maximum related technologies displayed.
+     * Maximum related technologies.
      */
     maxRelatedTools: 6,
 
+
     /**
-     * Debounce delay for search.
+     * Search debounce delay.
      */
     searchDelay: 120
 };
 
 
-/* ============================================================
+/* ================================================================
    2. APPLICATION STATE
-   ============================================================ */
+   ================================================================ */
 
 const state = {
 
     /**
-     * All tools loaded from JSON.
+     * Normalized technology records.
+     *
+     * Every record displayed by the website exists here.
      */
     tools: [],
 
+
     /**
-     * Tools after search + filters + sorting.
+     * Current filtered results.
      */
     filteredTools: [],
 
+
     /**
-     * Current search text.
+     * Original database metadata.
+     */
+    databaseMeta: {
+
+        version: null,
+
+        generatedAt: null,
+
+        declaredCount: 0
+    },
+
+
+    /**
+     * Main search query.
      */
     searchQuery: "",
 
+
     /**
-     * Current selected filters.
+     * Active filters.
      */
     filters: {
+
         provider: "all",
+
         category: "all",
+
         subcategory: "all",
+
         level: "all",
+
         type: "all",
+
         favorite: "all"
     },
 
+
     /**
-     * Current sorting option.
+     * Sorting.
      */
     sortBy: "name-asc",
 
+
     /**
-     * Current page.
+     * Pagination.
      */
     currentPage: 1,
 
-    /**
-     * Current page size.
-     */
-    itemsPerPage: CONFIG.defaultItemsPerPage,
+    itemsPerPage:
+        CONFIG.defaultItemsPerPage,
+
 
     /**
      * Grid or list.
      */
     viewMode: "grid",
 
+
     /**
-     * Category sidebar search.
+     * Sidebar category search.
      */
     categorySearch: "",
 
+
     /**
-     * Currently opened tool.
+     * Currently open technology.
      */
     activeToolId: null,
 
+
     /**
-     * Loading state.
+     * Database loading status.
      */
     isLoading: false
 };
 
 
-/* ============================================================
+/* ================================================================
    3. DOM REFERENCES
-   ============================================================ */
+   ================================================================ */
 
 const elements = {
 
-    /* --------------------------------------------------------
+    /* ------------------------------------------------------------
        Main search
-       -------------------------------------------------------- */
+       ------------------------------------------------------------ */
 
     toolSearch:
         document.getElementById("toolSearch"),
 
 
-    /* --------------------------------------------------------
+    /* ------------------------------------------------------------
        Statistics
-       -------------------------------------------------------- */
+       ------------------------------------------------------------ */
 
     totalTools:
         document.getElementById("totalTools"),
@@ -192,9 +289,9 @@ const elements = {
         document.getElementById("favoriteCount"),
 
 
-    /* --------------------------------------------------------
+    /* ------------------------------------------------------------
        Category sidebar
-       -------------------------------------------------------- */
+       ------------------------------------------------------------ */
 
     categorySidebar:
         document.getElementById("categorySidebar"),
@@ -218,9 +315,9 @@ const elements = {
         document.getElementById("categorySidebarOverlay"),
 
 
-    /* --------------------------------------------------------
+    /* ------------------------------------------------------------
        Filters
-       -------------------------------------------------------- */
+       ------------------------------------------------------------ */
 
     providerFilter:
         document.getElementById("providerFilter"),
@@ -241,17 +338,17 @@ const elements = {
         document.getElementById("favoriteFilter"),
 
 
-    /* --------------------------------------------------------
+    /* ------------------------------------------------------------
        Category chips
-       -------------------------------------------------------- */
+       ------------------------------------------------------------ */
 
     categoryChips:
         document.getElementById("categoryChips"),
 
 
-    /* --------------------------------------------------------
+    /* ------------------------------------------------------------
        Results
-       -------------------------------------------------------- */
+       ------------------------------------------------------------ */
 
     resultCount:
         document.getElementById("resultCount"),
@@ -269,9 +366,9 @@ const elements = {
         document.getElementById("toolGrid"),
 
 
-    /* --------------------------------------------------------
+    /* ------------------------------------------------------------
        Explore More
-       -------------------------------------------------------- */
+       ------------------------------------------------------------ */
 
     exploreMoreContainer:
         document.getElementById("exploreMoreContainer"),
@@ -280,9 +377,9 @@ const elements = {
         document.getElementById("exploreMoreButton"),
 
 
-    /* --------------------------------------------------------
+    /* ------------------------------------------------------------
        Pagination
-       -------------------------------------------------------- */
+       ------------------------------------------------------------ */
 
     pagination:
         document.getElementById("pagination"),
@@ -291,9 +388,9 @@ const elements = {
         document.getElementById("paginationInfo"),
 
 
-    /* --------------------------------------------------------
+    /* ------------------------------------------------------------
        Empty state
-       -------------------------------------------------------- */
+       ------------------------------------------------------------ */
 
     emptyState:
         document.getElementById("emptyState"),
@@ -302,9 +399,9 @@ const elements = {
         document.getElementById("resetFiltersButton"),
 
 
-    /* --------------------------------------------------------
-       View buttons
-       -------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       View controls
+       ------------------------------------------------------------ */
 
     gridViewButton:
         document.getElementById("gridViewButton"),
@@ -313,9 +410,9 @@ const elements = {
         document.getElementById("listViewButton"),
 
 
-    /* --------------------------------------------------------
-       Tool modal
-       -------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       Modal
+       ------------------------------------------------------------ */
 
     toolModal:
         document.getElementById("toolModal"),
@@ -355,15 +452,18 @@ const elements = {
 };
 
 
-/* ============================================================
-   4. INITIALIZATION
-   ============================================================ */
+/* ================================================================
+   4. APPLICATION START
+   ================================================================ */
 
-document.addEventListener("DOMContentLoaded", init);
+document.addEventListener(
+    "DOMContentLoaded",
+    init
+);
 
 
 /**
- * Main application initialization.
+ * Main initialization.
  */
 async function init() {
 
@@ -372,88 +472,200 @@ async function init() {
      */
     restoreViewMode();
 
+
     /**
-     * Bind all buttons, inputs and controls.
+     * Connect all UI events.
      */
     bindEvents();
 
+
     /**
-     * Load the JSON database.
+     * Load shared database.
      */
     await loadDatabase();
+
+
+    /**
+     * Check whether URL contains:
+     *
+     * ?tool=technology-id
+     */
+    openToolFromUrl();
 }
 
 
-/* ============================================================
-   5. LOAD JSON DATABASE
-   ============================================================ */
+/* ================================================================
+   5. DATABASE LOADING
+   ================================================================ */
 
 /**
- * Load the DevOps documentation database.
+ * Load official-documentation.json.
  *
- * Supports both:
+ * Supported database structures:
+ *
+ * NEW:
+ *
+ * {
+ *     "documentation": [...]
+ * }
+ *
+ * LEGACY:
  *
  * {
  *     "tools": [...]
  * }
  *
- * and:
+ * DIRECT ARRAY:
  *
- * [
- *     {...},
- *     {...}
- * ]
+ * [...]
  */
 async function loadDatabase() {
 
     state.isLoading = true;
 
+
     try {
 
-        const response = await fetch(CONFIG.dataUrl, {
-            cache: "no-cache"
-        });
+        /**
+         * Fetch shared JSON.
+         */
+        const response =
+            await fetch(
+                CONFIG.dataUrl,
+                {
+                    cache: "no-cache"
+                }
+            );
 
+
+        /**
+         * HTTP error.
+         */
         if (!response.ok) {
+
             throw new Error(
-                `HTTP ${response.status} while loading database`
+                `HTTP ${response.status}`
             );
         }
 
-        const database = await response.json();
 
         /**
-         * Support both database formats.
+         * Parse JSON.
          */
-        if (Array.isArray(database)) {
+        const database =
+            await response.json();
 
-            state.tools = database;
 
-        } else if (
+        /**
+         * Save database metadata.
+         */
+        state.databaseMeta = {
+
+            version:
+                database?.version ?? null,
+
+            generatedAt:
+                database?.generatedAt ?? null,
+
+            declaredCount:
+                Number(
+                    database?.count || 0
+                )
+        };
+
+
+        /**
+         * --------------------------------------------------------
+         * NEW SHARED DATABASE
+         * --------------------------------------------------------
+         *
+         * This is the important part.
+         *
+         * Your new JSON uses:
+         *
+         * database.documentation
+         */
+        if (
             database &&
-            Array.isArray(database.tools)
+            Array.isArray(
+                database.documentation
+            )
         ) {
 
-            state.tools = database.tools;
+            state.tools =
+                normalizeDocumentationRecords(
+                    database.documentation
+                );
 
+
+        /**
+         * --------------------------------------------------------
+         * LEGACY DATABASE
+         * --------------------------------------------------------
+         */
+        } else if (
+            database &&
+            Array.isArray(
+                database.tools
+            )
+        ) {
+
+            state.tools =
+                normalizeLegacyTools(
+                    database.tools
+                );
+
+
+        /**
+         * --------------------------------------------------------
+         * DIRECT ARRAY
+         * --------------------------------------------------------
+         */
+        } else if (
+            Array.isArray(database)
+        ) {
+
+            state.tools =
+                normalizeDocumentationRecords(
+                    database
+                );
+
+
+        /**
+         * --------------------------------------------------------
+         * UNKNOWN FORMAT
+         * --------------------------------------------------------
+         */
         } else {
 
-            state.tools = [];
+            throw new Error(
+                "Unsupported documentation database format."
+            );
         }
 
 
         /**
-         * Remove invalid/null records.
+         * Remove invalid records.
          */
-        state.tools = state.tools.filter(
-            tool =>
-                tool &&
-                typeof tool === "object"
-        );
+        state.tools =
+            state.tools.filter(
+                isValidToolRecord
+            );
 
 
         /**
-         * Prepare all dynamic UI.
+         * Remove duplicate records.
+         *
+         * technologyId is preferred as the unique identity.
+         */
+        state.tools =
+            deduplicateTools(
+                state.tools
+            );
+
+
+        /**
+         * Build the dynamic UI.
          */
         updateStatistics();
 
@@ -465,14 +677,41 @@ async function loadDatabase() {
 
         applyFilters();
 
+
+        /**
+         * Helpful development information.
+         */
+        console.info(
+            "Charlie MJ DevOps Explorer database loaded:",
+            {
+                records:
+                    state.tools.length,
+
+                declaredCount:
+                    state.databaseMeta.declaredCount,
+
+                categories:
+                    getCategoryCount(),
+
+                providers:
+                    getProviderCount(),
+
+                generatedAt:
+                    state.databaseMeta.generatedAt
+            }
+        );
+
+
     } catch (error) {
 
         console.error(
-            "DevOps documentation database failed to load:",
+            "Charlie MJ DevOps Explorer database failed:",
             error
         );
 
+
         showDatabaseError();
+
 
     } finally {
 
@@ -481,175 +720,957 @@ async function loadDatabase() {
 }
 
 
-/* ============================================================
-   6. DATABASE ERROR
-   ============================================================ */
+/* ================================================================
+   6. NORMALIZE NEW DOCUMENTATION RECORDS
+   ================================================================ */
 
 /**
- * Display a friendly error message if JSON cannot load.
+ * Convert the new documentation[] structure into the
+ * internal structure expected by the website.
+ *
+ * Example source:
+ *
+ * {
+ *     "id": "doc-aws-ec2",
+ *     "technologyId": "aws-ec2",
+ *     "technology": "Amazon EC2",
+ *     "title": "Amazon EC2 Documentation",
+ *     "url": "https://docs.aws.amazon.com/ec2/",
+ *     "type": "official-documentation",
+ *     "source": "official-website",
+ *     "status": "active",
+ *     "health": "unknown",
+ *     "lastChecked": null,
+ *     "notes": "",
+ *     "updatedAt": "..."
+ * }
+ *
+ * becomes an internal website record:
+ *
+ * {
+ *     id,
+ *     technologyId,
+ *     name,
+ *     title,
+ *     documentation,
+ *     ...
+ * }
  */
-function showDatabaseError() {
+function normalizeDocumentationRecords(
+    documentation
+) {
 
-    if (elements.toolGrid) {
+    return documentation
+        .map(record => {
 
-        elements.toolGrid.innerHTML = `
-            <div class="database-error">
-                <div class="database-error-icon">!</div>
+            if (
+                !record ||
+                typeof record !== "object"
+            ) {
 
-                <h3>Documentation database unavailable</h3>
-
-                <p>
-                    The DevOps documentation database could not
-                    be loaded.
-                </p>
-
-                <p>
-                    Please verify:
-                </p>
-
-                <ul>
-                    <li>
-                        <code>data/official-documentation.json</code>
-                    </li>
-
-                    <li>
-                        The JSON syntax
-                    </li>
-
-                    <li>
-                        The GitHub Pages deployment
-                    </li>
-                </ul>
-
-                <button
-                    type="button"
-                    class="reset-filters-button"
-                    onclick="window.location.reload()"
-                >
-                    Retry
-                </button>
-            </div>
-        `;
-    }
+                return null;
+            }
 
 
-    if (elements.resultCount) {
-        elements.resultCount.textContent =
-            "Database unavailable";
-    }
+            /**
+             * Stable technology ID.
+             */
+            const technologyId =
+                String(
+                    record.technologyId ||
+                    record.id ||
+                    slugify(
+                        record.technology ||
+                        record.title ||
+                        "technology"
+                    )
+                );
+
+
+            /**
+             * Human-readable technology name.
+             */
+            const technology =
+                String(
+                    record.technology ||
+                    record.title ||
+                    technologyId
+                );
+
+
+            /**
+             * Documentation title.
+             */
+            const title =
+                String(
+                    record.title ||
+                    `${technology} Documentation`
+                );
+
+
+            /**
+             * Official documentation URL.
+             */
+            const documentationUrl =
+                safeUrl(
+                    record.url
+                );
+
+
+            /**
+             * Return normalized record.
+             */
+            return {
+
+                /**
+                 * Preserve original database ID.
+                 */
+                id:
+                    String(
+                        record.id ||
+                        `doc-${technologyId}`
+                    ),
+
+
+                /**
+                 * Technology identity.
+                 */
+                technologyId:
+                    technologyId,
+
+
+                /**
+                 * Main display name.
+                 */
+                name:
+                    technology,
+
+
+                technology:
+                    technology,
+
+
+                title:
+                    title,
+
+
+                /**
+                 * Documentation URL.
+                 */
+                documentation:
+                    documentationUrl,
+
+
+                officialDocumentation:
+                    documentationUrl,
+
+
+                /**
+                 * Official website.
+                 *
+                 * The current documentation database only provides
+                 * "url", so documentation is used as the primary
+                 * official resource.
+                 *
+                 * If future records provide website/homepage,
+                 * those are automatically supported.
+                 */
+                officialWebsite:
+                    safeUrl(
+                        record.officialWebsite ||
+                        record.website ||
+                        record.homepage ||
+                        record.officialUrl
+                    ),
+
+
+                /**
+                 * GitHub if future database records provide it.
+                 */
+                github:
+                    safeUrl(
+                        record.github ||
+                        record.githubUrl
+                    ),
+
+
+                /**
+                 * Existing database metadata.
+                 */
+                type:
+                    String(
+                        record.type ||
+                        "official-documentation"
+                    ),
+
+
+                source:
+                    String(
+                        record.source ||
+                        "official-website"
+                    ),
+
+
+                status:
+                    String(
+                        record.status ||
+                        "active"
+                    ),
+
+
+                health:
+                    String(
+                        record.health ||
+                        "unknown"
+                    ),
+
+
+                lastChecked:
+                    record.lastChecked ||
+                    null,
+
+
+                notes:
+                    String(
+                        record.notes ||
+                        ""
+                    ),
+
+
+                updatedAt:
+                    record.updatedAt ||
+                    null,
+
+
+                /**
+                 * Category compatibility.
+                 *
+                 * The new documentation records do not currently
+                 * have a category field.
+                 *
+                 * Therefore we dynamically infer a useful category
+                 * from the technology ID/name.
+                 */
+                category:
+                    inferCategory(
+                        record
+                    ),
+
+
+                /**
+                 * Subcategory.
+                 */
+                subcategory:
+                    String(
+                        record.subcategory ||
+                        inferSubcategory(
+                            record
+                        ) ||
+                        ""
+                    ),
+
+
+                /**
+                 * Learning level.
+                 *
+                 * If future database records provide "level",
+                 * it will automatically be used.
+                 */
+                level:
+                    String(
+                        record.level ||
+                        record.difficulty ||
+                        ""
+                    ),
+
+
+                /**
+                 * Tags.
+                 */
+                tags:
+                    normalizeTags(
+                        record.tags ||
+                        []
+                    ),
+
+
+                /**
+                 * Keep original record available.
+                 * Useful for future features.
+                 */
+                _sourceRecord:
+                    record
+            };
+        })
+        .filter(Boolean);
 }
 
 
-/* ============================================================
-   7. STATISTICS
-   ============================================================ */
+/* ================================================================
+   7. LEGACY DATABASE NORMALIZER
+   ================================================================ */
 
 /**
- * Calculate statistics directly from the loaded tools.
+ * Keep compatibility with the previous tools[] database.
+ */
+function normalizeLegacyTools(
+    tools
+) {
+
+    return tools
+        .map(tool => {
+
+            if (
+                !tool ||
+                typeof tool !== "object"
+            ) {
+
+                return null;
+            }
+
+
+            const name =
+                String(
+                    tool.name ||
+                    tool.title ||
+                    "Unnamed Technology"
+                );
+
+
+            const id =
+                String(
+                    tool.id ||
+                    tool.slug ||
+                    slugify(name)
+                );
+
+
+            const documentation =
+                safeUrl(
+                    tool.documentation ||
+                    tool.officialDocumentation
+                );
+
+
+            return {
+
+                ...tool,
+
+                id,
+
+                technologyId:
+                    String(
+                        tool.technologyId ||
+                        id
+                    ),
+
+                name,
+
+                technology:
+                    String(
+                        tool.technology ||
+                        name
+                    ),
+
+                title:
+                    String(
+                        tool.title ||
+                        `${name} Documentation`
+                    ),
+
+                documentation,
+
+                officialDocumentation:
+                    documentation,
+
+                officialWebsite:
+                    safeUrl(
+                        tool.officialWebsite ||
+                        tool.website ||
+                        tool.homepage
+                    ),
+
+                github:
+                    safeUrl(
+                        tool.github ||
+                        tool.githubUrl
+                    ),
+
+                category:
+                    String(
+                        tool.category ||
+                        inferCategory(tool)
+                    ),
+
+                subcategory:
+                    String(
+                        tool.subcategory ||
+                        ""
+                    ),
+
+                level:
+                    String(
+                        tool.level ||
+                        tool.difficulty ||
+                        ""
+                    ),
+
+                type:
+                    String(
+                        tool.type ||
+                        "technology"
+                    ),
+
+                tags:
+                    normalizeTags(
+                        tool.tags ||
+                        []
+                    )
+            };
+        })
+        .filter(Boolean);
+}
+
+
+/* ================================================================
+   8. CATEGORY INFERENCE
+   ================================================================ */
+
+/**
+ * The new official-documentation.json currently focuses on
+ * official documentation records and does not contain a category
+ * property.
+ *
+ * The website nevertheless has a category-based UI.
+ *
+ * Therefore we infer categories from technology names/IDs.
+ *
+ * This keeps the website fully functional without modifying the
+ * shared extension database.
  *
  * IMPORTANT:
- * We intentionally DO NOT trust:
  *
- *     database.totalTools
- *
- * because the real number of records is:
- *
- *     state.tools.length
+ * When you later add an explicit "category" field to the JSON,
+ * this function automatically gives priority to it.
  */
-function updateStatistics() {
-
-    const tools = state.tools;
-
+function inferCategory(record) {
 
     /**
-     * Unique categories.
+     * Explicit category always wins.
      */
-    const categories = new Set(
-        tools
-            .map(tool => getCategory(tool))
+    if (
+        record?.category
+    ) {
+
+        return String(
+            record.category
+        );
+    }
+
+
+    const text =
+        [
+            record?.technology,
+            record?.title,
+            record?.technologyId
+        ]
             .filter(Boolean)
-    );
+            .join(" ")
+            .toLowerCase();
 
 
     /**
-     * Unique providers.
+     * AWS.
      */
-    const providers = new Set(
-        tools
-            .map(tool => getProvider(tool))
-            .filter(Boolean)
-    );
+    if (
+        text.includes("aws") ||
+        text.includes("amazon ")
+    ) {
+
+        return "Cloud";
+    }
 
 
     /**
-     * Update statistics.
+     * Azure.
      */
-    if (elements.totalTools) {
-        elements.totalTools.textContent =
-            formatNumber(tools.length);
+    if (
+        text.includes("azure") ||
+        text.includes("microsoft azure")
+    ) {
+
+        return "Cloud";
     }
 
-    if (elements.totalCategories) {
-        elements.totalCategories.textContent =
-            formatNumber(categories.size);
+
+    /**
+     * Google Cloud.
+     */
+    if (
+        text.includes("google cloud") ||
+        text.includes("gcp") ||
+        text.includes("google kubernetes")
+    ) {
+
+        return "Cloud";
     }
 
-    if (elements.totalProviders) {
-        elements.totalProviders.textContent =
-            formatNumber(providers.size);
+
+    /**
+     * Kubernetes.
+     */
+    if (
+        text.includes("kubernetes") ||
+        text.includes("k8s") ||
+        text.includes("eks") ||
+        text.includes("aks") ||
+        text.includes("gke")
+    ) {
+
+        return "Container Orchestration";
     }
 
-    if (elements.favoriteCount) {
-        elements.favoriteCount.textContent =
-            formatNumber(getFavorites().length);
+
+    /**
+     * Docker / containers.
+     */
+    if (
+        text.includes("docker") ||
+        text.includes("podman") ||
+        text.includes("container")
+    ) {
+
+        return "Containers";
     }
+
+
+    /**
+     * Terraform / IaC.
+     */
+    if (
+        text.includes("terraform") ||
+        text.includes("cloudformation") ||
+        text.includes("pulumi") ||
+        text.includes("infrastructure as code")
+    ) {
+
+        return "Infrastructure as Code";
+    }
+
+
+    /**
+     * CI/CD.
+     */
+    if (
+        text.includes("jenkins") ||
+        text.includes("github actions") ||
+        text.includes("gitlab ci") ||
+        text.includes("circleci") ||
+        text.includes("travis ci") ||
+        text.includes("ci/cd")
+    ) {
+
+        return "CI/CD";
+    }
+
+
+    /**
+     * Git.
+     */
+    if (
+        text === "git" ||
+        text.includes(" github ") ||
+        text.includes("github")
+    ) {
+
+        return "Version Control";
+    }
+
+
+    /**
+     * Prometheus.
+     */
+    if (
+        text.includes("prometheus") ||
+        text.includes("grafana")
+    ) {
+
+        return "Monitoring";
+    }
+
+
+    /**
+     * Argo CD / GitOps.
+     */
+    if (
+        text.includes("argo cd") ||
+        text.includes("argocd") ||
+        text.includes("gitops")
+    ) {
+
+        return "GitOps";
+    }
+
+
+    /**
+     * Security tools.
+     */
+    if (
+        text.includes("trivy") ||
+        text.includes("sonarqube") ||
+        text.includes("vault") ||
+        text.includes("security")
+    ) {
+
+        return "Security";
+    }
+
+
+    /**
+     * Ansible / configuration.
+     */
+    if (
+        text.includes("ansible") ||
+        text.includes("puppet") ||
+        text.includes("chef")
+    ) {
+
+        return "Configuration Management";
+    }
+
+
+    /**
+     * Networking.
+     */
+    if (
+        text.includes("network") ||
+        text.includes("nginx") ||
+        text.includes("haproxy") ||
+        text.includes("istio") ||
+        text.includes("envoy")
+    ) {
+
+        return "Networking";
+    }
+
+
+    /**
+     * Database technologies.
+     */
+    if (
+        text.includes("database") ||
+        text.includes("mysql") ||
+        text.includes("postgres") ||
+        text.includes("mongodb") ||
+        text.includes("redis") ||
+        text.includes("dynamodb")
+    ) {
+
+        return "Databases";
+    }
+
+
+    /**
+     * Operating systems.
+     */
+    if (
+        text.includes("linux") ||
+        text.includes("ubuntu") ||
+        text.includes("debian") ||
+        text.includes("red hat") ||
+        text.includes("windows server")
+    ) {
+
+        return "Operating Systems";
+    }
+
+
+    /**
+     * Generic fallback.
+     */
+    return "DevOps";
 }
 
 
-/* ============================================================
-   8. DATA HELPERS
-   ============================================================ */
+/**
+ * Infer subcategory where useful.
+ */
+function inferSubcategory(record) {
+
+    const text =
+        [
+            record?.technology,
+            record?.title,
+            record?.technologyId
+        ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+
+
+    if (
+        text.includes("kubernetes")
+    ) {
+
+        return "Kubernetes";
+    }
+
+
+    if (
+        text.includes("ec2")
+    ) {
+
+        return "Compute";
+    }
+
+
+    if (
+        text.includes("s3")
+    ) {
+
+        return "Storage";
+    }
+
+
+    if (
+        text.includes("rds")
+    ) {
+
+        return "Database";
+    }
+
+
+    if (
+        text.includes("vpc") ||
+        text.includes("network")
+    ) {
+
+        return "Networking";
+    }
+
+
+    if (
+        text.includes("lambda")
+    ) {
+
+        return "Serverless";
+    }
+
+
+    return "";
+}
+
+
+/* ================================================================
+   9. TAG NORMALIZATION
+   ================================================================ */
 
 /**
- * Safely get a tool name.
+ * Normalize tags regardless of whether JSON contains:
+ *
+ * ["AWS", "Cloud"]
+ *
+ * or:
+ *
+ * "AWS, Cloud"
  */
+function normalizeTags(
+    tags
+) {
+
+    if (Array.isArray(tags)) {
+
+        return tags
+            .map(
+                tag =>
+                    String(tag).trim()
+            )
+            .filter(Boolean);
+    }
+
+
+    if (
+        typeof tags === "string"
+    ) {
+
+        return tags
+            .split(",")
+            .map(
+                tag =>
+                    tag.trim()
+            )
+            .filter(Boolean);
+    }
+
+
+    return [];
+}
+
+
+/* ================================================================
+   10. VALIDATION
+   ================================================================ */
+
+/**
+ * Make sure a record has enough information to display.
+ */
+function isValidToolRecord(
+    tool
+) {
+
+    return Boolean(
+        tool &&
+        typeof tool === "object" &&
+        getToolName(tool)
+    );
+}
+
+
+/**
+ * Remove duplicate technologies.
+ *
+ * Priority:
+ *
+ * technologyId
+ * then id
+ * then name
+ */
+function deduplicateTools(
+    tools
+) {
+
+    const seen =
+        new Set();
+
+
+    return tools.filter(
+        tool => {
+
+            const identity =
+                String(
+                    tool.technologyId ||
+                    tool.id ||
+                    getToolName(tool)
+                )
+                .toLowerCase();
+
+
+            if (
+                seen.has(identity)
+            ) {
+
+                return false;
+            }
+
+
+            seen.add(identity);
+
+            return true;
+        }
+    );
+}
+
+
+/* ================================================================
+   11. BASIC DATA HELPERS
+   ================================================================ */
+
 function getToolName(tool) {
 
     return String(
         tool?.name ||
+        tool?.technology ||
         tool?.title ||
-        "Unnamed Tool"
+        "Unnamed Technology"
     );
 }
 
 
-/**
- * Safely get category.
- */
 function getCategory(tool) {
 
     return String(
         tool?.category ||
-        "Uncategorized"
+        "DevOps"
     );
 }
 
 
-/**
- * Safely get provider.
- */
 function getProvider(tool) {
 
+    /**
+     * New documentation records do not currently contain
+     * "provider".
+     *
+     * We derive it from the technology name/category.
+     */
+    if (
+        tool?.provider
+    ) {
+
+        return String(
+            tool.provider
+        );
+    }
+
+
+    const name =
+        getToolName(tool)
+            .toLowerCase();
+
+
+    if (
+        name.includes("amazon") ||
+        name.includes("aws")
+    ) {
+
+        return "Amazon Web Services";
+    }
+
+
+    if (
+        name.includes("azure") ||
+        name.includes("microsoft")
+    ) {
+
+        return "Microsoft Azure";
+    }
+
+
+    if (
+        name.includes("google cloud") ||
+        name.includes("google kubernetes")
+    ) {
+
+        return "Google Cloud";
+    }
+
+
+    if (
+        name.includes("github")
+    ) {
+
+        return "GitHub";
+    }
+
+
+    if (
+        name.includes("gitlab")
+    ) {
+
+        return "GitLab";
+    }
+
+
+    /**
+     * Vendor/community tools.
+     */
     return String(
-        tool?.provider ||
+        tool?.source ||
         "Community"
     );
 }
 
 
-/**
- * Safely get subcategory.
- */
 function getSubcategory(tool) {
 
     return String(
@@ -659,9 +1680,6 @@ function getSubcategory(tool) {
 }
 
 
-/**
- * Safely get learning level.
- */
 function getLevel(tool) {
 
     return String(
@@ -672,91 +1690,156 @@ function getLevel(tool) {
 }
 
 
-/**
- * Safely get tool type.
- */
 function getType(tool) {
 
     return String(
         tool?.type ||
-        ""
+        "technology"
     );
 }
 
 
-/**
- * Get description.
- */
 function getDescription(tool) {
 
-    return String(
-        tool?.description ||
-        tool?.summary ||
-        "No description available."
-    );
+    /**
+     * The new documentation database does not currently contain
+     * descriptions.
+     *
+     * We therefore create a useful fallback description from
+     * available fields.
+     */
+    if (
+        tool?.description
+    ) {
+
+        return String(
+            tool.description
+        );
+    }
+
+
+    if (
+        tool?.notes
+    ) {
+
+        return String(
+            tool.notes
+        );
+    }
+
+
+    return `${getToolName(tool)} official documentation and resources.`;
 }
 
 
-/**
- * Get icon.
- */
 function getToolIcon(tool) {
 
-    return String(
-        tool?.icon ||
-        tool?.logo ||
-        tool?.emoji ||
-        "⚙"
+    if (
+        tool?.icon
+    ) {
+
+        return String(
+            tool.icon
+        );
+    }
+
+
+    /**
+     * Simple technology-specific visual fallback.
+     */
+    const text =
+        getToolName(tool)
+            .toLowerCase();
+
+
+    if (
+        text.includes("aws") ||
+        text.includes("amazon")
+    ) {
+
+        return "☁";
+    }
+
+
+    if (
+        text.includes("azure")
+    ) {
+
+        return "☁";
+    }
+
+
+    if (
+        text.includes("google")
+    ) {
+
+        return "G";
+    }
+
+
+    if (
+        text.includes("kubernetes")
+    ) {
+
+        return "⎈";
+    }
+
+
+    if (
+        text.includes("docker")
+    ) {
+
+        return "◈";
+    }
+
+
+    if (
+        text.includes("terraform")
+    ) {
+
+        return "⌘";
+    }
+
+
+    if (
+        text.includes("jenkins")
+    ) {
+
+        return "⚙";
+    }
+
+
+    if (
+        text.includes("github")
+    ) {
+
+        return "◉";
+    }
+
+
+    return "⌘";
+}
+
+
+function getToolTags(tool) {
+
+    return normalizeTags(
+        tool?.tags ||
+        []
     );
 }
 
 
-/**
- * Get tags.
- */
-function getToolTags(tool) {
-
-    if (Array.isArray(tool?.tags)) {
-        return tool.tags
-            .map(tag => String(tag))
-            .filter(Boolean);
-    }
-
-    if (typeof tool?.tags === "string") {
-
-        return tool.tags
-            .split(",")
-            .map(tag => tag.trim())
-            .filter(Boolean);
-    }
-
-    return [];
-}
-
-
-/**
- * Get documentation URL.
- *
- * Supports both:
- *
- * documentation
- *
- * and future:
- *
- * officialDocumentation
- */
 function getDocumentationUrl(tool) {
 
     return safeUrl(
         tool?.documentation ||
-        tool?.officialDocumentation
+        tool?.officialDocumentation ||
+        tool?.url
     );
 }
 
 
-/**
- * Get official website.
- */
 function getOfficialWebsite(tool) {
 
     return safeUrl(
@@ -767,9 +1850,6 @@ function getOfficialWebsite(tool) {
 }
 
 
-/**
- * Get GitHub URL.
- */
 function getGithubUrl(tool) {
 
     return safeUrl(
@@ -779,13 +1859,109 @@ function getGithubUrl(tool) {
 }
 
 
-/* ============================================================
-   9. UNIQUE VALUES
-   ============================================================ */
+function getToolId(tool) {
+
+    return String(
+        tool?.technologyId ||
+        tool?.id ||
+        tool?.slug ||
+        slugify(
+            getToolName(tool)
+        )
+    );
+}
+
+
+/* ================================================================
+   12. STATISTICS
+   ================================================================ */
+
+function getCategoryCount() {
+
+    return new Set(
+        state.tools
+            .map(getCategory)
+            .filter(Boolean)
+    ).size;
+}
+
+
+function getProviderCount() {
+
+    return new Set(
+        state.tools
+            .map(getProvider)
+            .filter(Boolean)
+    ).size;
+}
+
 
 /**
- * Return unique non-empty values from tools.
+ * Update dashboard statistics.
+ *
+ * IMPORTANT:
+ *
+ * We use the ACTUAL number of documentation records:
+ *
+ *     state.tools.length
+ *
+ * rather than blindly displaying JSON "count".
  */
+function updateStatistics() {
+
+    const toolCount =
+        state.tools.length;
+
+
+    const categoryCount =
+        getCategoryCount();
+
+
+    const providerCount =
+        getProviderCount();
+
+
+    if (elements.totalTools) {
+
+        elements.totalTools.textContent =
+            formatNumber(
+                toolCount
+            );
+    }
+
+
+    if (elements.totalCategories) {
+
+        elements.totalCategories.textContent =
+            formatNumber(
+                categoryCount
+            );
+    }
+
+
+    if (elements.totalProviders) {
+
+        elements.totalProviders.textContent =
+            formatNumber(
+                providerCount
+            );
+    }
+
+
+    if (elements.favoriteCount) {
+
+        elements.favoriteCount.textContent =
+            formatNumber(
+                getFavorites().length
+            );
+    }
+}
+
+
+/* ================================================================
+   13. FILTER DROPDOWNS
+   ================================================================ */
+
 function uniqueValues(
     tools,
     getter
@@ -795,7 +1971,12 @@ function uniqueValues(
         ...new Set(
             tools
                 .map(getter)
-                .map(value => String(value || "").trim())
+                .map(
+                    value =>
+                        String(
+                            value || ""
+                        ).trim()
+                )
                 .filter(Boolean)
         )
     ].sort(
@@ -804,20 +1985,14 @@ function uniqueValues(
                 b,
                 undefined,
                 {
-                    sensitivity: "base"
+                    sensitivity:
+                        "base"
                 }
             )
     );
 }
 
 
-/* ============================================================
-   10. FILTER DROPDOWNS
-   ============================================================ */
-
-/**
- * Populate all dynamic filter dropdowns.
- */
 function populateFilters() {
 
     populateSelect(
@@ -871,9 +2046,6 @@ function populateFilters() {
 }
 
 
-/**
- * Populate a select element.
- */
 function populateSelect(
     select,
     values,
@@ -884,8 +2056,10 @@ function populateSelect(
         return;
     }
 
+
     const currentValue =
-        select.value || "all";
+        select.value ||
+        "all";
 
 
     select.innerHTML = `
@@ -895,114 +2069,147 @@ function populateSelect(
     `;
 
 
-    values.forEach(value => {
+    values.forEach(
+        value => {
 
-        const option =
-            document.createElement("option");
-
-        option.value = value;
-
-        option.textContent = value;
-
-        select.appendChild(option);
-    });
+            const option =
+                document.createElement(
+                    "option"
+                );
 
 
-    /**
-     * Restore previous value if it still exists.
-     */
+            option.value =
+                value;
+
+
+            option.textContent =
+                value;
+
+
+            select.appendChild(
+                option
+            );
+        }
+    );
+
+
     if (
         [...select.options]
-            .some(option =>
-                option.value === currentValue
+            .some(
+                option =>
+                    option.value ===
+                    currentValue
             )
     ) {
 
-        select.value = currentValue;
+        select.value =
+            currentValue;
 
     } else {
 
-        select.value = "all";
+        select.value =
+            "all";
     }
 }
 
 
-/* ============================================================
-   11. CATEGORY SIDEBAR
-   ============================================================ */
+/* ================================================================
+   14. CATEGORY SIDEBAR
+   ================================================================ */
 
 /**
- * Build the category directory dynamically.
+ * Generate the sidebar completely from the database.
  *
- * THIS FIXES THE MAIN ISSUE:
+ * Example:
  *
- * The HTML contains:
+ * All Categories              749
+ * Cloud                       250
+ * Containers                   20
+ * CI/CD                        30
  *
- * #categorySidebarList
- *
- * but JavaScript previously never populated it.
- *
- * This function reads every tool's category and generates
- * the complete directory automatically.
+ * No category is hard-coded.
  */
 function renderCategorySidebar() {
 
-    if (!elements.categorySidebarList) {
+    if (
+        !elements.categorySidebarList
+    ) {
+
         return;
     }
 
 
+    const categoryCounts =
+        {};
+
+
     /**
-     * Count tools by category.
+     * Count every technology.
      */
-    const categoryCounts = {};
+    state.tools.forEach(
+        tool => {
+
+            const category =
+                getCategory(tool);
 
 
-    state.tools.forEach(tool => {
-
-        const category =
-            getCategory(tool);
-
-        categoryCounts[category] =
-            (categoryCounts[category] || 0) + 1;
-    });
+            categoryCounts[category] =
+                (
+                    categoryCounts[
+                        category
+                    ] || 0
+                ) + 1;
+        }
+    );
 
 
     /**
      * Sort alphabetically.
      */
     const categories =
-        Object.entries(categoryCounts)
-            .sort(
-                (a, b) =>
-                    a[0].localeCompare(
-                        b[0],
-                        undefined,
-                        {
-                            sensitivity: "base"
-                        }
-                    )
-            );
+        Object.entries(
+            categoryCounts
+        )
+        .sort(
+            (a, b) =>
+                a[0].localeCompare(
+                    b[0],
+                    undefined,
+                    {
+                        sensitivity:
+                            "base"
+                    }
+                )
+        );
 
 
     /**
-     * Clear old sidebar.
+     * Clear sidebar.
      */
-    elements.categorySidebarList.innerHTML = "";
+    elements.categorySidebarList.innerHTML =
+        "";
 
 
     /**
-     * Create "All Categories".
+     * All categories button.
      */
     const allButton =
-        document.createElement("button");
+        document.createElement(
+            "button"
+        );
 
-    allButton.type = "button";
+
+    allButton.type =
+        "button";
+
 
     allButton.className =
         "category-sidebar-button";
 
-    allButton.dataset.category = "all";
+
+    allButton.dataset.category =
+        "all";
+
 
     allButton.innerHTML = `
         <span class="category-sidebar-name">
@@ -1010,73 +2217,99 @@ function renderCategorySidebar() {
         </span>
 
         <span class="category-sidebar-count">
-            ${state.tools.length}
+            ${formatNumber(
+                state.tools.length
+            )}
         </span>
     `;
 
+
     elements.categorySidebarList
-        .appendChild(allButton);
+        .appendChild(
+            allButton
+        );
 
 
     /**
-     * Create individual category buttons.
+     * Individual categories.
      */
     categories.forEach(
         ([category, count]) => {
 
             const button =
-                document.createElement("button");
+                document.createElement(
+                    "button"
+                );
 
-            button.type = "button";
+
+            button.type =
+                "button";
+
 
             button.className =
                 "category-sidebar-button";
 
+
             button.dataset.category =
                 category;
 
+
             button.innerHTML = `
                 <span class="category-sidebar-name">
-                    ${escapeHtml(category)}
+                    ${escapeHtml(
+                        category
+                    )}
                 </span>
 
                 <span class="category-sidebar-count">
-                    ${count}
+                    ${formatNumber(
+                        count
+                    )}
                 </span>
             `;
 
+
             elements.categorySidebarList
-                .appendChild(button);
+                .appendChild(
+                    button
+                );
         }
     );
 
 
     /**
-     * Update sidebar footer.
+     * Sidebar footer count.
      */
-    if (elements.sidebarCategoryCount) {
+    if (
+        elements.sidebarCategoryCount
+    ) {
 
         const count =
             categories.length;
 
+
         elements.sidebarCategoryCount.textContent =
-            `${count} categor${count === 1 ? "y" : "ies"}`;
+            `${count} categor${
+                count === 1
+                    ? "y"
+                    : "ies"
+            }`;
     }
 
 
-    /**
-     * Highlight currently selected category.
-     */
     updateCategorySidebarState();
 }
 
 
 /**
- * Filter category sidebar using its search field.
+ * Search inside category sidebar.
  */
 function filterCategorySidebar() {
 
-    if (!elements.categorySidebarList) {
+    if (
+        !elements.categorySidebarList
+    ) {
+
         return;
     }
 
@@ -1094,38 +2327,52 @@ function filterCategorySidebar() {
             );
 
 
-    buttons.forEach(button => {
+    buttons.forEach(
+        button => {
 
-        const category =
-            String(
-                button.dataset.category || ""
-            ).toLowerCase();
+            const category =
+                String(
+                    button.dataset.category ||
+                    ""
+                )
+                .toLowerCase();
 
 
-        /**
-         * Always keep All Categories visible.
-         */
-        if (category === "all") {
+            /**
+             * Always show All Categories.
+             */
+            if (
+                category === "all"
+            ) {
 
-            button.hidden = false;
+                button.hidden =
+                    false;
 
-            return;
+                return;
+            }
+
+
+            button.hidden =
+                Boolean(
+                    query &&
+                    !category.includes(
+                        query
+                    )
+                );
         }
-
-
-        button.hidden =
-            query.length > 0 &&
-            !category.includes(query);
-    });
+    );
 }
 
 
 /**
- * Highlight active category in sidebar.
+ * Highlight active sidebar category.
  */
 function updateCategorySidebarState() {
 
-    if (!elements.categorySidebarList) {
+    if (
+        !elements.categorySidebarList
+    ) {
+
         return;
     }
 
@@ -1137,29 +2384,29 @@ function updateCategorySidebarState() {
             );
 
 
-    buttons.forEach(button => {
+    buttons.forEach(
+        button => {
 
-        const category =
-            button.dataset.category || "all";
-
-        button.classList.toggle(
-            "active",
-            category === state.filters.category
-        );
-    });
+            button.classList.toggle(
+                "active",
+                button.dataset.category ===
+                    state.filters.category
+            );
+        }
+    );
 }
 
 
-/* ============================================================
-   12. CATEGORY CHIPS
-   ============================================================ */
+/* ================================================================
+   15. QUICK CATEGORY CHIPS
+   ================================================================ */
 
-/**
- * Generate quick category chips.
- */
 function renderCategoryChips() {
 
-    if (!elements.categoryChips) {
+    if (
+        !elements.categoryChips
+    ) {
+
         return;
     }
 
@@ -1171,11 +2418,12 @@ function renderCategoryChips() {
         );
 
 
-    elements.categoryChips.innerHTML = "";
+    elements.categoryChips.innerHTML =
+        "";
 
 
     /**
-     * All categories chip.
+     * All.
      */
     elements.categoryChips.appendChild(
         createCategoryChip(
@@ -1186,55 +2434,62 @@ function renderCategoryChips() {
 
 
     /**
-     * Add categories.
+     * Categories.
      */
-    categories.forEach(category => {
+    categories.forEach(
+        category => {
 
-        elements.categoryChips.appendChild(
-            createCategoryChip(
-                category,
-                category
-            )
-        );
-    });
+            elements.categoryChips.appendChild(
+                createCategoryChip(
+                    category,
+                    category
+                )
+            );
+        }
+    );
 
 
     updateCategoryChipState();
 }
 
 
-/**
- * Create one category chip.
- */
 function createCategoryChip(
     label,
     value
 ) {
 
     const button =
-        document.createElement("button");
+        document.createElement(
+            "button"
+        );
 
-    button.type = "button";
+
+    button.type =
+        "button";
+
 
     button.className =
         "category-chip";
 
+
     button.dataset.category =
         value;
 
+
     button.textContent =
         label;
+
 
     return button;
 }
 
 
-/**
- * Update active category chip.
- */
 function updateCategoryChipState() {
 
-    if (!elements.categoryChips) {
+    if (
+        !elements.categoryChips
+    ) {
+
         return;
     }
 
@@ -1246,34 +2501,23 @@ function updateCategoryChipState() {
             );
 
 
-    chips.forEach(chip => {
+    chips.forEach(
+        chip => {
 
-        chip.classList.toggle(
-            "active",
-            chip.dataset.category ===
-            state.filters.category
-        );
-    });
+            chip.classList.toggle(
+                "active",
+                chip.dataset.category ===
+                    state.filters.category
+            );
+        }
+    );
 }
 
 
-/* ============================================================
-   13. SEARCH
-   ============================================================ */
+/* ================================================================
+   16. SEARCH MATCHING
+   ================================================================ */
 
-/**
- * Determine whether a tool matches search text.
- *
- * Searches:
- * - Name
- * - Description
- * - Provider
- * - Category
- * - Subcategory
- * - Level
- * - Type
- * - Tags
- */
 function toolMatchesSearch(
     tool,
     query
@@ -1288,6 +2532,8 @@ function toolMatchesSearch(
 
         getToolName(tool),
 
+        tool?.title || "",
+
         getDescription(tool),
 
         getProvider(tool),
@@ -1299,6 +2545,14 @@ function toolMatchesSearch(
         getLevel(tool),
 
         getType(tool),
+
+        tool?.technologyId || "",
+
+        tool?.source || "",
+
+        tool?.status || "",
+
+        tool?.health || "",
 
         ...getToolTags(tool)
 
@@ -1313,13 +2567,10 @@ function toolMatchesSearch(
 }
 
 
-/* ============================================================
-   14. APPLY FILTERS
-   ============================================================ */
+/* ================================================================
+   17. APPLY ALL FILTERS
+   ================================================================ */
 
-/**
- * Apply search, category, provider and other filters.
- */
 function applyFilters() {
 
     let results =
@@ -1330,11 +2581,12 @@ function applyFilters() {
      * Search.
      */
     results =
-        results.filter(tool =>
-            toolMatchesSearch(
-                tool,
-                state.searchQuery
-            )
+        results.filter(
+            tool =>
+                toolMatchesSearch(
+                    tool,
+                    state.searchQuery
+                )
         );
 
 
@@ -1342,7 +2594,8 @@ function applyFilters() {
      * Provider.
      */
     if (
-        state.filters.provider !== "all"
+        state.filters.provider !==
+        "all"
     ) {
 
         results =
@@ -1358,7 +2611,8 @@ function applyFilters() {
      * Category.
      */
     if (
-        state.filters.category !== "all"
+        state.filters.category !==
+        "all"
     ) {
 
         results =
@@ -1374,7 +2628,8 @@ function applyFilters() {
      * Subcategory.
      */
     if (
-        state.filters.subcategory !== "all"
+        state.filters.subcategory !==
+        "all"
     ) {
 
         results =
@@ -1387,10 +2642,11 @@ function applyFilters() {
 
 
     /**
-     * Level.
+     * Learning level.
      */
     if (
-        state.filters.level !== "all"
+        state.filters.level !==
+        "all"
     ) {
 
         results =
@@ -1406,7 +2662,8 @@ function applyFilters() {
      * Type.
      */
     if (
-        state.filters.type !== "all"
+        state.filters.type !==
+        "all"
     ) {
 
         results =
@@ -1422,11 +2679,13 @@ function applyFilters() {
      * Favorites.
      */
     if (
-        state.filters.favorite === "favorites"
+        state.filters.favorite ===
+        "favorites"
     ) {
 
         const favorites =
             getFavorites();
+
 
         results =
             results.filter(
@@ -1442,11 +2701,13 @@ function applyFilters() {
      * Recently viewed.
      */
     if (
-        state.filters.favorite === "recent"
+        state.filters.favorite ===
+        "recent"
     ) {
 
         const recent =
             getRecentTools();
+
 
         results =
             results.filter(
@@ -1459,7 +2720,7 @@ function applyFilters() {
 
 
     /**
-     * Sort results.
+     * Sort.
      */
     results =
         sortTools(results);
@@ -1473,16 +2734,16 @@ function applyFilters() {
 
 
     /**
-     * Prevent invalid page.
+     * Correct invalid page.
      */
     const totalPages =
         getTotalPages();
 
 
     if (
+        totalPages > 0 &&
         state.currentPage >
-        totalPages &&
-        totalPages > 0
+            totalPages
     ) {
 
         state.currentPage =
@@ -1490,8 +2751,17 @@ function applyFilters() {
     }
 
 
+    if (
+        totalPages === 0
+    ) {
+
+        state.currentPage =
+            1;
+    }
+
+
     /**
-     * Render everything.
+     * Render UI.
      */
     renderTools();
 
@@ -1507,90 +2777,102 @@ function applyFilters() {
 }
 
 
-/* ============================================================
-   15. SORTING
-   ============================================================ */
+/* ================================================================
+   18. SORTING
+   ================================================================ */
 
-/**
- * Sort tools according to current sort selection.
- */
-function sortTools(tools) {
+function sortTools(
+    tools
+) {
 
     const sorted =
         [...tools];
 
 
-    sorted.sort((a, b) => {
+    sorted.sort(
+        (a, b) => {
 
-        const nameA =
-            getToolName(a).toLowerCase();
-
-        const nameB =
-            getToolName(b).toLowerCase();
-
-
-        switch (state.sortBy) {
-
-            case "name-desc":
-
-                return nameB.localeCompare(nameA);
+            const nameA =
+                getToolName(a)
+                    .toLowerCase();
 
 
-            case "provider":
+            const nameB =
+                getToolName(b)
+                    .toLowerCase();
 
-                return getProvider(a)
-                    .localeCompare(
-                        getProvider(b)
+
+            switch (
+                state.sortBy
+            ) {
+
+                case "name-desc":
+
+                    return nameB.localeCompare(
+                        nameA
                     );
 
 
-            case "category":
+                case "category":
 
-                return getCategory(a)
-                    .localeCompare(
-                        getCategory(b)
+                    return getCategory(a)
+                        .localeCompare(
+                            getCategory(b)
+                        );
+
+
+                case "provider":
+
+                    return getProvider(a)
+                        .localeCompare(
+                            getProvider(b)
+                        );
+
+
+                case "recent":
+
+                    return compareRecent(
+                        a,
+                        b
                     );
 
 
-            case "recent":
+                case "newest":
 
-                return compareRecent(a, b);
-
-
-            case "newest":
-
-                return compareDates(
-                    b,
-                    a
-                );
+                    return compareDates(
+                        b,
+                        a
+                    );
 
 
-            case "oldest":
+                case "oldest":
 
-                return compareDates(
-                    a,
-                    b
-                );
+                    return compareDates(
+                        a,
+                        b
+                    );
 
 
-            case "name-asc":
-            default:
+                case "name-asc":
 
-                return nameA.localeCompare(
-                    nameB
-                );
+                default:
+
+                    return nameA.localeCompare(
+                        nameB
+                    );
+            }
         }
-    });
+    );
 
 
     return sorted;
 }
 
 
-/**
- * Compare recently viewed order.
- */
-function compareRecent(a, b) {
+function compareRecent(
+    a,
+    b
+) {
 
     const recent =
         getRecentTools();
@@ -1624,29 +2906,21 @@ function compareRecent(a, b) {
 }
 
 
-/**
- * Compare created/updated dates when available.
- */
-function compareDates(a, b) {
-
-    const dateA =
-        getToolDate(a);
-
-    const dateB =
-        getToolDate(b);
-
+function compareDates(
+    a,
+    b
+) {
 
     return (
-        dateA.getTime() -
-        dateB.getTime()
+        getToolDate(a).getTime() -
+        getToolDate(b).getTime()
     );
 }
 
 
-/**
- * Extract a date from a tool.
- */
-function getToolDate(tool) {
+function getToolDate(
+    tool
+) {
 
     const raw =
         tool?.updatedAt ||
@@ -1674,16 +2948,16 @@ function getToolDate(tool) {
 }
 
 
-/* ============================================================
-   16. RENDER TOOLS
-   ============================================================ */
+/* ================================================================
+   19. RENDER TECHNOLOGY CARDS
+   ================================================================ */
 
-/**
- * Render the current page of tools.
- */
 function renderTools() {
 
-    if (!elements.toolGrid) {
+    if (
+        !elements.toolGrid
+    ) {
+
         return;
     }
 
@@ -1693,12 +2967,16 @@ function renderTools() {
 
 
     /**
-     * Update result count.
+     * Result count.
      */
-    if (elements.resultCount) {
+    if (
+        elements.resultCount
+    ) {
 
         elements.resultCount.textContent =
-            `${formatNumber(total)} ${
+            `${formatNumber(
+                total
+            )} ${
                 total === 1
                     ? "technology"
                     : "technologies"
@@ -1709,11 +2987,16 @@ function renderTools() {
     /**
      * Empty state.
      */
-    if (total === 0) {
+    if (
+        total === 0
+    ) {
 
-        elements.toolGrid.innerHTML = "";
+        elements.toolGrid.innerHTML =
+            "";
+
 
         showEmptyState();
+
 
         return;
     }
@@ -1723,7 +3006,7 @@ function renderTools() {
 
 
     /**
-     * Calculate page range.
+     * Current page.
      */
     const start =
         (
@@ -1749,69 +3032,76 @@ function renderTools() {
      */
     elements.toolGrid.innerHTML =
         pageTools
-            .map(tool =>
-                createToolCard(tool)
+            .map(
+                createToolCard
             )
             .join("");
 
 
     /**
-     * Apply grid/list class.
+     * View mode.
      */
     elements.toolGrid.classList.toggle(
         "list-view",
-        state.viewMode === "list"
+        state.viewMode ===
+            "list"
     );
 
 
     elements.toolGrid.classList.toggle(
         "grid-view",
-        state.viewMode === "grid"
+        state.viewMode ===
+            "grid"
     );
 
 
-    /**
-     * Refresh favorite buttons.
-     */
     updateFavoriteButtons();
 }
 
 
-/* ============================================================
-   17. TOOL CARD
-   ============================================================ */
+/* ================================================================
+   20. TECHNOLOGY CARD
+   ================================================================ */
 
-/**
- * Create one tool card.
- */
-function createToolCard(tool) {
+function createToolCard(
+    tool
+) {
 
     const id =
         getToolId(tool);
 
+
     const name =
         getToolName(tool);
+
 
     const category =
         getCategory(tool);
 
+
     const provider =
         getProvider(tool);
+
 
     const description =
         getDescription(tool);
 
+
     const icon =
         getToolIcon(tool);
+
 
     const tags =
         getToolTags(tool);
 
-    const isFavorite =
+
+    const favorite =
         isToolFavorite(id);
 
-    const isRecent =
-        getRecentTools().includes(id);
+
+    const recent =
+        getRecentTools()
+            .includes(id);
 
 
     const visibleTags =
@@ -1821,56 +3111,71 @@ function createToolCard(tool) {
     return `
         <article
             class="tool-card"
-            data-tool-id="${escapeHtml(id)}"
+            data-tool-id="${escapeHtml(
+                id
+            )}"
         >
 
             <div class="tool-card-header">
 
                 <div class="tool-icon">
-                    ${escapeHtml(icon)}
+                    ${escapeHtml(
+                        icon
+                    )}
                 </div>
 
                 <div class="tool-card-heading">
 
                     <span class="tool-category">
-                        ${escapeHtml(category)}
+                        ${escapeHtml(
+                            category
+                        )}
                     </span>
 
                     <h3 class="tool-name">
                         ${highlightSearch(
-                            escapeHtml(name)
+                            escapeHtml(
+                                name
+                            )
                         )}
                     </h3>
 
                 </div>
 
+
                 <button
                     type="button"
                     class="favorite-button ${
-                        isFavorite
+                        favorite
                             ? "active"
                             : ""
                     }"
-                    data-favorite-tool="${escapeHtml(id)}"
+                    data-favorite-tool="${escapeHtml(
+                        id
+                    )}"
                     aria-label="${
-                        isFavorite
+                        favorite
                             ? "Remove from favorites"
                             : "Add to favorites"
                     }"
                     title="${
-                        isFavorite
+                        favorite
                             ? "Remove from favorites"
                             : "Add to favorites"
                     }"
                 >
-                    ${isFavorite ? "★" : "☆"}
+                    ${
+                        favorite
+                            ? "★"
+                            : "☆"
+                    }
                 </button>
 
             </div>
 
 
             ${
-                isRecent
+                recent
                     ? `
                         <span class="recent-badge">
                             Recently Viewed
@@ -1882,7 +3187,9 @@ function createToolCard(tool) {
 
             <p class="tool-description">
                 ${highlightSearch(
-                    escapeHtml(description)
+                    escapeHtml(
+                        description
+                    )
                 )}
             </p>
 
@@ -1890,15 +3197,20 @@ function createToolCard(tool) {
             <div class="tool-card-meta">
 
                 <span class="tool-provider">
-                    ${escapeHtml(provider)}
+                    ${escapeHtml(
+                        provider
+                    )}
                 </span>
+
 
                 ${
                     getLevel(tool)
                         ? `
                             <span>
                                 ${escapeHtml(
-                                    getLevel(tool)
+                                    getLevel(
+                                        tool
+                                    )
                                 )}
                             </span>
                         `
@@ -1912,15 +3224,19 @@ function createToolCard(tool) {
                 visibleTags.length
                     ? `
                         <div class="tool-tags">
+
                             ${visibleTags
                                 .map(
                                     tag => `
                                         <span class="tool-tag">
-                                            ${escapeHtml(tag)}
+                                            ${escapeHtml(
+                                                tag
+                                            )}
                                         </span>
                                     `
                                 )
                                 .join("")}
+
                         </div>
                     `
                     : ""
@@ -1932,16 +3248,21 @@ function createToolCard(tool) {
                 <button
                     type="button"
                     class="tool-open-button"
-                    data-open-tool="${escapeHtml(id)}"
+                    data-open-tool="${escapeHtml(
+                        id
+                    )}"
                 >
                     View Documentation →
                 </button>
 
+
                 <button
                     type="button"
                     class="copy-link-button"
-                    data-copy-tool="${escapeHtml(id)}"
-                    title="Copy tool link"
+                    data-copy-tool="${escapeHtml(
+                        id
+                    )}"
+                    title="Copy technology link"
                 >
                     Copy
                 </button>
@@ -1953,65 +3274,13 @@ function createToolCard(tool) {
 }
 
 
-/* ============================================================
-   18. TOOL ID
-   ============================================================ */
+/* ================================================================
+   21. SEARCH HIGHLIGHT
+   ================================================================ */
 
-/**
- * Get stable ID for a tool.
- *
- * Preferred:
- * tool.id
- *
- * Fallback:
- * name converted into a slug.
- */
-function getToolId(tool) {
-
-    if (tool?.id !== undefined) {
-
-        return String(tool.id);
-    }
-
-
-    if (tool?.slug) {
-
-        return String(tool.slug);
-    }
-
-
-    return slugify(
-        getToolName(tool)
-    );
-}
-
-
-/**
- * Convert text into a URL-friendly ID.
- */
-function slugify(value) {
-
-    return String(value)
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(
-            /^-+|-+$/g,
-            ""
-        );
-}
-
-
-/* ============================================================
-   19. SEARCH HIGHLIGHT
-   ============================================================ */
-
-/**
- * Highlight matching search terms.
- *
- * The input is already HTML escaped.
- */
-function highlightSearch(value) {
+function highlightSearch(
+    value
+) {
 
     if (
         !state.searchQuery ||
@@ -2024,7 +3293,8 @@ function highlightSearch(value) {
 
     const query =
         escapeRegExp(
-            state.searchQuery.trim()
+            state.searchQuery
+                .trim()
         );
 
 
@@ -2043,10 +3313,9 @@ function highlightSearch(value) {
 }
 
 
-/**
- * Escape regular-expression characters.
- */
-function escapeRegExp(value) {
+function escapeRegExp(
+    value
+) {
 
     return value.replace(
         /[.*+?^${}()|[\]\\]/g,
@@ -2055,13 +3324,10 @@ function escapeRegExp(value) {
 }
 
 
-/* ============================================================
-   20. FAVORITES
-   ============================================================ */
+/* ================================================================
+   22. FAVORITES
+   ================================================================ */
 
-/**
- * Read favorites.
- */
 function getFavorites() {
 
     try {
@@ -2081,26 +3347,28 @@ function getFavorites() {
             JSON.parse(value);
 
 
-        return Array.isArray(parsed)
+        return Array.isArray(
+            parsed
+        )
             ? parsed.map(String)
             : [];
 
     } catch (error) {
 
         console.warn(
-            "Could not read favorites:",
+            "Unable to read favorites:",
             error
         );
+
 
         return [];
     }
 }
 
 
-/**
- * Save favorites.
- */
-function saveFavorites(favorites) {
+function saveFavorites(
+    favorites
+) {
 
     try {
 
@@ -2114,17 +3382,16 @@ function saveFavorites(favorites) {
     } catch (error) {
 
         console.warn(
-            "Could not save favorites:",
+            "Unable to save favorites:",
             error
         );
     }
 }
 
 
-/**
- * Check whether a tool is favorite.
- */
-function isToolFavorite(id) {
+function isToolFavorite(
+    id
+) {
 
     return getFavorites()
         .includes(
@@ -2133,52 +3400,58 @@ function isToolFavorite(id) {
 }
 
 
-/**
- * Toggle favorite state.
- */
-function toggleFavorite(id) {
+function toggleFavorite(
+    id
+) {
 
     const toolId =
         String(id);
+
 
     let favorites =
         getFavorites();
 
 
     if (
-        favorites.includes(toolId)
+        favorites.includes(
+            toolId
+        )
     ) {
 
         favorites =
             favorites.filter(
                 item =>
-                    item !== toolId
+                    item !==
+                    toolId
             );
 
     } else {
 
-        favorites.push(toolId);
+        favorites.push(
+            toolId
+        );
     }
 
 
-    saveFavorites(favorites);
+    saveFavorites(
+        favorites
+    );
 
 
-    /**
-     * Update statistics.
-     */
     updateStatistics();
 
 
     /**
-     * Reapply favorite filter if active.
+     * If Favorites filter is active,
+     * refresh complete result set.
      */
     if (
         state.filters.favorite ===
         "favorites"
     ) {
 
-        state.currentPage = 1;
+        state.currentPage =
+            1;
 
         applyFilters();
 
@@ -2186,21 +3459,15 @@ function toggleFavorite(id) {
 
         updateFavoriteButtons();
     }
-
-
-    /**
-     * Update modal favorite button if necessary.
-     */
-    updateModalFavoriteState();
 }
 
 
-/**
- * Refresh all favorite buttons.
- */
 function updateFavoriteButtons() {
 
-    if (!elements.toolGrid) {
+    if (
+        !elements.toolGrid
+    ) {
+
         return;
     }
 
@@ -2212,45 +3479,47 @@ function updateFavoriteButtons() {
             );
 
 
-    buttons.forEach(button => {
+    buttons.forEach(
+        button => {
 
-        const id =
-            String(
-                button.dataset.favoriteTool
+            const id =
+                String(
+                    button.dataset
+                        .favoriteTool
+                );
+
+
+            const active =
+                isToolFavorite(id);
+
+
+            button.classList.toggle(
+                "active",
+                active
             );
 
 
-        const active =
-            isToolFavorite(id);
+            button.textContent =
+                active
+                    ? "★"
+                    : "☆";
 
 
-        button.classList.toggle(
-            "active",
-            active
-        );
-
-
-        button.textContent =
-            active ? "★" : "☆";
-
-
-        button.setAttribute(
-            "aria-label",
-            active
-                ? "Remove from favorites"
-                : "Add to favorites"
-        );
-    });
+            button.setAttribute(
+                "aria-label",
+                active
+                    ? "Remove from favorites"
+                    : "Add to favorites"
+            );
+        }
+    );
 }
 
 
-/* ============================================================
-   21. RECENTLY VIEWED
-   ============================================================ */
+/* ================================================================
+   23. RECENTLY VIEWED
+   ================================================================ */
 
-/**
- * Read recently viewed tool IDs.
- */
 function getRecentTools() {
 
     try {
@@ -2270,26 +3539,28 @@ function getRecentTools() {
             JSON.parse(value);
 
 
-        return Array.isArray(parsed)
+        return Array.isArray(
+            parsed
+        )
             ? parsed.map(String)
             : [];
 
     } catch (error) {
 
         console.warn(
-            "Could not read recent tools:",
+            "Unable to read recently viewed:",
             error
         );
+
 
         return [];
     }
 }
 
 
-/**
- * Save a recently viewed tool.
- */
-function saveRecentTool(id) {
+function saveRecentTool(
+    id
+) {
 
     const toolId =
         String(id);
@@ -2300,23 +3571,26 @@ function saveRecentTool(id) {
 
 
     /**
-     * Remove existing occurrence.
+     * Remove duplicate.
      */
     recent =
         recent.filter(
             item =>
-                item !== toolId
+                item !==
+                toolId
         );
 
 
     /**
-     * Put latest item first.
+     * Newest first.
      */
-    recent.unshift(toolId);
+    recent.unshift(
+        toolId
+    );
 
 
     /**
-     * Keep list small.
+     * Limit history.
      */
     recent =
         recent.slice(
@@ -2329,33 +3603,41 @@ function saveRecentTool(id) {
 
         localStorage.setItem(
             CONFIG.storageKeys.recent,
-            JSON.stringify(recent)
+            JSON.stringify(
+                recent
+            )
         );
 
     } catch (error) {
 
         console.warn(
-            "Could not save recent tool:",
+            "Unable to save recently viewed:",
             error
         );
     }
 }
 
 
-/* ============================================================
-   22. MODAL
-   ============================================================ */
+/* ================================================================
+   24. TOOL MODAL
+   ================================================================ */
 
-/**
- * Open a tool modal.
- */
-function openToolModal(id) {
+function openToolModal(
+    id
+) {
 
     const tool =
         findToolById(id);
 
 
     if (!tool) {
+
+        console.warn(
+            "Technology not found:",
+            id
+        );
+
+
         return;
     }
 
@@ -2365,7 +3647,7 @@ function openToolModal(id) {
 
 
     /**
-     * Save recently viewed.
+     * Save recent history.
      */
     saveRecentTool(
         getToolId(tool)
@@ -2373,65 +3655,113 @@ function openToolModal(id) {
 
 
     /**
-     * Populate modal.
+     * Icon.
      */
-    if (elements.modalToolIcon) {
+    if (
+        elements.modalToolIcon
+    ) {
 
         elements.modalToolIcon.textContent =
             getToolIcon(tool);
     }
 
 
-    if (elements.modalToolCategory) {
+    /**
+     * Category.
+     */
+    if (
+        elements.modalToolCategory
+    ) {
 
         elements.modalToolCategory.textContent =
             getCategory(tool);
     }
 
 
-    if (elements.modalToolName) {
+    /**
+     * Name.
+     */
+    if (
+        elements.modalToolName
+    ) {
 
         elements.modalToolName.textContent =
             getToolName(tool);
     }
 
 
-    if (elements.modalToolProvider) {
+    /**
+     * Provider.
+     */
+    if (
+        elements.modalToolProvider
+    ) {
 
         elements.modalToolProvider.textContent =
             getProvider(tool);
     }
 
 
-    if (elements.modalToolDescription) {
+    /**
+     * Description.
+     */
+    if (
+        elements.modalToolDescription
+    ) {
 
         elements.modalToolDescription.textContent =
             getDescription(tool);
     }
 
 
-    renderModalMeta(tool);
+    renderModalMeta(
+        tool
+    );
 
-    renderModalLinks(tool);
 
-    renderModalTags(tool);
+    renderModalLinks(
+        tool
+    );
 
-    renderRelatedTools(tool);
+
+    renderModalTags(
+        tool
+    );
+
+
+    renderRelatedTools(
+        tool
+    );
 
 
     /**
-     * Configure Explore More.
+     * Main Explore More button.
      */
-    if (elements.modalExploreMore) {
+    if (
+        elements.modalExploreMore
+    ) {
 
         const documentation =
-            getDocumentationUrl(tool);
+            getDocumentationUrl(
+                tool
+            );
 
 
-        if (documentation) {
+        if (
+            documentation
+        ) {
 
             elements.modalExploreMore.href =
                 documentation;
+
+
+            elements.modalExploreMore.target =
+                "_blank";
+
+
+            elements.modalExploreMore.rel =
+                "noopener noreferrer";
+
 
             elements.modalExploreMore.hidden =
                 false;
@@ -2445,18 +3775,22 @@ function openToolModal(id) {
 
 
     /**
-     * Show modal.
+     * Open modal.
      */
-    if (elements.toolModal) {
+    if (
+        elements.toolModal
+    ) {
 
         elements.toolModal.classList.add(
             "open"
         );
 
+
         elements.toolModal.setAttribute(
             "aria-hidden",
             "false"
         );
+
 
         document.body.classList.add(
             "modal-open"
@@ -2465,18 +3799,31 @@ function openToolModal(id) {
 
 
     /**
-     * Refresh cards so Recent badge appears.
+     * Update browser URL.
+     *
+     * This creates shareable technology links.
+     */
+    updateToolUrl(
+        getToolId(tool)
+    );
+
+
+    /**
+     * Re-render cards so Recently Viewed appears.
      */
     renderTools();
 }
 
 
 /**
- * Close tool modal.
+ * Close modal.
  */
 function closeToolModal() {
 
-    if (!elements.toolModal) {
+    if (
+        !elements.toolModal
+    ) {
+
         return;
     }
 
@@ -2497,14 +3844,23 @@ function closeToolModal() {
     );
 
 
-    state.activeToolId = null;
+    state.activeToolId =
+        null;
+
+
+    /**
+     * Remove tool query from URL.
+     */
+    removeToolUrl();
 }
 
 
 /**
- * Find tool by ID.
+ * Find technology.
  */
-function findToolById(id) {
+function findToolById(
+    id
+) {
 
     const target =
         String(id);
@@ -2512,21 +3868,24 @@ function findToolById(id) {
 
     return state.tools.find(
         tool =>
-            getToolId(tool) === target
+            getToolId(tool) ===
+            target
     );
 }
 
 
-/* ============================================================
-   23. MODAL META
-   ============================================================ */
+/* ================================================================
+   25. MODAL METADATA
+   ================================================================ */
 
-/**
- * Render tool metadata.
- */
-function renderModalMeta(tool) {
+function renderModalMeta(
+    tool
+) {
 
-    if (!elements.modalToolMeta) {
+    if (
+        !elements.modalToolMeta
+    ) {
+
         return;
     }
 
@@ -2534,35 +3893,75 @@ function renderModalMeta(tool) {
     const metadata = [];
 
 
-    if (getSubcategory(tool)) {
+    if (
+        getSubcategory(tool)
+    ) {
 
-        metadata.push(
-            ["Subcategory", getSubcategory(tool)]
-        );
+        metadata.push([
+            "Subcategory",
+            getSubcategory(tool)
+        ]);
     }
 
 
-    if (getLevel(tool)) {
+    if (
+        getLevel(tool)
+    ) {
 
-        metadata.push(
-            ["Level", getLevel(tool)]
-        );
+        metadata.push([
+            "Level",
+            getLevel(tool)
+        ]);
     }
 
 
-    if (getType(tool)) {
+    if (
+        getType(tool)
+    ) {
 
-        metadata.push(
-            ["Type", getType(tool)]
-        );
+        metadata.push([
+            "Type",
+            getType(tool)
+        ]);
     }
 
 
-    if (tool?.license) {
+    if (
+        tool?.status
+    ) {
 
-        metadata.push(
-            ["License", String(tool.license)]
-        );
+        metadata.push([
+            "Status",
+            String(
+                tool.status
+            )
+        ]);
+    }
+
+
+    if (
+        tool?.health
+    ) {
+
+        metadata.push([
+            "Health",
+            String(
+                tool.health
+            )
+        ]);
+    }
+
+
+    if (
+        tool?.updatedAt
+    ) {
+
+        metadata.push([
+            "Updated",
+            formatDate(
+                tool.updatedAt
+            )
+        ]);
     }
 
 
@@ -2573,11 +3972,15 @@ function renderModalMeta(tool) {
                     <div class="modal-meta-item">
 
                         <span class="modal-meta-label">
-                            ${escapeHtml(label)}
+                            ${escapeHtml(
+                                label
+                            )}
                         </span>
 
                         <strong>
-                            ${escapeHtml(value)}
+                            ${escapeHtml(
+                                value
+                            )}
                         </strong>
 
                     </div>
@@ -2587,51 +3990,100 @@ function renderModalMeta(tool) {
 }
 
 
-/* ============================================================
-   24. MODAL LINKS
-   ============================================================ */
+/* ================================================================
+   26. MODAL RESOURCE LINKS
+   ================================================================ */
 
-/**
- * Render official resources.
- */
-function renderModalLinks(tool) {
+function renderModalLinks(
+    tool
+) {
 
-    if (!elements.modalToolLinks) {
+    if (
+        !elements.modalToolLinks
+    ) {
+
         return;
     }
 
 
-    const links = [
+    const links = [];
 
-        {
-            label: "Official Website",
-            url: getOfficialWebsite(tool)
-        },
 
-        {
-            label: "Official Documentation",
-            url: getDocumentationUrl(tool)
-        },
-
-        {
-            label: "GitHub",
-            url: getGithubUrl(tool)
-        }
-
-    ]
-        .filter(
-            item =>
-                item.url
+    const website =
+        getOfficialWebsite(
+            tool
         );
 
 
-    if (!links.length) {
+    const documentation =
+        getDocumentationUrl(
+            tool
+        );
+
+
+    const github =
+        getGithubUrl(
+            tool
+        );
+
+
+    if (
+        website
+    ) {
+
+        links.push({
+            label:
+                "Official Website",
+
+            url:
+                website
+        });
+    }
+
+
+    if (
+        documentation
+    ) {
+
+        links.push({
+            label:
+                "Official Documentation",
+
+            url:
+                documentation
+        });
+    }
+
+
+    if (
+        github
+    ) {
+
+        links.push({
+            label:
+                "GitHub",
+
+            url:
+                github
+        });
+    }
+
+
+    /**
+     * The current shared JSON primarily contains documentation
+     * URLs, so Official Documentation will normally be the
+     * available resource.
+     */
+    if (
+        !links.length
+    ) {
 
         elements.modalToolLinks.innerHTML = `
             <span class="modal-no-links">
                 No official resources available.
             </span>
         `;
+
 
         return;
     }
@@ -2642,7 +4094,9 @@ function renderModalLinks(tool) {
             .map(
                 link => `
                     <a
-                        href="${escapeHtml(link.url)}"
+                        href="${escapeHtml(
+                            link.url
+                        )}"
                         target="_blank"
                         rel="noopener noreferrer"
                         class="modal-resource-link"
@@ -2658,16 +4112,18 @@ function renderModalLinks(tool) {
 }
 
 
-/* ============================================================
-   25. MODAL TAGS
-   ============================================================ */
+/* ================================================================
+   27. MODAL TAGS
+   ================================================================ */
 
-/**
- * Render tags in modal.
- */
-function renderModalTags(tool) {
+function renderModalTags(
+    tool
+) {
 
-    if (!elements.modalToolTags) {
+    if (
+        !elements.modalToolTags
+    ) {
+
         return;
     }
 
@@ -2681,7 +4137,9 @@ function renderModalTags(tool) {
             .map(
                 tag => `
                     <span class="tool-tag">
-                        ${escapeHtml(tag)}
+                        ${escapeHtml(
+                            tag
+                        )}
                     </span>
                 `
             )
@@ -2689,22 +4147,18 @@ function renderModalTags(tool) {
 }
 
 
-/* ============================================================
-   26. RELATED TECHNOLOGIES
-   ============================================================ */
+/* ================================================================
+   28. RELATED TECHNOLOGIES
+   ================================================================ */
 
-/**
- * Find related tools.
- *
- * Related tools are selected using:
- *
- * 1. Same category
- * 2. Same provider
- * 3. Shared tags
- */
-function renderRelatedTools(tool) {
+function renderRelatedTools(
+    tool
+) {
 
-    if (!elements.modalRelatedTools) {
+    if (
+        !elements.modalRelatedTools
+    ) {
+
         return;
     }
 
@@ -2712,16 +4166,20 @@ function renderRelatedTools(tool) {
     const currentId =
         getToolId(tool);
 
+
     const category =
         getCategory(tool);
+
 
     const provider =
         getProvider(tool);
 
+
     const currentTags =
         getToolTags(tool)
-            .map(tag =>
-                tag.toLowerCase()
+            .map(
+                tag =>
+                    tag.toLowerCase()
             );
 
 
@@ -2732,58 +4190,87 @@ function renderRelatedTools(tool) {
                     getToolId(candidate) !==
                     currentId
             )
-            .map(candidate => {
+            .map(
+                candidate => {
 
-                let score = 0;
-
-
-                if (
-                    getCategory(candidate) ===
-                    category
-                ) {
-
-                    score += 5;
-                }
+                    let score =
+                        0;
 
 
-                if (
-                    getProvider(candidate) ===
-                    provider
-                ) {
+                    /**
+                     * Same category.
+                     */
+                    if (
+                        getCategory(
+                            candidate
+                        ) ===
+                        category
+                    ) {
 
-                    score += 3;
-                }
+                        score += 5;
+                    }
 
 
-                const candidateTags =
-                    getToolTags(candidate)
-                        .map(tag =>
-                            tag.toLowerCase()
+                    /**
+                     * Same provider.
+                     */
+                    if (
+                        getProvider(
+                            candidate
+                        ) ===
+                        provider
+                    ) {
+
+                        score += 3;
+                    }
+
+
+                    /**
+                     * Shared tags.
+                     */
+                    const candidateTags =
+                        getToolTags(
+                            candidate
+                        )
+                        .map(
+                            tag =>
+                                tag.toLowerCase()
                         );
 
 
-                candidateTags.forEach(tag => {
+                    candidateTags.forEach(
+                        tag => {
 
-                    if (
-                        currentTags.includes(tag)
-                    ) {
+                            if (
+                                currentTags
+                                    .includes(
+                                        tag
+                                    )
+                            ) {
 
-                        score += 1;
-                    }
-                });
+                                score += 1;
+                            }
+                        }
+                    );
 
 
-                return {
-                    tool: candidate,
-                    score
-                };
-            })
-            .filter(item =>
-                item.score > 0
+                    return {
+                        tool:
+                            candidate,
+
+                        score:
+                            score
+                    };
+                }
+            )
+            .filter(
+                item =>
+                    item.score > 0
             )
             .sort(
                 (a, b) =>
-                    b.score - a.score
+                    b.score -
+                    a.score
             )
             .slice(
                 0,
@@ -2791,13 +4278,16 @@ function renderRelatedTools(tool) {
             );
 
 
-    if (!related.length) {
+    if (
+        !related.length
+    ) {
 
         elements.modalRelatedTools.innerHTML = `
             <span class="modal-no-related">
                 No related technologies found.
             </span>
         `;
+
 
         return;
     }
@@ -2806,14 +4296,20 @@ function renderRelatedTools(tool) {
     elements.modalRelatedTools.innerHTML =
         related
             .map(
-                ({ tool: relatedTool }) => `
+                ({
+                    tool:
+                        relatedTool
+                }) => `
                     <button
                         type="button"
                         class="related-tool"
                         data-open-tool="${escapeHtml(
-                            getToolId(relatedTool)
+                            getToolId(
+                                relatedTool
+                            )
                         )}"
                     >
+
                         <span class="related-tool-icon">
                             ${escapeHtml(
                                 getToolIcon(
@@ -2829,6 +4325,7 @@ function renderRelatedTools(tool) {
                                 )
                             )}
                         </span>
+
                     </button>
                 `
             )
@@ -2836,60 +4333,15 @@ function renderRelatedTools(tool) {
 }
 
 
-/* ============================================================
-   27. MODAL FAVORITE STATE
-   ============================================================ */
+/* ================================================================
+   29. PAGINATION
+   ================================================================ */
 
-/**
- * Update modal favorite state if HTML contains a
- * modal favorite button.
- */
-function updateModalFavoriteState() {
-
-    if (!state.activeToolId) {
-        return;
-    }
-
-
-    const button =
-        elements.toolModal?.querySelector(
-            "[data-modal-favorite]"
-        );
-
-
-    if (!button) {
-        return;
-    }
-
-
-    const active =
-        isToolFavorite(
-            state.activeToolId
-        );
-
-
-    button.classList.toggle(
-        "active",
-        active
-    );
-
-
-    button.textContent =
-        active ? "★" : "☆";
-}
-
-
-/* ============================================================
-   28. PAGINATION
-   ============================================================ */
-
-/**
- * Calculate total pages.
- */
 function getTotalPages() {
 
     if (
-        state.filteredTools.length === 0
+        state.filteredTools.length ===
+        0
     ) {
 
         return 0;
@@ -2903,12 +4355,12 @@ function getTotalPages() {
 }
 
 
-/**
- * Render pagination controls.
- */
 function renderPagination() {
 
-    if (!elements.pagination) {
+    if (
+        !elements.pagination
+    ) {
+
         return;
     }
 
@@ -2922,22 +4374,25 @@ function renderPagination() {
 
 
     /**
-     * Nothing to paginate.
+     * One page or no results.
      */
     if (
         total === 0 ||
         totalPages <= 1
     ) {
 
-        elements.pagination.innerHTML = "";
+        elements.pagination.innerHTML =
+            "";
 
 
-        if (elements.paginationInfo) {
+        if (
+            elements.paginationInfo
+        ) {
 
             elements.paginationInfo.textContent =
                 total === 0
                     ? "No results"
-                    : `Page 1 of 1`;
+                    : "Page 1 of 1";
         }
 
 
@@ -2945,9 +4400,6 @@ function renderPagination() {
     }
 
 
-    /**
-     * Build controls.
-     */
     const parts = [];
 
 
@@ -2981,45 +4433,51 @@ function renderPagination() {
     getPaginationPages(
         totalPages,
         state.currentPage
-    ).forEach(item => {
+    )
+    .forEach(
+        page => {
 
-        if (item === "...") {
+            if (
+                page === "..."
+            ) {
+
+                parts.push(`
+                    <span class="pagination-ellipsis">
+                        …
+                    </span>
+                `);
+
+
+                return;
+            }
+
 
             parts.push(`
-                <span class="pagination-ellipsis">
-                    …
-                </span>
-            `);
-
-            return;
-        }
-
-
-        parts.push(`
-            <button
-                type="button"
-                class="
-                    pagination-button
-                    pagination-number
+                <button
+                    type="button"
+                    class="
+                        pagination-button
+                        pagination-number
+                        ${
+                            page ===
+                            state.currentPage
+                                ? "active"
+                                : ""
+                        }
+                    "
+                    data-page="${page}"
                     ${
-                        item ===
+                        page ===
                         state.currentPage
-                            ? "active"
+                            ? 'aria-current="page"'
                             : ""
                     }
-                "
-                data-page="${item}"
-                ${
-                    item ===
-                    state.currentPage
-                        ? 'aria-current="page"'
-                        : ""
-                }
-            >
-                ${item}
-            </button>
-        `);
-    });
+                >
+                    ${page}
+                </button>
+            `);
+        }
+    );
 
 
     /**
@@ -3052,9 +4510,11 @@ function renderPagination() {
 
 
     /**
-     * Page information.
+     * Pagination information.
      */
-    if (elements.paginationInfo) {
+    if (
+        elements.paginationInfo
+    ) {
 
         const start =
             (
@@ -3067,7 +4527,7 @@ function renderPagination() {
         const end =
             Math.min(
                 state.currentPage *
-                state.itemsPerPage,
+                    state.itemsPerPage,
                 total
             );
 
@@ -3079,22 +4539,21 @@ function renderPagination() {
 
 
 /**
- * Generate compact page numbers.
+ * Generate compact pagination.
  */
 function getPaginationPages(
     totalPages,
     currentPage
 ) {
 
-    /**
-     * Small number of pages:
-     * show everything.
-     */
-    if (totalPages <= 7) {
+    if (
+        totalPages <= 7
+    ) {
 
         return Array.from(
             {
-                length: totalPages
+                length:
+                    totalPages
             },
             (_, index) =>
                 index + 1
@@ -3108,7 +4567,10 @@ function getPaginationPages(
     pages.push(1);
 
 
-    if (currentPage > 4) {
+    if (
+        currentPage > 4
+    ) {
+
         pages.push("...");
     }
 
@@ -3133,7 +4595,9 @@ function getPaginationPages(
         page++
     ) {
 
-        pages.push(page);
+        pages.push(
+            page
+        );
     }
 
 
@@ -3146,17 +4610,18 @@ function getPaginationPages(
     }
 
 
-    pages.push(totalPages);
+    pages.push(
+        totalPages
+    );
 
 
     return pages;
 }
 
 
-/**
- * Go to page.
- */
-function goToPage(page) {
+function goToPage(
+    page
+) {
 
     const totalPages =
         getTotalPages();
@@ -3166,7 +4631,9 @@ function goToPage(page) {
         totalPages === 0
     ) {
 
-        state.currentPage = 1;
+        state.currentPage =
+            1;
+
 
         return;
     }
@@ -3186,23 +4653,16 @@ function goToPage(page) {
 
     renderPagination();
 
+    updateExploreMore();
 
-    /**
-     * Scroll results into view.
-     */
     scrollToResults();
 }
 
 
-/* ============================================================
-   29. EXPLORE MORE
-   ============================================================ */
+/* ================================================================
+   30. EXPLORE MORE
+   ================================================================ */
 
-/**
- * Update Explore More button.
- *
- * Explore More loads the next page of results.
- */
 function updateExploreMore() {
 
     if (
@@ -3227,7 +4687,9 @@ function updateExploreMore() {
         !hasMore;
 
 
-    if (hasMore) {
+    if (
+        hasMore
+    ) {
 
         elements.exploreMoreButton.textContent =
             `Explore More · Page ${
@@ -3237,9 +4699,6 @@ function updateExploreMore() {
 }
 
 
-/**
- * Load the next page using Explore More.
- */
 function exploreMore() {
 
     const totalPages =
@@ -3264,21 +4723,20 @@ function exploreMore() {
 
     updateExploreMore();
 
-
     scrollToResults();
 }
 
 
-/* ============================================================
-   30. ACTIVE FILTERS
-   ============================================================ */
+/* ================================================================
+   31. ACTIVE FILTERS
+   ================================================================ */
 
-/**
- * Display active filters as removable badges.
- */
 function renderActiveFilters() {
 
-    if (!elements.activeFilters) {
+    if (
+        !elements.activeFilters
+    ) {
+
         return;
     }
 
@@ -3289,58 +4747,86 @@ function renderActiveFilters() {
     /**
      * Search.
      */
-    if (state.searchQuery) {
+    if (
+        state.searchQuery
+    ) {
 
         active.push({
-            key: "search",
-            label: `Search: ${state.searchQuery}`
+
+            key:
+                "search",
+
+            label:
+                `Search: ${state.searchQuery}`
         });
     }
 
 
     /**
-     * Standard filters.
+     * Filters.
      */
-    const filterDefinitions = [
+    const definitions = [
 
         {
-            key: "provider",
-            label: "Provider"
+            key:
+                "provider",
+
+            label:
+                "Provider"
         },
 
         {
-            key: "category",
-            label: "Category"
+            key:
+                "category",
+
+            label:
+                "Category"
         },
 
         {
-            key: "subcategory",
-            label: "Subcategory"
+            key:
+                "subcategory",
+
+            label:
+                "Subcategory"
         },
 
         {
-            key: "level",
-            label: "Level"
+            key:
+                "level",
+
+            label:
+                "Level"
         },
 
         {
-            key: "type",
-            label: "Type"
+            key:
+                "type",
+
+            label:
+                "Type"
         },
 
         {
-            key: "favorite",
-            label: "View"
+            key:
+                "favorite",
+
+            label:
+                "View"
         }
-
     ];
 
 
-    filterDefinitions.forEach(
-        ({ key, label }) => {
+    definitions.forEach(
+        ({
+            key,
+            label
+        }) => {
 
             const value =
-                state.filters[key];
+                state.filters[
+                    key
+                ];
 
 
             if (
@@ -3348,12 +4834,13 @@ function renderActiveFilters() {
                 value !== "all"
             ) {
 
-                let displayValue =
+                let display =
                     value;
 
 
                 if (
-                    key === "favorite"
+                    key ===
+                    "favorite"
                 ) {
 
                     if (
@@ -3361,39 +4848,43 @@ function renderActiveFilters() {
                         "favorites"
                     ) {
 
-                        displayValue =
+                        display =
                             "Favorites";
 
                     } else if (
-                        value === "recent"
+                        value ===
+                        "recent"
                     ) {
 
-                        displayValue =
+                        display =
                             "Recently Viewed";
                     }
                 }
 
 
                 active.push({
+
                     key,
+
                     label:
-                        `${label}: ${displayValue}`
+                        `${label}: ${display}`
                 });
             }
         }
     );
 
 
-    /**
-     * Nothing active.
-     */
-    if (!active.length) {
+    if (
+        !active.length
+    ) {
 
         elements.activeFilters.innerHTML =
             "";
 
+
         elements.activeFilters.hidden =
             true;
+
 
         return;
     }
@@ -3432,9 +4923,6 @@ function renderActiveFilters() {
             .join("");
 
 
-    /**
-     * Add clear-all button.
-     */
     elements.activeFilters.insertAdjacentHTML(
         "beforeend",
         `
@@ -3450,17 +4938,25 @@ function renderActiveFilters() {
 }
 
 
-/**
- * Remove one active filter.
- */
-function removeFilter(key) {
+function removeFilter(
+    key
+) {
 
-    if (key === "search") {
+    if (
+        key ===
+        "search"
+    ) {
 
-        state.searchQuery = "";
+        state.searchQuery =
+            "";
 
-        if (elements.toolSearch) {
-            elements.toolSearch.value = "";
+
+        if (
+            elements.toolSearch
+        ) {
+
+            elements.toolSearch.value =
+                "";
         }
 
     } else if (
@@ -3478,22 +4974,24 @@ function removeFilter(key) {
     }
 
 
-    state.currentPage = 1;
+    state.currentPage =
+        1;
+
 
     applyFilters();
 }
 
 
-/* ============================================================
-   31. EMPTY STATE
-   ============================================================ */
+/* ================================================================
+   32. EMPTY STATE
+   ================================================================ */
 
-/**
- * Show empty results state.
- */
 function showEmptyState() {
 
-    if (!elements.emptyState) {
+    if (
+        !elements.emptyState
+    ) {
+
         return;
     }
 
@@ -3503,12 +5001,12 @@ function showEmptyState() {
 }
 
 
-/**
- * Hide empty results state.
- */
 function hideEmptyState() {
 
-    if (!elements.emptyState) {
+    if (
+        !elements.emptyState
+    ) {
+
         return;
     }
 
@@ -3518,47 +5016,67 @@ function hideEmptyState() {
 }
 
 
-/* ============================================================
-   32. RESET FILTERS
-   ============================================================ */
+/* ================================================================
+   33. RESET
+   ================================================================ */
 
-/**
- * Reset all filters and search.
- */
 function resetFilters() {
 
-    state.searchQuery = "";
+    state.searchQuery =
+        "";
 
 
     state.filters = {
-        provider: "all",
-        category: "all",
-        subcategory: "all",
-        level: "all",
-        type: "all",
-        favorite: "all"
+
+        provider:
+            "all",
+
+        category:
+            "all",
+
+        subcategory:
+            "all",
+
+        level:
+            "all",
+
+        type:
+            "all",
+
+        favorite:
+            "all"
     };
 
 
-    state.currentPage = 1;
+    state.currentPage =
+        1;
 
 
     /**
-     * Reset search field.
+     * Reset search.
      */
-    if (elements.toolSearch) {
-        elements.toolSearch.value = "";
+    if (
+        elements.toolSearch
+    ) {
+
+        elements.toolSearch.value =
+            "";
     }
 
 
     /**
      * Reset category search.
      */
-    state.categorySearch = "";
+    state.categorySearch =
+        "";
 
 
-    if (elements.categorySearch) {
-        elements.categorySearch.value = "";
+    if (
+        elements.categorySearch
+    ) {
+
+        elements.categorySearch.value =
+            "";
     }
 
 
@@ -3569,7 +5087,7 @@ function resetFilters() {
 
 
     /**
-     * Clear sidebar search.
+     * Refresh sidebar.
      */
     filterCategorySidebar();
 
@@ -3578,47 +5096,56 @@ function resetFilters() {
 }
 
 
-/**
- * Synchronize HTML filter controls with state.
- */
 function syncFilterControls() {
 
-    if (elements.providerFilter) {
+    if (
+        elements.providerFilter
+    ) {
 
         elements.providerFilter.value =
             state.filters.provider;
     }
 
 
-    if (elements.categoryFilter) {
+    if (
+        elements.categoryFilter
+    ) {
 
         elements.categoryFilter.value =
             state.filters.category;
     }
 
 
-    if (elements.subcategoryFilter) {
+    if (
+        elements.subcategoryFilter
+    ) {
 
         elements.subcategoryFilter.value =
             state.filters.subcategory;
     }
 
 
-    if (elements.levelFilter) {
+    if (
+        elements.levelFilter
+    ) {
 
         elements.levelFilter.value =
             state.filters.level;
     }
 
 
-    if (elements.typeFilter) {
+    if (
+        elements.typeFilter
+    ) {
 
         elements.typeFilter.value =
             state.filters.type;
     }
 
 
-    if (elements.favoriteFilter) {
+    if (
+        elements.favoriteFilter
+    ) {
 
         elements.favoriteFilter.value =
             state.filters.favorite;
@@ -3626,13 +5153,10 @@ function syncFilterControls() {
 }
 
 
-/* ============================================================
-   33. VIEW MODE
-   ============================================================ */
+/* ================================================================
+   34. VIEW MODE
+   ================================================================ */
 
-/**
- * Restore saved grid/list view.
- */
 function restoreViewMode() {
 
     try {
@@ -3655,7 +5179,7 @@ function restoreViewMode() {
     } catch (error) {
 
         console.warn(
-            "Could not restore view mode:",
+            "Unable to restore view mode:",
             error
         );
     }
@@ -3665,9 +5189,6 @@ function restoreViewMode() {
 }
 
 
-/**
- * Save view mode.
- */
 function saveViewMode() {
 
     try {
@@ -3680,72 +5201,83 @@ function saveViewMode() {
     } catch (error) {
 
         console.warn(
-            "Could not save view mode:",
+            "Unable to save view mode:",
             error
         );
     }
 }
 
 
-/**
- * Apply current view mode.
- */
 function applyViewMode() {
 
-    if (!elements.toolGrid) {
+    if (
+        !elements.toolGrid
+    ) {
+
         return;
     }
 
 
     elements.toolGrid.classList.toggle(
         "list-view",
-        state.viewMode === "list"
+        state.viewMode ===
+            "list"
     );
 
 
     elements.toolGrid.classList.toggle(
         "grid-view",
-        state.viewMode === "grid"
+        state.viewMode ===
+            "grid"
     );
 
 
-    if (elements.gridViewButton) {
+    if (
+        elements.gridViewButton
+    ) {
 
         elements.gridViewButton.classList.toggle(
             "active",
-            state.viewMode === "grid"
+            state.viewMode ===
+                "grid"
         );
+
 
         elements.gridViewButton.setAttribute(
             "aria-pressed",
-            state.viewMode === "grid"
-                ? "true"
-                : "false"
+            state.viewMode ===
+                "grid"
+                    ? "true"
+                    : "false"
         );
     }
 
 
-    if (elements.listViewButton) {
+    if (
+        elements.listViewButton
+    ) {
 
         elements.listViewButton.classList.toggle(
             "active",
-            state.viewMode === "list"
+            state.viewMode ===
+                "list"
         );
+
 
         elements.listViewButton.setAttribute(
             "aria-pressed",
-            state.viewMode === "list"
-                ? "true"
-                : "false"
+            state.viewMode ===
+                "list"
+                    ? "true"
+                    : "false"
         );
     }
 }
 
 
-/**
- * Change view mode.
- */
-function setViewMode(mode) {
+function setViewMode(
+    mode
+) {
 
     if (
         mode !== "grid" &&
@@ -3766,16 +5298,16 @@ function setViewMode(mode) {
 }
 
 
-/* ============================================================
-   34. SIDEBAR
-   ============================================================ */
+/* ================================================================
+   35. MOBILE SIDEBAR
+   ================================================================ */
 
-/**
- * Open category sidebar on mobile.
- */
 function openCategorySidebar() {
 
-    if (!elements.categorySidebar) {
+    if (
+        !elements.categorySidebar
+    ) {
+
         return;
     }
 
@@ -3785,7 +5317,9 @@ function openCategorySidebar() {
     );
 
 
-    if (elements.categorySidebarOverlay) {
+    if (
+        elements.categorySidebarOverlay
+    ) {
 
         elements.categorySidebarOverlay.classList.add(
             "open"
@@ -3799,12 +5333,11 @@ function openCategorySidebar() {
 }
 
 
-/**
- * Close category sidebar.
- */
 function closeCategorySidebar() {
 
-    if (elements.categorySidebar) {
+    if (
+        elements.categorySidebar
+    ) {
 
         elements.categorySidebar.classList.remove(
             "open"
@@ -3812,7 +5345,9 @@ function closeCategorySidebar() {
     }
 
 
-    if (elements.categorySidebarOverlay) {
+    if (
+        elements.categorySidebarOverlay
+    ) {
 
         elements.categorySidebarOverlay.classList.remove(
             "open"
@@ -3826,38 +5361,32 @@ function closeCategorySidebar() {
 }
 
 
-/* ============================================================
-   35. CATEGORY SELECTION
-   ============================================================ */
+/* ================================================================
+   36. CATEGORY SELECTION
+   ================================================================ */
 
-/**
- * Select a category from sidebar or chips.
- */
-function selectCategory(category) {
+function selectCategory(
+    category
+) {
 
     state.filters.category =
-        category || "all";
+        category ||
+        "all";
 
 
-    /**
-     * Sync dropdown.
-     */
-    if (elements.categoryFilter) {
+    if (
+        elements.categoryFilter
+    ) {
 
         elements.categoryFilter.value =
             state.filters.category;
     }
 
 
-    /**
-     * Reset page.
-     */
-    state.currentPage = 1;
+    state.currentPage =
+        1;
 
 
-    /**
-     * Update UI.
-     */
     updateCategorySidebarState();
 
     updateCategoryChipState();
@@ -3865,59 +5394,68 @@ function selectCategory(category) {
     applyFilters();
 
 
-    /**
-     * Close mobile sidebar.
-     */
     closeCategorySidebar();
 }
 
 
-/* ============================================================
-   36. EVENT BINDING
-   ============================================================ */
+/* ================================================================
+   37. EVENT BINDING
+   ================================================================ */
 
-/**
- * Bind all UI events.
- */
 function bindEvents() {
 
-    /* --------------------------------------------------------
+    /* ------------------------------------------------------------
        Main search
-       -------------------------------------------------------- */
+       ------------------------------------------------------------ */
 
-    if (elements.toolSearch) {
+    if (
+        elements.toolSearch
+    ) {
 
         elements.toolSearch.addEventListener(
             "input",
-            debounce(() => {
+            debounce(
+                () => {
 
-                state.searchQuery =
-                    elements.toolSearch.value
-                        .trim();
+                    state.searchQuery =
+                        elements.toolSearch
+                            .value
+                            .trim();
 
-                state.currentPage = 1;
 
-                applyFilters();
+                    state.currentPage =
+                        1;
 
-            }, CONFIG.searchDelay)
+
+                    applyFilters();
+
+                },
+                CONFIG.searchDelay
+            )
         );
     }
 
 
-    /* --------------------------------------------------------
-       Provider filter
-       -------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       Provider
+       ------------------------------------------------------------ */
 
-    if (elements.providerFilter) {
+    if (
+        elements.providerFilter
+    ) {
 
         elements.providerFilter.addEventListener(
             "change",
             () => {
 
                 state.filters.provider =
-                    elements.providerFilter.value;
+                    elements.providerFilter
+                        .value;
 
-                state.currentPage = 1;
+
+                state.currentPage =
+                    1;
+
 
                 applyFilters();
             }
@@ -3925,20 +5463,26 @@ function bindEvents() {
     }
 
 
-    /* --------------------------------------------------------
-       Category filter
-       -------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       Category
+       ------------------------------------------------------------ */
 
-    if (elements.categoryFilter) {
+    if (
+        elements.categoryFilter
+    ) {
 
         elements.categoryFilter.addEventListener(
             "change",
             () => {
 
                 state.filters.category =
-                    elements.categoryFilter.value;
+                    elements.categoryFilter
+                        .value;
 
-                state.currentPage = 1;
+
+                state.currentPage =
+                    1;
+
 
                 updateCategorySidebarState();
 
@@ -3950,20 +5494,26 @@ function bindEvents() {
     }
 
 
-    /* --------------------------------------------------------
+    /* ------------------------------------------------------------
        Subcategory
-       -------------------------------------------------------- */
+       ------------------------------------------------------------ */
 
-    if (elements.subcategoryFilter) {
+    if (
+        elements.subcategoryFilter
+    ) {
 
         elements.subcategoryFilter.addEventListener(
             "change",
             () => {
 
                 state.filters.subcategory =
-                    elements.subcategoryFilter.value;
+                    elements.subcategoryFilter
+                        .value;
 
-                state.currentPage = 1;
+
+                state.currentPage =
+                    1;
+
 
                 applyFilters();
             }
@@ -3971,20 +5521,26 @@ function bindEvents() {
     }
 
 
-    /* --------------------------------------------------------
-       Level
-       -------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       Learning level
+       ------------------------------------------------------------ */
 
-    if (elements.levelFilter) {
+    if (
+        elements.levelFilter
+    ) {
 
         elements.levelFilter.addEventListener(
             "change",
             () => {
 
                 state.filters.level =
-                    elements.levelFilter.value;
+                    elements.levelFilter
+                        .value;
 
-                state.currentPage = 1;
+
+                state.currentPage =
+                    1;
+
 
                 applyFilters();
             }
@@ -3992,20 +5548,26 @@ function bindEvents() {
     }
 
 
-    /* --------------------------------------------------------
+    /* ------------------------------------------------------------
        Type
-       -------------------------------------------------------- */
+       ------------------------------------------------------------ */
 
-    if (elements.typeFilter) {
+    if (
+        elements.typeFilter
+    ) {
 
         elements.typeFilter.addEventListener(
             "change",
             () => {
 
                 state.filters.type =
-                    elements.typeFilter.value;
+                    elements.typeFilter
+                        .value;
 
-                state.currentPage = 1;
+
+                state.currentPage =
+                    1;
+
 
                 applyFilters();
             }
@@ -4013,20 +5575,26 @@ function bindEvents() {
     }
 
 
-    /* --------------------------------------------------------
-       Favorites / recent filter
-       -------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       Favorites / recent
+       ------------------------------------------------------------ */
 
-    if (elements.favoriteFilter) {
+    if (
+        elements.favoriteFilter
+    ) {
 
         elements.favoriteFilter.addEventListener(
             "change",
             () => {
 
                 state.filters.favorite =
-                    elements.favoriteFilter.value;
+                    elements.favoriteFilter
+                        .value;
 
-                state.currentPage = 1;
+
+                state.currentPage =
+                    1;
+
 
                 applyFilters();
             }
@@ -4034,31 +5602,40 @@ function bindEvents() {
     }
 
 
-    /* --------------------------------------------------------
+    /* ------------------------------------------------------------
        Category sidebar search
-       -------------------------------------------------------- */
+       ------------------------------------------------------------ */
 
-    if (elements.categorySearch) {
+    if (
+        elements.categorySearch
+    ) {
 
         elements.categorySearch.addEventListener(
             "input",
-            debounce(() => {
+            debounce(
+                () => {
 
-                state.categorySearch =
-                    elements.categorySearch.value;
+                    state.categorySearch =
+                        elements.categorySearch
+                            .value;
 
-                filterCategorySidebar();
 
-            }, CONFIG.searchDelay)
+                    filterCategorySidebar();
+
+                },
+                CONFIG.searchDelay
+            )
         );
     }
 
 
-    /* --------------------------------------------------------
-       Category sidebar buttons
-       -------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       Category sidebar
+       ------------------------------------------------------------ */
 
-    if (elements.categorySidebarList) {
+    if (
+        elements.categorySidebarList
+    ) {
 
         elements.categorySidebarList
             .addEventListener(
@@ -4085,11 +5662,13 @@ function bindEvents() {
     }
 
 
-    /* --------------------------------------------------------
-       Category chips
-       -------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       Quick category chips
+       ------------------------------------------------------------ */
 
-    if (elements.categoryChips) {
+    if (
+        elements.categoryChips
+    ) {
 
         elements.categoryChips
             .addEventListener(
@@ -4116,20 +5695,26 @@ function bindEvents() {
     }
 
 
-    /* --------------------------------------------------------
-       Sorting
-       -------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       Sort
+       ------------------------------------------------------------ */
 
-    if (elements.sortSelect) {
+    if (
+        elements.sortSelect
+    ) {
 
         elements.sortSelect.addEventListener(
             "change",
             () => {
 
                 state.sortBy =
-                    elements.sortSelect.value;
+                    elements.sortSelect
+                        .value;
 
-                state.currentPage = 1;
+
+                state.currentPage =
+                    1;
+
 
                 applyFilters();
             }
@@ -4137,11 +5722,13 @@ function bindEvents() {
     }
 
 
-    /* --------------------------------------------------------
+    /* ------------------------------------------------------------
        Items per page
-       -------------------------------------------------------- */
+       ------------------------------------------------------------ */
 
-    if (elements.itemsPerPage) {
+    if (
+        elements.itemsPerPage
+    ) {
 
         elements.itemsPerPage.addEventListener(
             "change",
@@ -4149,12 +5736,15 @@ function bindEvents() {
 
                 const value =
                     Number(
-                        elements.itemsPerPage.value
+                        elements.itemsPerPage
+                            .value
                     );
 
 
                 if (
-                    Number.isFinite(value) &&
+                    Number.isFinite(
+                        value
+                    ) &&
                     value > 0
                 ) {
 
@@ -4168,7 +5758,9 @@ function bindEvents() {
                 }
 
 
-                state.currentPage = 1;
+                state.currentPage =
+                    1;
+
 
                 applyFilters();
             }
@@ -4176,11 +5768,13 @@ function bindEvents() {
     }
 
 
-    /* --------------------------------------------------------
-       Reset filters
-       -------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       Reset
+       ------------------------------------------------------------ */
 
-    if (elements.resetFiltersButton) {
+    if (
+        elements.resetFiltersButton
+    ) {
 
         elements.resetFiltersButton
             .addEventListener(
@@ -4190,44 +5784,56 @@ function bindEvents() {
     }
 
 
-    /* --------------------------------------------------------
-       Grid view
-       -------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       Grid
+       ------------------------------------------------------------ */
 
-    if (elements.gridViewButton) {
+    if (
+        elements.gridViewButton
+    ) {
 
         elements.gridViewButton.addEventListener(
             "click",
-            () => setViewMode("grid")
+            () =>
+                setViewMode(
+                    "grid"
+                )
         );
     }
 
 
-    /* --------------------------------------------------------
-       List view
-       -------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       List
+       ------------------------------------------------------------ */
 
-    if (elements.listViewButton) {
+    if (
+        elements.listViewButton
+    ) {
 
         elements.listViewButton.addEventListener(
             "click",
-            () => setViewMode("list")
+            () =>
+                setViewMode(
+                    "list"
+                )
         );
     }
 
 
-    /* --------------------------------------------------------
-       Tool grid events
-       -------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       Tool cards
+       ------------------------------------------------------------ */
 
-    if (elements.toolGrid) {
+    if (
+        elements.toolGrid
+    ) {
 
         elements.toolGrid.addEventListener(
             "click",
             event => {
 
                 /**
-                 * Favorite button.
+                 * Favorite.
                  */
                 const favoriteButton =
                     event.target.closest(
@@ -4235,7 +5841,9 @@ function bindEvents() {
                     );
 
 
-                if (favoriteButton) {
+                if (
+                    favoriteButton
+                ) {
 
                     event.preventDefault();
 
@@ -4243,16 +5851,18 @@ function bindEvents() {
 
 
                     toggleFavorite(
-                        favoriteButton.dataset
+                        favoriteButton
+                            .dataset
                             .favoriteTool
                     );
+
 
                     return;
                 }
 
 
                 /**
-                 * Copy link button.
+                 * Copy.
                  */
                 const copyButton =
                     event.target.closest(
@@ -4260,7 +5870,9 @@ function bindEvents() {
                     );
 
 
-                if (copyButton) {
+                if (
+                    copyButton
+                ) {
 
                     event.preventDefault();
 
@@ -4268,17 +5880,19 @@ function bindEvents() {
 
 
                     copyToolLink(
-                        copyButton.dataset
+                        copyButton
+                            .dataset
                             .copyTool,
                         copyButton
                     );
+
 
                     return;
                 }
 
 
                 /**
-                 * Open tool.
+                 * Open documentation.
                  */
                 const openButton =
                     event.target.closest(
@@ -4286,19 +5900,23 @@ function bindEvents() {
                     );
 
 
-                if (openButton) {
+                if (
+                    openButton
+                ) {
 
                     openToolModal(
-                        openButton.dataset
+                        openButton
+                            .dataset
                             .openTool
                     );
+
 
                     return;
                 }
 
 
                 /**
-                 * Clicking card itself.
+                 * Card itself.
                  */
                 const card =
                     event.target.closest(
@@ -4306,10 +5924,13 @@ function bindEvents() {
                     );
 
 
-                if (card) {
+                if (
+                    card
+                ) {
 
                     openToolModal(
-                        card.dataset.toolId
+                        card.dataset
+                            .toolId
                     );
                 }
             }
@@ -4317,11 +5938,13 @@ function bindEvents() {
     }
 
 
-    /* --------------------------------------------------------
+    /* ------------------------------------------------------------
        Pagination
-       -------------------------------------------------------- */
+       ------------------------------------------------------------ */
 
-    if (elements.pagination) {
+    if (
+        elements.pagination
+    ) {
 
         elements.pagination.addEventListener(
             "click",
@@ -4338,7 +5961,10 @@ function bindEvents() {
                 }
 
 
-                if (button.disabled) {
+                if (
+                    button.disabled
+                ) {
+
                     return;
                 }
 
@@ -4350,21 +5976,27 @@ function bindEvents() {
 
 
                 if (
-                    Number.isFinite(page)
+                    Number.isFinite(
+                        page
+                    )
                 ) {
 
-                    goToPage(page);
+                    goToPage(
+                        page
+                    );
                 }
             }
         );
     }
 
 
-    /* --------------------------------------------------------
+    /* ------------------------------------------------------------
        Explore More
-       -------------------------------------------------------- */
+       ------------------------------------------------------------ */
 
-    if (elements.exploreMoreButton) {
+    if (
+        elements.exploreMoreButton
+    ) {
 
         elements.exploreMoreButton
             .addEventListener(
@@ -4374,41 +6006,48 @@ function bindEvents() {
     }
 
 
-    /* --------------------------------------------------------
+    /* ------------------------------------------------------------
        Active filters
-       -------------------------------------------------------- */
+       ------------------------------------------------------------ */
 
-    if (elements.activeFilters) {
+    if (
+        elements.activeFilters
+    ) {
 
         elements.activeFilters
             .addEventListener(
                 "click",
                 event => {
 
-                    const removeButton =
+                    const remove =
                         event.target.closest(
                             "[data-remove-filter]"
                         );
 
 
-                    if (removeButton) {
+                    if (
+                        remove
+                    ) {
 
                         removeFilter(
-                            removeButton.dataset
+                            remove.dataset
                                 .removeFilter
                         );
+
 
                         return;
                     }
 
 
-                    const clearButton =
+                    const clear =
                         event.target.closest(
                             "[data-clear-filters]"
                         );
 
 
-                    if (clearButton) {
+                    if (
+                        clear
+                    ) {
 
                         resetFilters();
                     }
@@ -4417,11 +6056,13 @@ function bindEvents() {
     }
 
 
-    /* --------------------------------------------------------
-       Sidebar open
-       -------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       Mobile sidebar
+       ------------------------------------------------------------ */
 
-    if (elements.categorySidebarToggle) {
+    if (
+        elements.categorySidebarToggle
+    ) {
 
         elements.categorySidebarToggle
             .addEventListener(
@@ -4431,11 +6072,9 @@ function bindEvents() {
     }
 
 
-    /* --------------------------------------------------------
-       Sidebar close
-       -------------------------------------------------------- */
-
-    if (elements.categorySidebarClose) {
+    if (
+        elements.categorySidebarClose
+    ) {
 
         elements.categorySidebarClose
             .addEventListener(
@@ -4445,11 +6084,9 @@ function bindEvents() {
     }
 
 
-    /* --------------------------------------------------------
-       Sidebar overlay
-       -------------------------------------------------------- */
-
-    if (elements.categorySidebarOverlay) {
+    if (
+        elements.categorySidebarOverlay
+    ) {
 
         elements.categorySidebarOverlay
             .addEventListener(
@@ -4459,11 +6096,13 @@ function bindEvents() {
     }
 
 
-    /* --------------------------------------------------------
-       Modal close
-       -------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       Modal
+       ------------------------------------------------------------ */
 
-    if (elements.closeModal) {
+    if (
+        elements.closeModal
+    ) {
 
         elements.closeModal.addEventListener(
             "click",
@@ -4472,20 +6111,14 @@ function bindEvents() {
     }
 
 
-    /* --------------------------------------------------------
-       Modal background
-       -------------------------------------------------------- */
-
-    if (elements.toolModal) {
+    if (
+        elements.toolModal
+    ) {
 
         elements.toolModal.addEventListener(
             "click",
             event => {
 
-                /**
-                 * Only close when the outer modal backdrop
-                 * itself is clicked.
-                 */
                 if (
                     event.target ===
                     elements.toolModal
@@ -4498,7 +6131,7 @@ function bindEvents() {
 
 
         /**
-         * Related tools inside modal.
+         * Related technology buttons.
          */
         elements.toolModal.addEventListener(
             "click",
@@ -4510,32 +6143,39 @@ function bindEvents() {
                     );
 
 
-                if (!related) {
+                if (
+                    !related
+                ) {
+
                     return;
                 }
 
 
                 openToolModal(
-                    related.dataset.openTool
+                    related.dataset
+                        .openTool
                 );
             }
         );
     }
 
 
-    /* --------------------------------------------------------
-       Global keyboard shortcuts
-       -------------------------------------------------------- */
+    /* ------------------------------------------------------------
+       Keyboard shortcuts
+       ------------------------------------------------------------ */
 
     document.addEventListener(
         "keydown",
         event => {
 
             /**
-             * Escape closes modal/sidebar.
+             * Escape:
+             *
+             * Close modal and sidebar.
              */
             if (
-                event.key === "Escape"
+                event.key ===
+                "Escape"
             ) {
 
                 closeToolModal();
@@ -4545,15 +6185,19 @@ function bindEvents() {
 
 
             /**
-             * "/" focuses search unless the user is
-             * already typing in an input.
+             * Slash:
+             *
+             * Focus main search.
              */
             if (
                 event.key === "/" &&
-                !isTypingTarget(event.target)
+                !isTypingTarget(
+                    event.target
+                )
             ) {
 
                 event.preventDefault();
+
 
                 elements.toolSearch?.focus();
             }
@@ -4561,40 +6205,34 @@ function bindEvents() {
     );
 
 
-    /* --------------------------------------------------------
+    /* ------------------------------------------------------------
        Window resize
-       -------------------------------------------------------- */
+       ------------------------------------------------------------ */
 
     window.addEventListener(
         "resize",
-        debounce(() => {
+        debounce(
+            () => {
 
-            /**
-             * On desktop, remove mobile drawer state.
-             */
-            if (
-                window.innerWidth > 900
-            ) {
+                if (
+                    window.innerWidth >
+                    900
+                ) {
 
-                closeCategorySidebar();
-            }
+                    closeCategorySidebar();
+                }
 
-        }, 150)
+            },
+            150
+        )
     );
 }
 
 
-/* ============================================================
-   37. COPY TOOL LINK
-   ============================================================ */
+/* ================================================================
+   38. COPY TECHNOLOGY LINK
+   ================================================================ */
 
-/**
- * Copy a direct URL to the current tool.
- *
- * The link uses a query parameter:
- *
- * ?tool=tool-id
- */
 async function copyToolLink(
     id,
     button
@@ -4619,7 +6257,9 @@ async function copyToolLink(
         );
 
 
-        if (button) {
+        if (
+            button
+        ) {
 
             const original =
                 button.textContent;
@@ -4634,29 +6274,30 @@ async function copyToolLink(
             );
 
 
-            setTimeout(() => {
+            setTimeout(
+                () => {
 
-                button.textContent =
-                    original;
+                    button.textContent =
+                        original;
 
-                button.classList.remove(
-                    "copied"
-                );
 
-            }, 1400);
+                    button.classList.remove(
+                        "copied"
+                    );
+
+                },
+                1400
+            );
         }
 
     } catch (error) {
 
         console.warn(
-            "Clipboard API unavailable:",
+            "Clipboard API failed:",
             error
         );
 
 
-        /**
-         * Fallback for older browsers.
-         */
         fallbackCopyText(
             url.toString()
         );
@@ -4664,13 +6305,14 @@ async function copyToolLink(
 }
 
 
-/**
- * Clipboard fallback.
- */
-function fallbackCopyText(text) {
+function fallbackCopyText(
+    text
+) {
 
     const textarea =
-        document.createElement("textarea");
+        document.createElement(
+            "textarea"
+        );
 
 
     textarea.value =
@@ -4679,6 +6321,7 @@ function fallbackCopyText(text) {
 
     textarea.style.position =
         "fixed";
+
 
     textarea.style.left =
         "-9999px";
@@ -4694,12 +6337,14 @@ function fallbackCopyText(text) {
 
     try {
 
-        document.execCommand("copy");
+        document.execCommand(
+            "copy"
+        );
 
     } catch (error) {
 
         console.warn(
-            "Fallback copy failed:",
+            "Clipboard fallback failed:",
             error
         );
     }
@@ -4709,16 +6354,22 @@ function fallbackCopyText(text) {
 }
 
 
-/* ============================================================
-   38. OPEN TOOL FROM URL
-   ============================================================ */
+/* ================================================================
+   39. URL DEEP LINKING
+   ================================================================ */
 
 /**
- * Automatically open a tool when URL contains:
+ * Open technology from:
  *
- * ?tool=aws-cloudformation
+ * ?tool=aws-ec2
  *
- * This allows shareable direct tool links.
+ * The value can be either:
+ *
+ * technologyId
+ *
+ * or
+ *
+ * id
  */
 function openToolFromUrl() {
 
@@ -4729,45 +6380,129 @@ function openToolFromUrl() {
 
 
     const toolId =
-        params.get("tool");
+        params.get(
+            "tool"
+        );
 
 
-    if (!toolId) {
+    if (
+        !toolId
+    ) {
+
         return;
     }
 
 
     const tool =
-        findToolById(toolId);
+        findToolById(
+            toolId
+        );
 
 
-    if (!tool) {
+    if (
+        !tool
+    ) {
+
         return;
     }
 
 
     openToolModal(
-        getToolId(tool)
+        getToolId(
+            tool
+        )
     );
 }
 
 
-/* ============================================================
-   39. SCROLL TO RESULTS
-   ============================================================ */
+/**
+ * Add tool query parameter.
+ */
+function updateToolUrl(
+    id
+) {
+
+    try {
+
+        const url =
+            new URL(
+                window.location.href
+            );
+
+
+        url.searchParams.set(
+            "tool",
+            String(id)
+        );
+
+
+        window.history.replaceState(
+            {},
+            "",
+            url
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Unable to update URL:",
+            error
+        );
+    }
+}
+
 
 /**
- * Scroll back to the tool result area.
+ * Remove tool query parameter.
  */
+function removeToolUrl() {
+
+    try {
+
+        const url =
+            new URL(
+                window.location.href
+            );
+
+
+        url.searchParams.delete(
+            "tool"
+        );
+
+
+        window.history.replaceState(
+            {},
+            "",
+            url
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Unable to clean URL:",
+            error
+        );
+    }
+}
+
+
+/* ================================================================
+   40. SCROLL TO RESULTS
+   ================================================================ */
+
 function scrollToResults() {
 
-    if (!elements.toolGrid) {
+    if (
+        !elements.toolGrid
+    ) {
+
         return;
     }
 
 
     const top =
-        elements.toolGrid.getBoundingClientRect()
+        elements.toolGrid
+            .getBoundingClientRect()
             .top +
         window.scrollY -
         120;
@@ -4775,23 +6510,34 @@ function scrollToResults() {
 
     window.scrollTo({
         top,
-        behavior: "smooth"
+        behavior:
+            "smooth"
     });
 }
 
 
-/* ============================================================
-   40. SAFE URL
-   ============================================================ */
+/* ================================================================
+   41. SAFE URL
+   ================================================================ */
 
 /**
- * Validate external URLs.
+ * Only HTTP/HTTPS URLs are allowed.
  *
- * Only HTTP and HTTPS URLs are allowed.
+ * This protects the UI from unsafe protocols such as:
+ *
+ * javascript:
+ * data:
+ * file:
+ * etc.
  */
-function safeUrl(value) {
+function safeUrl(
+    value
+) {
 
-    if (!value) {
+    if (
+        !value
+    ) {
+
         return "";
     }
 
@@ -4806,8 +6552,10 @@ function safeUrl(value) {
 
 
         if (
-            url.protocol !== "http:" &&
-            url.protocol !== "https:"
+            url.protocol !==
+                "http:" &&
+            url.protocol !==
+                "https:"
         ) {
 
             return "";
@@ -4823,17 +6571,17 @@ function safeUrl(value) {
 }
 
 
-/* ============================================================
-   41. HTML ESCAPING
-   ============================================================ */
+/* ================================================================
+   42. HTML ESCAPING
+   ================================================================ */
 
-/**
- * Escape user/database-controlled text before inserting
- * into HTML.
- */
-function escapeHtml(value) {
+function escapeHtml(
+    value
+) {
 
-    return String(value ?? "")
+    return String(
+        value ?? ""
+    )
         .replace(
             /&/g,
             "&amp;"
@@ -4857,14 +6605,37 @@ function escapeHtml(value) {
 }
 
 
-/* ============================================================
-   42. NUMBER FORMAT
-   ============================================================ */
+/* ================================================================
+   43. SLUGIFY
+   ================================================================ */
 
-/**
- * Format numbers nicely.
- */
-function formatNumber(value) {
+function slugify(
+    value
+) {
+
+    return String(
+        value
+    )
+        .toLowerCase()
+        .trim()
+        .replace(
+            /[^a-z0-9]+/g,
+            "-"
+        )
+        .replace(
+            /^-+|-+$/g,
+            ""
+        );
+}
+
+
+/* ================================================================
+   44. NUMBER FORMATTING
+   ================================================================ */
+
+function formatNumber(
+    value
+) {
 
     return Number(
         value || 0
@@ -4872,13 +6643,60 @@ function formatNumber(value) {
 }
 
 
-/* ============================================================
-   43. DEBOUNCE
-   ============================================================ */
+/* ================================================================
+   45. DATE FORMATTING
+   ================================================================ */
 
-/**
- * Small debounce helper.
- */
+function formatDate(
+    value
+) {
+
+    if (
+        !value
+    ) {
+
+        return "Unknown";
+    }
+
+
+    const date =
+        new Date(
+            value
+        );
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return String(
+            value
+        );
+    }
+
+
+    return date.toLocaleDateString(
+        undefined,
+        {
+            year:
+                "numeric",
+
+            month:
+                "short",
+
+            day:
+                "numeric"
+        }
+    );
+}
+
+
+/* ================================================================
+   46. DEBOUNCE
+   ================================================================ */
+
 function debounce(
     callback,
     delay
@@ -4887,37 +6705,46 @@ function debounce(
     let timeout;
 
 
-    return (...args) => {
+    return (
+        ...args
+    ) => {
 
-        clearTimeout(timeout);
+        clearTimeout(
+            timeout
+        );
 
 
         timeout =
             setTimeout(
                 () =>
-                    callback(...args),
+                    callback(
+                        ...args
+                    ),
                 delay
             );
     };
 }
 
 
-/* ============================================================
-   44. KEYBOARD TARGET HELPER
-   ============================================================ */
+/* ================================================================
+   47. INPUT TARGET CHECK
+   ================================================================ */
 
-/**
- * Determine whether the user is currently typing.
- */
-function isTypingTarget(element) {
+function isTypingTarget(
+    element
+) {
 
-    if (!element) {
+    if (
+        !element
+    ) {
+
         return false;
     }
 
 
     const tag =
-        element.tagName?.toLowerCase();
+        element.tagName
+            ?.toLowerCase();
 
 
     return (
@@ -4929,95 +6756,178 @@ function isTypingTarget(element) {
 }
 
 
-/* ============================================================
-   45. INITIAL URL HANDLING
-   ============================================================ */
+/* ================================================================
+   48. DATABASE ERROR UI
+   ================================================================ */
 
-/**
- * Wait until database has loaded before trying to open
- * ?tool=...
- *
- * This is called after database initialization.
- */
-const originalInitDatabaseAware =
-    loadDatabase;
+function showDatabaseError() {
 
+    /**
+     * Reset statistics.
+     */
+    if (
+        elements.totalTools
+    ) {
 
-/**
- * We use a small post-load hook by observing the current
- * database state after initialization.
- *
- * Since loadDatabase() is async and called from init(),
- * this function is also safe to call manually.
- */
-async function initializeDeepLink() {
-
-    if (!state.tools.length) {
-        return;
+        elements.totalTools.textContent =
+            "0";
     }
 
 
-    openToolFromUrl();
+    if (
+        elements.totalCategories
+    ) {
+
+        elements.totalCategories.textContent =
+            "0";
+    }
+
+
+    if (
+        elements.totalProviders
+    ) {
+
+        elements.totalProviders.textContent =
+            "0";
+    }
+
+
+    if (
+        elements.favoriteCount
+    ) {
+
+        elements.favoriteCount.textContent =
+            formatNumber(
+                getFavorites().length
+            );
+    }
+
+
+    /**
+     * Show database error.
+     */
+    if (
+        elements.toolGrid
+    ) {
+
+        elements.toolGrid.innerHTML = `
+            <div class="database-error">
+
+                <div class="database-error-icon">
+                    !
+                </div>
+
+                <h3>
+                    Documentation database unavailable
+                </h3>
+
+                <p>
+                    Charlie MJ DevOps Explorer could not
+                    load the shared official documentation
+                    database.
+                </p>
+
+                <p>
+                    Expected database:
+                </p>
+
+                <p>
+                    <code>
+                        data/official-documentation.json
+                    </code>
+                </p>
+
+                <button
+                    type="button"
+                    class="reset-filters-button"
+                    onclick="window.location.reload()"
+                >
+                    Retry
+                </button>
+
+            </div>
+        `;
+    }
+
+
+    if (
+        elements.resultCount
+    ) {
+
+        elements.resultCount.textContent =
+            "Database unavailable";
+    }
+
+
+    if (
+        elements.categorySidebarList
+    ) {
+
+        elements.categorySidebarList.innerHTML = `
+            <div class="sidebar-empty">
+                Database unavailable
+            </div>
+        `;
+    }
+
+
+    if (
+        elements.sidebarCategoryCount
+    ) {
+
+        elements.sidebarCategoryCount.textContent =
+            "0 categories";
+    }
 }
 
 
-/* ============================================================
-   46. FINAL INITIALIZATION HOOK
-   ============================================================ */
+/* ================================================================
+   49. GLOBAL CHARLIE MJ API
+   ================================================================ */
 
 /**
- * Re-run the deep-link check after the page has loaded.
- *
- * A small timeout allows the JSON rendering pipeline to finish.
- */
-window.addEventListener(
-    "load",
-    () => {
-
-        setTimeout(
-            initializeDeepLink,
-            0
-        );
-    }
-);
-
-
-/* ============================================================
-   47. GLOBAL OPTIONAL API
-   ============================================================ */
-
-/**
- * Expose a small API for future buttons or other scripts.
+ * Small public API for future website components.
  *
  * Example:
  *
- * window.CharlieMJDevOps.openTool("docker");
+ * CharlieMJDevOps.openTool("aws-ec2");
  *
- * This does NOT expose internal state.
+ * CharlieMJDevOps.search("kubernetes");
+ *
+ * CharlieMJDevOps.selectCategory("Cloud");
  */
 window.CharlieMJDevOps = {
 
     /**
-     * Open a documentation modal.
+     * Open a technology.
      */
     openTool(id) {
 
-        openToolModal(id);
+        openToolModal(
+            id
+        );
     },
 
 
     /**
-     * Search programmatically.
+     * Search.
      */
     search(query) {
 
         state.searchQuery =
-            String(query || "").trim();
+            String(
+                query || ""
+            )
+            .trim();
 
-        state.currentPage = 1;
+
+        state.currentPage =
+            1;
 
 
-        if (elements.toolSearch) {
+        if (
+            elements.toolSearch
+        ) {
 
             elements.toolSearch.value =
                 state.searchQuery;
@@ -5029,18 +6939,21 @@ window.CharlieMJDevOps = {
 
 
     /**
-     * Select category programmatically.
+     * Select category.
      */
-    selectCategory(category) {
+    selectCategory(
+        category
+    ) {
 
         selectCategory(
-            category || "all"
+            category ||
+            "all"
         );
     },
 
 
     /**
-     * Reset the documentation library.
+     * Reset.
      */
     reset() {
 
@@ -5049,15 +6962,39 @@ window.CharlieMJDevOps = {
 
 
     /**
-     * Return currently loaded tool count.
+     * Get actual loaded technology count.
      */
     getToolCount() {
 
         return state.tools.length;
+    },
+
+
+    /**
+     * Get current database metadata.
+     */
+    getDatabaseInfo() {
+
+        return {
+            version:
+                state.databaseMeta
+                    .version,
+
+            generatedAt:
+                state.databaseMeta
+                    .generatedAt,
+
+            declaredCount:
+                state.databaseMeta
+                    .declaredCount,
+
+            loadedCount:
+                state.tools.length
+        };
     }
 };
 
 
-/* ============================================================
+/* ================================================================
    END OF CHARLIE MJ DEVOPS EXPLORER DOCUMENTATION JS
-   ============================================================ */
+   ================================================================ */
