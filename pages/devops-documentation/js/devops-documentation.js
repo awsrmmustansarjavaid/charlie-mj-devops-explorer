@@ -1,134 +1,226 @@
-/*
-================================================================
-Charlie MJ DevOps Explorer
-DevOps Documentation Library
-================================================================
-
-File:
-    pages/devops-documentation/js/devops-documentation.js
-
-Purpose:
-    Controls the documentation library interface.
-
-Data:
-    ../../data/devops-tools.json
-
-Responsibilities:
-    - Load JSON database
-    - Render tools
-    - Search tools
-    - Filter tools
-    - Sort tools
-    - Category quick filters
-    - Grid/list switching
-    - Favorites
-    - Recently viewed
-    - Tool details modal
-    - Official resource links
-    - Related tools
-    - Statistics
-    - Empty states
-    - LocalStorage persistence
-
-Important:
-    This script does not contain the tool database.
-
-    The database lives in:
-
-        data/devops-tools.json
-
-    This makes the same dataset reusable by the Chrome extension.
-================================================================
-*/
+/**
+ * ============================================================
+ * CHARLIE MJ DEVOPS EXPLORER
+ * Documentation Library JavaScript
+ * ============================================================
+ *
+ * File:
+ * pages/devops-documentation/js/devops-documentation.js
+ *
+ * Database:
+ * ../../data/official-documentation.json
+ *
+ * Main responsibilities:
+ * ------------------------------------------------------------
+ * 1. Load DevOps tools from JSON
+ * 2. Generate statistics dynamically
+ * 3. Generate category sidebar dynamically
+ * 4. Generate category quick filters
+ * 5. Search tools
+ * 6. Filter tools
+ * 7. Sort tools
+ * 8. Paginate results
+ * 9. Explore More
+ * 10. Grid / List view
+ * 11. Favorites
+ * 12. Recently viewed tools
+ * 13. Active filter indicators
+ * 14. Tool details modal
+ * 15. Related technologies
+ * 16. Official resources
+ * 17. Mobile category sidebar
+ * 18. Copy/share tool links
+ * 19. LocalStorage persistence
+ * 20. Keyboard accessibility
+ *
+ * IMPORTANT:
+ * ------------------------------------------------------------
+ * This file does NOT hard-code DevOps tools or categories.
+ *
+ * Everything is generated from:
+ *
+ *     ../../data/official-documentation.json
+ *
+ * Therefore, when you add a new category or tool to JSON,
+ * the UI automatically discovers it.
+ * ============================================================
+ */
 
 "use strict";
 
-
-/* ================================================================
-   APPLICATION CONFIGURATION
-   ================================================================ */
+/* ============================================================
+   1. CONFIGURATION
+   ============================================================ */
 
 const CONFIG = {
-
-    /*
-     * Relative path from:
-     * pages/devops-documentation/js/
+    /**
+     * JSON database location relative to:
      *
-     * to:
-     * data/devops-tools.json
+     * pages/devops-documentation/js/
      */
-    dataUrl: "../../data/devops-tools.json",
+    dataUrl: "../../data/official-documentation.json",
 
-    /*
+    /**
      * LocalStorage keys.
      */
-    favoritesKey: "charlieMjDevOpsDocumentationFavorites",
-    recentKey: "charlieMjDevOpsDocumentationRecent",
-    viewKey: "charlieMjDevOpsDocumentationView",
+    storageKeys: {
+        favorites: "charlieMJDevOpsFavorites",
+        recent: "charlieMJDevOpsRecent",
+        viewMode: "charlieMJDevOpsDocumentationView"
+    },
 
-    /*
-     * Maximum number of recently viewed technologies.
+    /**
+     * Default number of tools displayed per page.
      */
-    maxRecentTools: 12
+    defaultItemsPerPage: 24,
 
+    /**
+     * Maximum recently viewed tools stored.
+     */
+    maxRecentTools: 12,
+
+    /**
+     * Maximum related technologies displayed.
+     */
+    maxRelatedTools: 6,
+
+    /**
+     * Debounce delay for search.
+     */
+    searchDelay: 120
 };
 
 
-/* ================================================================
-   APPLICATION STATE
-   ================================================================ */
+/* ============================================================
+   2. APPLICATION STATE
+   ============================================================ */
 
 const state = {
 
-    /*
-     * Complete database.
+    /**
+     * All tools loaded from JSON.
      */
     tools: [],
 
-    /*
-     * Current filtered result.
+    /**
+     * Tools after search + filters + sorting.
      */
     filteredTools: [],
 
-    /*
-     * Search value.
+    /**
+     * Current search text.
      */
-    search: "",
+    searchQuery: "",
 
-    /*
-     * Current filters.
+    /**
+     * Current selected filters.
      */
-    provider: "all",
-    category: "all",
-    subcategory: "all",
-    level: "all",
-    type: "all",
-    personal: "all",
+    filters: {
+        provider: "all",
+        category: "all",
+        subcategory: "all",
+        level: "all",
+        type: "all",
+        favorite: "all"
+    },
 
-    /*
-     * Current sorting.
+    /**
+     * Current sorting option.
      */
-    sort: "name-asc",
+    sortBy: "name-asc",
 
-    /*
-     * Current display mode.
+    /**
+     * Current page.
      */
-    view: "grid"
+    currentPage: 1,
 
+    /**
+     * Current page size.
+     */
+    itemsPerPage: CONFIG.defaultItemsPerPage,
+
+    /**
+     * Grid or list.
+     */
+    viewMode: "grid",
+
+    /**
+     * Category sidebar search.
+     */
+    categorySearch: "",
+
+    /**
+     * Currently opened tool.
+     */
+    activeToolId: null,
+
+    /**
+     * Loading state.
+     */
+    isLoading: false
 };
 
 
-/* ================================================================
-   DOM REFERENCES
-   ================================================================ */
+/* ============================================================
+   3. DOM REFERENCES
+   ============================================================ */
 
 const elements = {
 
-    search:
+    /* --------------------------------------------------------
+       Main search
+       -------------------------------------------------------- */
+
+    toolSearch:
         document.getElementById("toolSearch"),
 
-    clearSearch:
-        document.getElementById("clearSearch"),
+
+    /* --------------------------------------------------------
+       Statistics
+       -------------------------------------------------------- */
+
+    totalTools:
+        document.getElementById("totalTools"),
+
+    totalCategories:
+        document.getElementById("totalCategories"),
+
+    totalProviders:
+        document.getElementById("totalProviders"),
+
+    favoriteCount:
+        document.getElementById("favoriteCount"),
+
+
+    /* --------------------------------------------------------
+       Category sidebar
+       -------------------------------------------------------- */
+
+    categorySidebar:
+        document.getElementById("categorySidebar"),
+
+    categorySidebarToggle:
+        document.getElementById("categorySidebarToggle"),
+
+    categorySidebarClose:
+        document.getElementById("categorySidebarClose"),
+
+    categorySearch:
+        document.getElementById("categorySearch"),
+
+    categorySidebarList:
+        document.getElementById("categorySidebarList"),
+
+    sidebarCategoryCount:
+        document.getElementById("sidebarCategoryCount"),
+
+    categorySidebarOverlay:
+        document.getElementById("categorySidebarOverlay"),
+
+
+    /* --------------------------------------------------------
+       Filters
+       -------------------------------------------------------- */
 
     providerFilter:
         document.getElementById("providerFilter"),
@@ -148,14 +240,71 @@ const elements = {
     favoriteFilter:
         document.getElementById("favoriteFilter"),
 
-    clearFilters:
-        document.getElementById("clearFilters"),
+
+    /* --------------------------------------------------------
+       Category chips
+       -------------------------------------------------------- */
 
     categoryChips:
         document.getElementById("categoryChips"),
 
+
+    /* --------------------------------------------------------
+       Results
+       -------------------------------------------------------- */
+
+    resultCount:
+        document.getElementById("resultCount"),
+
     sortSelect:
         document.getElementById("sortSelect"),
+
+    itemsPerPage:
+        document.getElementById("itemsPerPage"),
+
+    activeFilters:
+        document.getElementById("activeFilters"),
+
+    toolGrid:
+        document.getElementById("toolGrid"),
+
+
+    /* --------------------------------------------------------
+       Explore More
+       -------------------------------------------------------- */
+
+    exploreMoreContainer:
+        document.getElementById("exploreMoreContainer"),
+
+    exploreMoreButton:
+        document.getElementById("exploreMoreButton"),
+
+
+    /* --------------------------------------------------------
+       Pagination
+       -------------------------------------------------------- */
+
+    pagination:
+        document.getElementById("pagination"),
+
+    paginationInfo:
+        document.getElementById("paginationInfo"),
+
+
+    /* --------------------------------------------------------
+       Empty state
+       -------------------------------------------------------- */
+
+    emptyState:
+        document.getElementById("emptyState"),
+
+    resetFiltersButton:
+        document.getElementById("resetFiltersButton"),
+
+
+    /* --------------------------------------------------------
+       View buttons
+       -------------------------------------------------------- */
 
     gridViewButton:
         document.getElementById("gridViewButton"),
@@ -163,31 +312,12 @@ const elements = {
     listViewButton:
         document.getElementById("listViewButton"),
 
-    toolGrid:
-        document.getElementById("toolGrid"),
 
-    emptyState:
-        document.getElementById("emptyState"),
+    /* --------------------------------------------------------
+       Tool modal
+       -------------------------------------------------------- */
 
-    emptyResetButton:
-        document.getElementById("emptyResetButton"),
-
-    resultCount:
-        document.getElementById("resultCount"),
-
-    totalTools:
-        document.getElementById("totalTools"),
-
-    totalCategories:
-        document.getElementById("totalCategories"),
-
-    totalProviders:
-        document.getElementById("totalProviders"),
-
-    favoriteCount:
-        document.getElementById("favoriteCount"),
-
-    modal:
+    toolModal:
         document.getElementById("toolModal"),
 
     closeModal:
@@ -196,11 +326,11 @@ const elements = {
     modalToolIcon:
         document.getElementById("modalToolIcon"),
 
-    modalToolName:
-        document.getElementById("modalToolName"),
-
     modalToolCategory:
         document.getElementById("modalToolCategory"),
+
+    modalToolName:
+        document.getElementById("modalToolName"),
 
     modalToolProvider:
         document.getElementById("modalToolProvider"),
@@ -211,6 +341,9 @@ const elements = {
     modalToolMeta:
         document.getElementById("modalToolMeta"),
 
+    modalExploreMore:
+        document.getElementById("modalExploreMore"),
+
     modalToolLinks:
         document.getElementById("modalToolLinks"),
 
@@ -219,153 +352,114 @@ const elements = {
 
     modalRelatedTools:
         document.getElementById("modalRelatedTools")
-
 };
 
 
-/* ================================================================
-   LOCAL STORAGE HELPERS
-   ================================================================ */
+/* ============================================================
+   4. INITIALIZATION
+   ============================================================ */
+
+document.addEventListener("DOMContentLoaded", init);
+
 
 /**
- * Safely retrieves a JSON array from localStorage.
- *
- * @param {string} key
- * @returns {Array}
+ * Main application initialization.
  */
-function readStorageArray(key) {
+async function init() {
 
-    try {
+    /**
+     * Restore saved view mode.
+     */
+    restoreViewMode();
 
-        const value = localStorage.getItem(key);
+    /**
+     * Bind all buttons, inputs and controls.
+     */
+    bindEvents();
 
-        if (!value) {
-            return [];
-        }
-
-        const parsed = JSON.parse(value);
-
-        return Array.isArray(parsed)
-            ? parsed
-            : [];
-
-    } catch (error) {
-
-        console.warn(
-            "Could not read localStorage:",
-            error
-        );
-
-        return [];
-    }
+    /**
+     * Load the JSON database.
+     */
+    await loadDatabase();
 }
 
 
+/* ============================================================
+   5. LOAD JSON DATABASE
+   ============================================================ */
+
 /**
- * Saves an array into localStorage.
+ * Load the DevOps documentation database.
  *
- * @param {string} key
- * @param {Array} value
- */
-function writeStorageArray(key, value) {
-
-    try {
-
-        localStorage.setItem(
-            key,
-            JSON.stringify(value)
-        );
-
-    } catch (error) {
-
-        console.warn(
-            "Could not write localStorage:",
-            error
-        );
-    }
-}
-
-
-/**
- * Returns favorite tool IDs.
+ * Supports both:
  *
- * @returns {Array<string>}
- */
-function getFavorites() {
-
-    return readStorageArray(
-        CONFIG.favoritesKey
-    );
-
-}
-
-
-/**
- * Returns recently viewed tool IDs.
+ * {
+ *     "tools": [...]
+ * }
  *
- * @returns {Array<string>}
- */
-function getRecentTools() {
-
-    return readStorageArray(
-        CONFIG.recentKey
-    );
-
-}
-
-
-/* ================================================================
-   DATA LOADING
-   ================================================================ */
-
-/**
- * Loads the shared DevOps JSON database.
+ * and:
+ *
+ * [
+ *     {...},
+ *     {...}
+ * ]
  */
 async function loadDatabase() {
 
+    state.isLoading = true;
+
     try {
 
-        const response =
-            await fetch(CONFIG.dataUrl, {
-                cache: "no-cache"
-            });
+        const response = await fetch(CONFIG.dataUrl, {
+            cache: "no-cache"
+        });
 
         if (!response.ok) {
-
             throw new Error(
-                `HTTP ${response.status}`
+                `HTTP ${response.status} while loading database`
             );
         }
 
-        const database =
-            await response.json();
+        const database = await response.json();
 
-        /*
-         * Support the recommended object format:
-         *
-         * {
-         *     "version": "...",
-         *     "tools": [...]
-         * }
-         *
-         * Also support a direct array for flexibility.
+        /**
+         * Support both database formats.
          */
         if (Array.isArray(database)) {
 
             state.tools = database;
 
+        } else if (
+            database &&
+            Array.isArray(database.tools)
+        ) {
+
+            state.tools = database.tools;
+
         } else {
 
-            state.tools =
-                Array.isArray(database.tools)
-                    ? database.tools
-                    : [];
-
+            state.tools = [];
         }
 
+
+        /**
+         * Remove invalid/null records.
+         */
+        state.tools = state.tools.filter(
+            tool =>
+                tool &&
+                typeof tool === "object"
+        );
+
+
+        /**
+         * Prepare all dynamic UI.
+         */
         updateStatistics();
 
         populateFilters();
+
+        renderCategorySidebar();
 
         renderCategoryChips();
 
@@ -380,125 +474,426 @@ async function loadDatabase() {
 
         showDatabaseError();
 
-    }
+    } finally {
 
+        state.isLoading = false;
+    }
 }
 
 
-/* ================================================================
-   DATABASE ERROR
-   ================================================================ */
+/* ============================================================
+   6. DATABASE ERROR
+   ============================================================ */
 
 /**
- * Displays an error if the JSON database cannot be loaded.
+ * Display a friendly error message if JSON cannot load.
  */
 function showDatabaseError() {
 
-    elements.toolGrid.innerHTML = `
-        <article class="empty-state">
-            <div class="empty-icon">!</div>
+    if (elements.toolGrid) {
 
-            <h2>
-                Documentation database unavailable
-            </h2>
+        elements.toolGrid.innerHTML = `
+            <div class="database-error">
+                <div class="database-error-icon">!</div>
 
-            <p>
-                The DevOps tool database could not be loaded.
-                Check the data/devops-tools.json path.
-            </p>
-        </article>
-    `;
+                <h3>Documentation database unavailable</h3>
 
+                <p>
+                    The DevOps documentation database could not
+                    be loaded.
+                </p>
+
+                <p>
+                    Please verify:
+                </p>
+
+                <ul>
+                    <li>
+                        <code>data/official-documentation.json</code>
+                    </li>
+
+                    <li>
+                        The JSON syntax
+                    </li>
+
+                    <li>
+                        The GitHub Pages deployment
+                    </li>
+                </ul>
+
+                <button
+                    type="button"
+                    class="reset-filters-button"
+                    onclick="window.location.reload()"
+                >
+                    Retry
+                </button>
+            </div>
+        `;
+    }
+
+
+    if (elements.resultCount) {
+        elements.resultCount.textContent =
+            "Database unavailable";
+    }
 }
 
 
-/* ================================================================
-   STATISTICS
-   ================================================================ */
+/* ============================================================
+   7. STATISTICS
+   ============================================================ */
 
 /**
- * Updates the overview statistics.
+ * Calculate statistics directly from the loaded tools.
+ *
+ * IMPORTANT:
+ * We intentionally DO NOT trust:
+ *
+ *     database.totalTools
+ *
+ * because the real number of records is:
+ *
+ *     state.tools.length
  */
 function updateStatistics() {
 
-    const tools =
-        state.tools;
+    const tools = state.tools;
 
-    const categories =
-        new Set(
-            tools
-                .map(tool => tool.category)
-                .filter(Boolean)
-        );
 
-    const providers =
-        new Set(
-            tools
-                .map(tool => tool.provider)
-                .filter(Boolean)
-        );
+    /**
+     * Unique categories.
+     */
+    const categories = new Set(
+        tools
+            .map(tool => getCategory(tool))
+            .filter(Boolean)
+    );
 
-    elements.totalTools.textContent =
-        tools.length;
 
-    elements.totalCategories.textContent =
-        categories.size;
+    /**
+     * Unique providers.
+     */
+    const providers = new Set(
+        tools
+            .map(tool => getProvider(tool))
+            .filter(Boolean)
+    );
 
-    elements.totalProviders.textContent =
-        providers.size;
 
-    elements.favoriteCount.textContent =
-        getFavorites().length;
+    /**
+     * Update statistics.
+     */
+    if (elements.totalTools) {
+        elements.totalTools.textContent =
+            formatNumber(tools.length);
+    }
 
+    if (elements.totalCategories) {
+        elements.totalCategories.textContent =
+            formatNumber(categories.size);
+    }
+
+    if (elements.totalProviders) {
+        elements.totalProviders.textContent =
+            formatNumber(providers.size);
+    }
+
+    if (elements.favoriteCount) {
+        elements.favoriteCount.textContent =
+            formatNumber(getFavorites().length);
+    }
 }
 
 
-/* ================================================================
-   FILTER DATA
-   ================================================================ */
+/* ============================================================
+   8. DATA HELPERS
+   ============================================================ */
 
 /**
- * Returns sorted unique values from tools.
- *
- * @param {string} property
- * @returns {string[]}
+ * Safely get a tool name.
  */
-function uniqueValues(property) {
+function getToolName(tool) {
+
+    return String(
+        tool?.name ||
+        tool?.title ||
+        "Unnamed Tool"
+    );
+}
+
+
+/**
+ * Safely get category.
+ */
+function getCategory(tool) {
+
+    return String(
+        tool?.category ||
+        "Uncategorized"
+    );
+}
+
+
+/**
+ * Safely get provider.
+ */
+function getProvider(tool) {
+
+    return String(
+        tool?.provider ||
+        "Community"
+    );
+}
+
+
+/**
+ * Safely get subcategory.
+ */
+function getSubcategory(tool) {
+
+    return String(
+        tool?.subcategory ||
+        ""
+    );
+}
+
+
+/**
+ * Safely get learning level.
+ */
+function getLevel(tool) {
+
+    return String(
+        tool?.level ||
+        tool?.difficulty ||
+        ""
+    );
+}
+
+
+/**
+ * Safely get tool type.
+ */
+function getType(tool) {
+
+    return String(
+        tool?.type ||
+        ""
+    );
+}
+
+
+/**
+ * Get description.
+ */
+function getDescription(tool) {
+
+    return String(
+        tool?.description ||
+        tool?.summary ||
+        "No description available."
+    );
+}
+
+
+/**
+ * Get icon.
+ */
+function getToolIcon(tool) {
+
+    return String(
+        tool?.icon ||
+        tool?.logo ||
+        tool?.emoji ||
+        "⚙"
+    );
+}
+
+
+/**
+ * Get tags.
+ */
+function getToolTags(tool) {
+
+    if (Array.isArray(tool?.tags)) {
+        return tool.tags
+            .map(tag => String(tag))
+            .filter(Boolean);
+    }
+
+    if (typeof tool?.tags === "string") {
+
+        return tool.tags
+            .split(",")
+            .map(tag => tag.trim())
+            .filter(Boolean);
+    }
+
+    return [];
+}
+
+
+/**
+ * Get documentation URL.
+ *
+ * Supports both:
+ *
+ * documentation
+ *
+ * and future:
+ *
+ * officialDocumentation
+ */
+function getDocumentationUrl(tool) {
+
+    return safeUrl(
+        tool?.documentation ||
+        tool?.officialDocumentation
+    );
+}
+
+
+/**
+ * Get official website.
+ */
+function getOfficialWebsite(tool) {
+
+    return safeUrl(
+        tool?.officialWebsite ||
+        tool?.website ||
+        tool?.homepage
+    );
+}
+
+
+/**
+ * Get GitHub URL.
+ */
+function getGithubUrl(tool) {
+
+    return safeUrl(
+        tool?.github ||
+        tool?.githubUrl
+    );
+}
+
+
+/* ============================================================
+   9. UNIQUE VALUES
+   ============================================================ */
+
+/**
+ * Return unique non-empty values from tools.
+ */
+function uniqueValues(
+    tools,
+    getter
+) {
 
     return [
         ...new Set(
-            state.tools
-                .map(tool => tool[property])
+            tools
+                .map(getter)
+                .map(value => String(value || "").trim())
                 .filter(Boolean)
         )
     ].sort(
         (a, b) =>
-            String(a).localeCompare(
-                String(b)
+            a.localeCompare(
+                b,
+                undefined,
+                {
+                    sensitivity: "base"
+                }
             )
     );
+}
 
+
+/* ============================================================
+   10. FILTER DROPDOWNS
+   ============================================================ */
+
+/**
+ * Populate all dynamic filter dropdowns.
+ */
+function populateFilters() {
+
+    populateSelect(
+        elements.providerFilter,
+        uniqueValues(
+            state.tools,
+            getProvider
+        ),
+        "All Providers"
+    );
+
+
+    populateSelect(
+        elements.categoryFilter,
+        uniqueValues(
+            state.tools,
+            getCategory
+        ),
+        "All Categories"
+    );
+
+
+    populateSelect(
+        elements.subcategoryFilter,
+        uniqueValues(
+            state.tools,
+            getSubcategory
+        ),
+        "All Subcategories"
+    );
+
+
+    populateSelect(
+        elements.levelFilter,
+        uniqueValues(
+            state.tools,
+            getLevel
+        ),
+        "All Levels"
+    );
+
+
+    populateSelect(
+        elements.typeFilter,
+        uniqueValues(
+            state.tools,
+            getType
+        ),
+        "All Types"
+    );
 }
 
 
 /**
- * Adds options to a select element.
- *
- * @param {HTMLSelectElement} select
- * @param {string[]} values
- * @param {string} defaultText
+ * Populate a select element.
  */
 function populateSelect(
     select,
     values,
-    defaultText
+    firstLabel
 ) {
+
+    if (!select) {
+        return;
+    }
+
+    const currentValue =
+        select.value || "all";
+
 
     select.innerHTML = `
         <option value="all">
-            ${defaultText}
+            ${escapeHtml(firstLabel)}
         </option>
     `;
+
 
     values.forEach(value => {
 
@@ -510,70 +905,289 @@ function populateSelect(
         option.textContent = value;
 
         select.appendChild(option);
-
     });
 
+
+    /**
+     * Restore previous value if it still exists.
+     */
+    if (
+        [...select.options]
+            .some(option =>
+                option.value === currentValue
+            )
+    ) {
+
+        select.value = currentValue;
+
+    } else {
+
+        select.value = "all";
+    }
 }
 
 
+/* ============================================================
+   11. CATEGORY SIDEBAR
+   ============================================================ */
+
 /**
- * Populates all dropdown filters.
+ * Build the category directory dynamically.
+ *
+ * THIS FIXES THE MAIN ISSUE:
+ *
+ * The HTML contains:
+ *
+ * #categorySidebarList
+ *
+ * but JavaScript previously never populated it.
+ *
+ * This function reads every tool's category and generates
+ * the complete directory automatically.
  */
-function populateFilters() {
+function renderCategorySidebar() {
 
-    populateSelect(
-        elements.providerFilter,
-        uniqueValues("provider"),
-        "All Providers"
+    if (!elements.categorySidebarList) {
+        return;
+    }
+
+
+    /**
+     * Count tools by category.
+     */
+    const categoryCounts = {};
+
+
+    state.tools.forEach(tool => {
+
+        const category =
+            getCategory(tool);
+
+        categoryCounts[category] =
+            (categoryCounts[category] || 0) + 1;
+    });
+
+
+    /**
+     * Sort alphabetically.
+     */
+    const categories =
+        Object.entries(categoryCounts)
+            .sort(
+                (a, b) =>
+                    a[0].localeCompare(
+                        b[0],
+                        undefined,
+                        {
+                            sensitivity: "base"
+                        }
+                    )
+            );
+
+
+    /**
+     * Clear old sidebar.
+     */
+    elements.categorySidebarList.innerHTML = "";
+
+
+    /**
+     * Create "All Categories".
+     */
+    const allButton =
+        document.createElement("button");
+
+    allButton.type = "button";
+
+    allButton.className =
+        "category-sidebar-button";
+
+    allButton.dataset.category = "all";
+
+    allButton.innerHTML = `
+        <span class="category-sidebar-name">
+            All Categories
+        </span>
+
+        <span class="category-sidebar-count">
+            ${state.tools.length}
+        </span>
+    `;
+
+    elements.categorySidebarList
+        .appendChild(allButton);
+
+
+    /**
+     * Create individual category buttons.
+     */
+    categories.forEach(
+        ([category, count]) => {
+
+            const button =
+                document.createElement("button");
+
+            button.type = "button";
+
+            button.className =
+                "category-sidebar-button";
+
+            button.dataset.category =
+                category;
+
+            button.innerHTML = `
+                <span class="category-sidebar-name">
+                    ${escapeHtml(category)}
+                </span>
+
+                <span class="category-sidebar-count">
+                    ${count}
+                </span>
+            `;
+
+            elements.categorySidebarList
+                .appendChild(button);
+        }
     );
 
-    populateSelect(
-        elements.categoryFilter,
-        uniqueValues("category"),
-        "All Categories"
-    );
 
-    populateSelect(
-        elements.subcategoryFilter,
-        uniqueValues("subcategory"),
-        "All Subcategories"
-    );
+    /**
+     * Update sidebar footer.
+     */
+    if (elements.sidebarCategoryCount) {
 
-    populateSelect(
-        elements.typeFilter,
-        uniqueValues("type"),
-        "All Types"
-    );
+        const count =
+            categories.length;
 
+        elements.sidebarCategoryCount.textContent =
+            `${count} categor${count === 1 ? "y" : "ies"}`;
+    }
+
+
+    /**
+     * Highlight currently selected category.
+     */
+    updateCategorySidebarState();
 }
 
 
-/* ================================================================
-   CATEGORY CHIPS
-   ================================================================ */
+/**
+ * Filter category sidebar using its search field.
+ */
+function filterCategorySidebar() {
+
+    if (!elements.categorySidebarList) {
+        return;
+    }
+
+
+    const query =
+        state.categorySearch
+            .trim()
+            .toLowerCase();
+
+
+    const buttons =
+        elements.categorySidebarList
+            .querySelectorAll(
+                ".category-sidebar-button"
+            );
+
+
+    buttons.forEach(button => {
+
+        const category =
+            String(
+                button.dataset.category || ""
+            ).toLowerCase();
+
+
+        /**
+         * Always keep All Categories visible.
+         */
+        if (category === "all") {
+
+            button.hidden = false;
+
+            return;
+        }
+
+
+        button.hidden =
+            query.length > 0 &&
+            !category.includes(query);
+    });
+}
+
 
 /**
- * Creates quick category filter buttons.
+ * Highlight active category in sidebar.
+ */
+function updateCategorySidebarState() {
+
+    if (!elements.categorySidebarList) {
+        return;
+    }
+
+
+    const buttons =
+        elements.categorySidebarList
+            .querySelectorAll(
+                ".category-sidebar-button"
+            );
+
+
+    buttons.forEach(button => {
+
+        const category =
+            button.dataset.category || "all";
+
+        button.classList.toggle(
+            "active",
+            category === state.filters.category
+        );
+    });
+}
+
+
+/* ============================================================
+   12. CATEGORY CHIPS
+   ============================================================ */
+
+/**
+ * Generate quick category chips.
  */
 function renderCategoryChips() {
 
+    if (!elements.categoryChips) {
+        return;
+    }
+
+
     const categories =
-        uniqueValues("category");
+        uniqueValues(
+            state.tools,
+            getCategory
+        );
+
 
     elements.categoryChips.innerHTML = "";
 
-    const allButton =
+
+    /**
+     * All categories chip.
+     */
+    elements.categoryChips.appendChild(
         createCategoryChip(
             "All",
             "all"
-        );
-
-    allButton.classList.add("active");
-
-    elements.categoryChips.appendChild(
-        allButton
+        )
     );
 
+
+    /**
+     * Add categories.
+     */
     categories.forEach(category => {
 
         elements.categoryChips.appendChild(
@@ -582,18 +1196,15 @@ function renderCategoryChips() {
                 category
             )
         );
-
     });
 
+
+    updateCategoryChipState();
 }
 
 
 /**
- * Creates a category chip.
- *
- * @param {string} label
- * @param {string} value
- * @returns {HTMLButtonElement}
+ * Create one category chip.
  */
 function createCategoryChip(
     label,
@@ -614,719 +1225,1192 @@ function createCategoryChip(
     button.textContent =
         label;
 
-    button.addEventListener(
-        "click",
-        () => {
-
-            state.category =
-                value;
-
-            elements.categoryFilter.value =
-                value;
-
-            updateCategoryChipState();
-
-            applyFilters();
-
-        }
-    );
-
     return button;
-
 }
 
 
 /**
- * Updates active category chip.
+ * Update active category chip.
  */
 function updateCategoryChipState() {
 
-    document
-        .querySelectorAll(".category-chip")
-        .forEach(button => {
+    if (!elements.categoryChips) {
+        return;
+    }
 
-            button.classList.toggle(
-                "active",
-                button.dataset.category ===
-                state.category
+
+    const chips =
+        elements.categoryChips
+            .querySelectorAll(
+                ".category-chip"
             );
 
-        });
 
+    chips.forEach(chip => {
+
+        chip.classList.toggle(
+            "active",
+            chip.dataset.category ===
+            state.filters.category
+        );
+    });
 }
 
 
-/* ================================================================
-   SEARCH MATCHING
-   ================================================================ */
+/* ============================================================
+   13. SEARCH
+   ============================================================ */
 
 /**
- * Creates searchable text for a tool.
+ * Determine whether a tool matches search text.
  *
- * @param {Object} tool
- * @returns {string}
+ * Searches:
+ * - Name
+ * - Description
+ * - Provider
+ * - Category
+ * - Subcategory
+ * - Level
+ * - Type
+ * - Tags
  */
-function getSearchText(tool) {
+function toolMatchesSearch(
+    tool,
+    query
+) {
 
-    const values = [
+    if (!query) {
+        return true;
+    }
 
-        tool.name,
 
-        tool.description,
+    const searchableText = [
 
-        tool.category,
+        getToolName(tool),
 
-        tool.subcategory,
+        getDescription(tool),
 
-        tool.provider,
+        getProvider(tool),
 
-        tool.type,
+        getCategory(tool),
 
-        tool.learningLevel,
+        getSubcategory(tool),
 
-        ...(tool.tags || []),
+        getLevel(tool),
 
-        ...(tool.relatedTools || [])
+        getType(tool),
 
-    ];
+        ...getToolTags(tool)
 
-    return values
-        .filter(Boolean)
+    ]
         .join(" ")
         .toLowerCase();
 
+
+    return searchableText.includes(
+        query.toLowerCase()
+    );
+}
+
+
+/* ============================================================
+   14. APPLY FILTERS
+   ============================================================ */
+
+/**
+ * Apply search, category, provider and other filters.
+ */
+function applyFilters() {
+
+    let results =
+        [...state.tools];
+
+
+    /**
+     * Search.
+     */
+    results =
+        results.filter(tool =>
+            toolMatchesSearch(
+                tool,
+                state.searchQuery
+            )
+        );
+
+
+    /**
+     * Provider.
+     */
+    if (
+        state.filters.provider !== "all"
+    ) {
+
+        results =
+            results.filter(
+                tool =>
+                    getProvider(tool) ===
+                    state.filters.provider
+            );
+    }
+
+
+    /**
+     * Category.
+     */
+    if (
+        state.filters.category !== "all"
+    ) {
+
+        results =
+            results.filter(
+                tool =>
+                    getCategory(tool) ===
+                    state.filters.category
+            );
+    }
+
+
+    /**
+     * Subcategory.
+     */
+    if (
+        state.filters.subcategory !== "all"
+    ) {
+
+        results =
+            results.filter(
+                tool =>
+                    getSubcategory(tool) ===
+                    state.filters.subcategory
+            );
+    }
+
+
+    /**
+     * Level.
+     */
+    if (
+        state.filters.level !== "all"
+    ) {
+
+        results =
+            results.filter(
+                tool =>
+                    getLevel(tool) ===
+                    state.filters.level
+            );
+    }
+
+
+    /**
+     * Type.
+     */
+    if (
+        state.filters.type !== "all"
+    ) {
+
+        results =
+            results.filter(
+                tool =>
+                    getType(tool) ===
+                    state.filters.type
+            );
+    }
+
+
+    /**
+     * Favorites.
+     */
+    if (
+        state.filters.favorite === "favorites"
+    ) {
+
+        const favorites =
+            getFavorites();
+
+        results =
+            results.filter(
+                tool =>
+                    favorites.includes(
+                        getToolId(tool)
+                    )
+            );
+    }
+
+
+    /**
+     * Recently viewed.
+     */
+    if (
+        state.filters.favorite === "recent"
+    ) {
+
+        const recent =
+            getRecentTools();
+
+        results =
+            results.filter(
+                tool =>
+                    recent.includes(
+                        getToolId(tool)
+                    )
+            );
+    }
+
+
+    /**
+     * Sort results.
+     */
+    results =
+        sortTools(results);
+
+
+    /**
+     * Save results.
+     */
+    state.filteredTools =
+        results;
+
+
+    /**
+     * Prevent invalid page.
+     */
+    const totalPages =
+        getTotalPages();
+
+
+    if (
+        state.currentPage >
+        totalPages &&
+        totalPages > 0
+    ) {
+
+        state.currentPage =
+            totalPages;
+    }
+
+
+    /**
+     * Render everything.
+     */
+    renderTools();
+
+    renderPagination();
+
+    renderActiveFilters();
+
+    updateCategoryChipState();
+
+    updateCategorySidebarState();
+
+    updateExploreMore();
+}
+
+
+/* ============================================================
+   15. SORTING
+   ============================================================ */
+
+/**
+ * Sort tools according to current sort selection.
+ */
+function sortTools(tools) {
+
+    const sorted =
+        [...tools];
+
+
+    sorted.sort((a, b) => {
+
+        const nameA =
+            getToolName(a).toLowerCase();
+
+        const nameB =
+            getToolName(b).toLowerCase();
+
+
+        switch (state.sortBy) {
+
+            case "name-desc":
+
+                return nameB.localeCompare(nameA);
+
+
+            case "provider":
+
+                return getProvider(a)
+                    .localeCompare(
+                        getProvider(b)
+                    );
+
+
+            case "category":
+
+                return getCategory(a)
+                    .localeCompare(
+                        getCategory(b)
+                    );
+
+
+            case "recent":
+
+                return compareRecent(a, b);
+
+
+            case "newest":
+
+                return compareDates(
+                    b,
+                    a
+                );
+
+
+            case "oldest":
+
+                return compareDates(
+                    a,
+                    b
+                );
+
+
+            case "name-asc":
+            default:
+
+                return nameA.localeCompare(
+                    nameB
+                );
+        }
+    });
+
+
+    return sorted;
 }
 
 
 /**
- * Determines whether a tool matches the current filters.
- *
- * @param {Object} tool
- * @returns {boolean}
+ * Compare recently viewed order.
  */
-function matchesFilters(tool) {
-
-    const search =
-        state.search
-            .trim()
-            .toLowerCase();
-
-    if (
-        search &&
-        !getSearchText(tool)
-            .includes(search)
-    ) {
-
-        return false;
-
-    }
-
-
-    if (
-        state.provider !== "all" &&
-        tool.provider !== state.provider
-    ) {
-
-        return false;
-
-    }
-
-
-    if (
-        state.category !== "all" &&
-        tool.category !== state.category
-    ) {
-
-        return false;
-
-    }
-
-
-    if (
-        state.subcategory !== "all" &&
-        tool.subcategory !== state.subcategory
-    ) {
-
-        return false;
-
-    }
-
-
-    if (
-        state.level !== "all" &&
-        tool.learningLevel !== state.level
-    ) {
-
-        return false;
-
-    }
-
-
-    if (
-        state.type !== "all" &&
-        tool.type !== state.type
-    ) {
-
-        return false;
-
-    }
-
-
-    const favorites =
-        getFavorites();
+function compareRecent(a, b) {
 
     const recent =
         getRecentTools();
 
 
-    if (
-        state.personal === "favorites" &&
-        !favorites.includes(tool.id)
-    ) {
-
-        return false;
-
-    }
-
-
-    if (
-        state.personal === "recent" &&
-        !recent.includes(tool.id)
-    ) {
-
-        return false;
-
-    }
-
-
-    return true;
-
-}
-
-
-/* ================================================================
-   SORTING
-   ================================================================ */
-
-/**
- * Sorts the filtered tools.
- *
- * @param {Object[]} tools
- * @returns {Object[]}
- */
-function sortTools(tools) {
-
-    const result =
-        [...tools];
-
-    switch (state.sort) {
-
-        case "name-desc":
-
-            return result.sort(
-                (a, b) =>
-                    b.name.localeCompare(a.name)
-            );
-
-
-        case "category":
-
-            return result.sort(
-                (a, b) =>
-                    `${a.category} ${a.name}`
-                        .localeCompare(
-                            `${b.category} ${b.name}`
-                        )
-            );
-
-
-        case "level": {
-
-            const order = {
-                Beginner: 1,
-                Intermediate: 2,
-                Advanced: 3
-            };
-
-            return result.sort(
-                (a, b) =>
-                    (order[a.learningLevel] || 99) -
-                    (order[b.learningLevel] || 99)
-            );
-
-        }
-
-
-        case "name-asc":
-        default:
-
-            return result.sort(
-                (a, b) =>
-                    a.name.localeCompare(b.name)
-            );
-
-    }
-
-}
-
-
-/* ================================================================
-   APPLY FILTERS
-   ================================================================ */
-
-/**
- * Applies all active filters and renders results.
- */
-function applyFilters() {
-
-    const matchingTools =
-        state.tools.filter(
-            matchesFilters
+    const indexA =
+        recent.indexOf(
+            getToolId(a)
         );
 
-    state.filteredTools =
-        sortTools(
-            matchingTools
+
+    const indexB =
+        recent.indexOf(
+            getToolId(b)
         );
 
-    elements.resultCount.textContent =
-        state.filteredTools.length;
 
-    renderTools();
+    const safeA =
+        indexA === -1
+            ? Number.MAX_SAFE_INTEGER
+            : indexA;
 
-}
+
+    const safeB =
+        indexB === -1
+            ? Number.MAX_SAFE_INTEGER
+            : indexB;
 
 
-/* ================================================================
-   TOOL RENDERING
-   ================================================================ */
-
-/**
- * Escapes text before inserting it into HTML.
- *
- * @param {*} value
- * @returns {string}
- */
-function escapeHtml(value) {
-
-    return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-
+    return safeA - safeB;
 }
 
 
 /**
- * Creates a short abbreviation for a tool.
- *
- * @param {Object} tool
- * @returns {string}
+ * Compare created/updated dates when available.
  */
-function getToolIcon(tool) {
+function compareDates(a, b) {
 
-    if (tool.shortName) {
-        return tool.shortName;
+    const dateA =
+        getToolDate(a);
+
+    const dateB =
+        getToolDate(b);
+
+
+    return (
+        dateA.getTime() -
+        dateB.getTime()
+    );
+}
+
+
+/**
+ * Extract a date from a tool.
+ */
+function getToolDate(tool) {
+
+    const raw =
+        tool?.updatedAt ||
+        tool?.createdAt ||
+        tool?.dateAdded ||
+        tool?.date ||
+        "";
+
+
+    const date =
+        new Date(raw);
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return new Date(0);
     }
 
-    return tool.name
-        .split(/\s+/)
-        .slice(0, 2)
-        .map(word => word[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 4);
 
+    return date;
 }
 
 
-/**
- * Creates a tool card.
- *
- * @param {Object} tool
- * @returns {HTMLElement}
- */
-function createToolCard(tool) {
-
-    const card =
-        document.createElement("article");
-
-    card.className =
-        "tool-card";
-
-    card.dataset.toolId =
-        tool.id;
-
-
-    const favorites =
-        getFavorites();
-
-    const isFavorite =
-        favorites.includes(tool.id);
-
-
-    const tags =
-        (tool.tags || [])
-            .slice(0, 6)
-            .map(tag => `
-                <span class="tool-tag">
-                    #${escapeHtml(tag)}
-                </span>
-            `)
-            .join("");
-
-
-    card.innerHTML = `
-
-        <div class="tool-card-header">
-
-            <div class="tool-icon">
-                ${escapeHtml(
-                    getToolIcon(tool)
-                )}
-            </div>
-
-            <button
-                type="button"
-                class="favorite-button ${
-                    isFavorite ? "active" : ""
-                }"
-                data-favorite-id="${escapeHtml(tool.id)}"
-                aria-label="${
-                    isFavorite
-                        ? "Remove from favorites"
-                        : "Add to favorites"
-                }"
-                title="${
-                    isFavorite
-                        ? "Remove favorite"
-                        : "Add favorite"
-                }"
-            >
-                ${isFavorite ? "★" : "☆"}
-            </button>
-
-        </div>
-
-
-        <span class="tool-category">
-            ${escapeHtml(
-                tool.category || "DevOps"
-            )}
-        </span>
-
-
-        <h3 class="tool-name">
-            ${escapeHtml(tool.name)}
-        </h3>
-
-
-        <div class="tool-provider">
-            ${
-                escapeHtml(
-                    tool.provider ||
-                    "Independent"
-                )
-            }
-        </div>
-
-
-        <p class="tool-description">
-            ${escapeHtml(
-                tool.description ||
-                "DevOps technology."
-            )}
-        </p>
-
-
-        <div class="tool-tags">
-            ${tags}
-        </div>
-
-
-        <div class="tool-card-footer">
-
-            <span class="level-badge">
-                ${escapeHtml(
-                    tool.learningLevel ||
-                    "General"
-                )}
-            </span>
-
-            <button
-                type="button"
-                class="tool-open-button"
-                data-open-tool="${escapeHtml(tool.id)}"
-            >
-                View Documentation →
-            </button>
-
-        </div>
-    `;
-
-
-    return card;
-
-}
-
+/* ============================================================
+   16. RENDER TOOLS
+   ============================================================ */
 
 /**
- * Renders the current result set.
+ * Render the current page of tools.
  */
 function renderTools() {
 
-    elements.toolGrid.innerHTML = "";
-
-    if (
-        state.filteredTools.length === 0
-    ) {
-
-        elements.emptyState.classList.remove(
-            "hidden"
-        );
-
+    if (!elements.toolGrid) {
         return;
-
     }
 
 
-    elements.emptyState.classList.add(
-        "hidden"
-    );
+    const total =
+        state.filteredTools.length;
 
 
-    const fragment =
-        document.createDocumentFragment();
+    /**
+     * Update result count.
+     */
+    if (elements.resultCount) {
+
+        elements.resultCount.textContent =
+            `${formatNumber(total)} ${
+                total === 1
+                    ? "technology"
+                    : "technologies"
+            }`;
+    }
 
 
-    state.filteredTools.forEach(tool => {
+    /**
+     * Empty state.
+     */
+    if (total === 0) {
 
-        fragment.appendChild(
-            createToolCard(tool)
+        elements.toolGrid.innerHTML = "";
+
+        showEmptyState();
+
+        return;
+    }
+
+
+    hideEmptyState();
+
+
+    /**
+     * Calculate page range.
+     */
+    const start =
+        (
+            state.currentPage - 1
+        ) *
+        state.itemsPerPage;
+
+
+    const end =
+        start +
+        state.itemsPerPage;
+
+
+    const pageTools =
+        state.filteredTools.slice(
+            start,
+            end
         );
 
-    });
+
+    /**
+     * Render cards.
+     */
+    elements.toolGrid.innerHTML =
+        pageTools
+            .map(tool =>
+                createToolCard(tool)
+            )
+            .join("");
 
 
-    elements.toolGrid.appendChild(
-        fragment
+    /**
+     * Apply grid/list class.
+     */
+    elements.toolGrid.classList.toggle(
+        "list-view",
+        state.viewMode === "list"
     );
 
+
+    elements.toolGrid.classList.toggle(
+        "grid-view",
+        state.viewMode === "grid"
+    );
+
+
+    /**
+     * Refresh favorite buttons.
+     */
+    updateFavoriteButtons();
 }
 
 
-/* ================================================================
-   FAVORITES
-   ================================================================ */
+/* ============================================================
+   17. TOOL CARD
+   ============================================================ */
 
 /**
- * Toggles favorite status.
- *
- * @param {string} toolId
+ * Create one tool card.
  */
-function toggleFavorite(toolId) {
+function createToolCard(tool) {
 
-    const favorites =
+    const id =
+        getToolId(tool);
+
+    const name =
+        getToolName(tool);
+
+    const category =
+        getCategory(tool);
+
+    const provider =
+        getProvider(tool);
+
+    const description =
+        getDescription(tool);
+
+    const icon =
+        getToolIcon(tool);
+
+    const tags =
+        getToolTags(tool);
+
+    const isFavorite =
+        isToolFavorite(id);
+
+    const isRecent =
+        getRecentTools().includes(id);
+
+
+    const visibleTags =
+        tags.slice(0, 4);
+
+
+    return `
+        <article
+            class="tool-card"
+            data-tool-id="${escapeHtml(id)}"
+        >
+
+            <div class="tool-card-header">
+
+                <div class="tool-icon">
+                    ${escapeHtml(icon)}
+                </div>
+
+                <div class="tool-card-heading">
+
+                    <span class="tool-category">
+                        ${escapeHtml(category)}
+                    </span>
+
+                    <h3 class="tool-name">
+                        ${highlightSearch(
+                            escapeHtml(name)
+                        )}
+                    </h3>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="favorite-button ${
+                        isFavorite
+                            ? "active"
+                            : ""
+                    }"
+                    data-favorite-tool="${escapeHtml(id)}"
+                    aria-label="${
+                        isFavorite
+                            ? "Remove from favorites"
+                            : "Add to favorites"
+                    }"
+                    title="${
+                        isFavorite
+                            ? "Remove from favorites"
+                            : "Add to favorites"
+                    }"
+                >
+                    ${isFavorite ? "★" : "☆"}
+                </button>
+
+            </div>
+
+
+            ${
+                isRecent
+                    ? `
+                        <span class="recent-badge">
+                            Recently Viewed
+                        </span>
+                    `
+                    : ""
+            }
+
+
+            <p class="tool-description">
+                ${highlightSearch(
+                    escapeHtml(description)
+                )}
+            </p>
+
+
+            <div class="tool-card-meta">
+
+                <span class="tool-provider">
+                    ${escapeHtml(provider)}
+                </span>
+
+                ${
+                    getLevel(tool)
+                        ? `
+                            <span>
+                                ${escapeHtml(
+                                    getLevel(tool)
+                                )}
+                            </span>
+                        `
+                        : ""
+                }
+
+            </div>
+
+
+            ${
+                visibleTags.length
+                    ? `
+                        <div class="tool-tags">
+                            ${visibleTags
+                                .map(
+                                    tag => `
+                                        <span class="tool-tag">
+                                            ${escapeHtml(tag)}
+                                        </span>
+                                    `
+                                )
+                                .join("")}
+                        </div>
+                    `
+                    : ""
+            }
+
+
+            <div class="tool-card-actions">
+
+                <button
+                    type="button"
+                    class="tool-open-button"
+                    data-open-tool="${escapeHtml(id)}"
+                >
+                    View Documentation →
+                </button>
+
+                <button
+                    type="button"
+                    class="copy-link-button"
+                    data-copy-tool="${escapeHtml(id)}"
+                    title="Copy tool link"
+                >
+                    Copy
+                </button>
+
+            </div>
+
+        </article>
+    `;
+}
+
+
+/* ============================================================
+   18. TOOL ID
+   ============================================================ */
+
+/**
+ * Get stable ID for a tool.
+ *
+ * Preferred:
+ * tool.id
+ *
+ * Fallback:
+ * name converted into a slug.
+ */
+function getToolId(tool) {
+
+    if (tool?.id !== undefined) {
+
+        return String(tool.id);
+    }
+
+
+    if (tool?.slug) {
+
+        return String(tool.slug);
+    }
+
+
+    return slugify(
+        getToolName(tool)
+    );
+}
+
+
+/**
+ * Convert text into a URL-friendly ID.
+ */
+function slugify(value) {
+
+    return String(value)
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(
+            /^-+|-+$/g,
+            ""
+        );
+}
+
+
+/* ============================================================
+   19. SEARCH HIGHLIGHT
+   ============================================================ */
+
+/**
+ * Highlight matching search terms.
+ *
+ * The input is already HTML escaped.
+ */
+function highlightSearch(value) {
+
+    if (
+        !state.searchQuery ||
+        !value
+    ) {
+
+        return value;
+    }
+
+
+    const query =
+        escapeRegExp(
+            state.searchQuery.trim()
+        );
+
+
+    if (!query) {
+        return value;
+    }
+
+
+    return value.replace(
+        new RegExp(
+            `(${query})`,
+            "gi"
+        ),
+        `<mark class="search-highlight">$1</mark>`
+    );
+}
+
+
+/**
+ * Escape regular-expression characters.
+ */
+function escapeRegExp(value) {
+
+    return value.replace(
+        /[.*+?^${}()|[\]\\]/g,
+        "\\$&"
+    );
+}
+
+
+/* ============================================================
+   20. FAVORITES
+   ============================================================ */
+
+/**
+ * Read favorites.
+ */
+function getFavorites() {
+
+    try {
+
+        const value =
+            localStorage.getItem(
+                CONFIG.storageKeys.favorites
+            );
+
+
+        if (!value) {
+            return [];
+        }
+
+
+        const parsed =
+            JSON.parse(value);
+
+
+        return Array.isArray(parsed)
+            ? parsed.map(String)
+            : [];
+
+    } catch (error) {
+
+        console.warn(
+            "Could not read favorites:",
+            error
+        );
+
+        return [];
+    }
+}
+
+
+/**
+ * Save favorites.
+ */
+function saveFavorites(favorites) {
+
+    try {
+
+        localStorage.setItem(
+            CONFIG.storageKeys.favorites,
+            JSON.stringify(
+                favorites
+            )
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Could not save favorites:",
+            error
+        );
+    }
+}
+
+
+/**
+ * Check whether a tool is favorite.
+ */
+function isToolFavorite(id) {
+
+    return getFavorites()
+        .includes(
+            String(id)
+        );
+}
+
+
+/**
+ * Toggle favorite state.
+ */
+function toggleFavorite(id) {
+
+    const toolId =
+        String(id);
+
+    let favorites =
         getFavorites();
 
-    const index =
-        favorites.indexOf(toolId);
 
+    if (
+        favorites.includes(toolId)
+    ) {
 
-    if (index === -1) {
-
-        favorites.push(toolId);
+        favorites =
+            favorites.filter(
+                item =>
+                    item !== toolId
+            );
 
     } else {
 
-        favorites.splice(
-            index,
-            1
-        );
-
+        favorites.push(toolId);
     }
 
 
-    writeStorageArray(
-        CONFIG.favoritesKey,
-        favorites
-    );
+    saveFavorites(favorites);
 
+
+    /**
+     * Update statistics.
+     */
     updateStatistics();
 
-    applyFilters();
 
+    /**
+     * Reapply favorite filter if active.
+     */
+    if (
+        state.filters.favorite ===
+        "favorites"
+    ) {
+
+        state.currentPage = 1;
+
+        applyFilters();
+
+    } else {
+
+        updateFavoriteButtons();
+    }
+
+
+    /**
+     * Update modal favorite button if necessary.
+     */
+    updateModalFavoriteState();
 }
 
 
-/* ================================================================
-   RECENTLY VIEWED
-   ================================================================ */
+/**
+ * Refresh all favorite buttons.
+ */
+function updateFavoriteButtons() {
+
+    if (!elements.toolGrid) {
+        return;
+    }
+
+
+    const buttons =
+        elements.toolGrid
+            .querySelectorAll(
+                "[data-favorite-tool]"
+            );
+
+
+    buttons.forEach(button => {
+
+        const id =
+            String(
+                button.dataset.favoriteTool
+            );
+
+
+        const active =
+            isToolFavorite(id);
+
+
+        button.classList.toggle(
+            "active",
+            active
+        );
+
+
+        button.textContent =
+            active ? "★" : "☆";
+
+
+        button.setAttribute(
+            "aria-label",
+            active
+                ? "Remove from favorites"
+                : "Add to favorites"
+        );
+    });
+}
+
+
+/* ============================================================
+   21. RECENTLY VIEWED
+   ============================================================ */
 
 /**
- * Adds a tool to recently viewed.
- *
- * @param {string} toolId
+ * Read recently viewed tool IDs.
  */
-function addToRecent(toolId) {
+function getRecentTools() {
+
+    try {
+
+        const value =
+            localStorage.getItem(
+                CONFIG.storageKeys.recent
+            );
+
+
+        if (!value) {
+            return [];
+        }
+
+
+        const parsed =
+            JSON.parse(value);
+
+
+        return Array.isArray(parsed)
+            ? parsed.map(String)
+            : [];
+
+    } catch (error) {
+
+        console.warn(
+            "Could not read recent tools:",
+            error
+        );
+
+        return [];
+    }
+}
+
+
+/**
+ * Save a recently viewed tool.
+ */
+function saveRecentTool(id) {
+
+    const toolId =
+        String(id);
+
 
     let recent =
         getRecentTools();
 
+
+    /**
+     * Remove existing occurrence.
+     */
     recent =
         recent.filter(
-            id => id !== toolId
+            item =>
+                item !== toolId
         );
 
+
+    /**
+     * Put latest item first.
+     */
     recent.unshift(toolId);
 
+
+    /**
+     * Keep list small.
+     */
     recent =
         recent.slice(
             0,
             CONFIG.maxRecentTools
         );
 
-    writeStorageArray(
-        CONFIG.recentKey,
-        recent
-    );
-
-}
-
-
-/* ================================================================
-   TOOL DETAILS MODAL
-   ================================================================ */
-
-/**
- * Finds a tool by ID.
- *
- * @param {string} id
- * @returns {Object|null}
- */
-function findTool(id) {
-
-    return (
-        state.tools.find(
-            tool => tool.id === id
-        ) ||
-        null
-    );
-
-}
-
-
-/**
- * Creates a safe external URL.
- *
- * @param {string} url
- * @returns {string}
- */
-function safeUrl(url) {
-
-    if (!url) {
-        return null;
-    }
 
     try {
 
-        const parsed =
-            new URL(url);
+        localStorage.setItem(
+            CONFIG.storageKeys.recent,
+            JSON.stringify(recent)
+        );
 
-        if (
-            parsed.protocol === "https:" ||
-            parsed.protocol === "http:"
-        ) {
+    } catch (error) {
 
-            return parsed.href;
-
-        }
-
-    } catch (_) {
-
-        return null;
-
+        console.warn(
+            "Could not save recent tool:",
+            error
+        );
     }
-
-    return null;
-
 }
 
 
+/* ============================================================
+   22. MODAL
+   ============================================================ */
+
 /**
- * Opens a tool detail modal.
- *
- * @param {string} toolId
+ * Open a tool modal.
  */
-function openToolModal(toolId) {
+function openToolModal(id) {
 
     const tool =
-        findTool(toolId);
+        findToolById(id);
+
 
     if (!tool) {
         return;
     }
 
 
-    addToRecent(toolId);
+    state.activeToolId =
+        getToolId(tool);
 
 
-    elements.modalToolIcon.textContent =
-        getToolIcon(tool);
-
-    elements.modalToolName.textContent =
-        tool.name;
-
-    elements.modalToolCategory.textContent =
-        tool.category ||
-        "DevOps";
-
-    elements.modalToolProvider.textContent =
-        tool.provider ||
-        "Independent";
-
-    elements.modalToolDescription.textContent =
-        tool.description ||
-        "No description available.";
+    /**
+     * Save recently viewed.
+     */
+    saveRecentTool(
+        getToolId(tool)
+    );
 
 
-    elements.modalToolMeta.innerHTML = `
+    /**
+     * Populate modal.
+     */
+    if (elements.modalToolIcon) {
 
-        <span class="meta-item">
-            ${escapeHtml(
-                tool.subcategory ||
-                "General"
-            )}
-        </span>
+        elements.modalToolIcon.textContent =
+            getToolIcon(tool);
+    }
 
-        <span class="meta-item">
-            ${escapeHtml(
-                tool.type ||
-                "Technology"
-            )}
-        </span>
 
-        <span class="meta-item">
-            ${escapeHtml(
-                tool.learningLevel ||
-                "General"
-            )}
-        </span>
+    if (elements.modalToolCategory) {
 
-        ${
-            tool.openSource
-                ? `
-                    <span class="meta-item">
-                        Open Source
-                    </span>
-                  `
-                : ""
-        }
+        elements.modalToolCategory.textContent =
+            getCategory(tool);
+    }
 
-    `;
 
+    if (elements.modalToolName) {
+
+        elements.modalToolName.textContent =
+            getToolName(tool);
+    }
+
+
+    if (elements.modalToolProvider) {
+
+        elements.modalToolProvider.textContent =
+            getProvider(tool);
+    }
+
+
+    if (elements.modalToolDescription) {
+
+        elements.modalToolDescription.textContent =
+            getDescription(tool);
+    }
+
+
+    renderModalMeta(tool);
 
     renderModalLinks(tool);
 
@@ -1335,593 +2419,2645 @@ function openToolModal(toolId) {
     renderRelatedTools(tool);
 
 
-    elements.modal.classList.remove(
-        "hidden"
-    );
+    /**
+     * Configure Explore More.
+     */
+    if (elements.modalExploreMore) {
 
-    document.body.style.overflow =
-        "hidden";
+        const documentation =
+            getDocumentationUrl(tool);
 
+
+        if (documentation) {
+
+            elements.modalExploreMore.href =
+                documentation;
+
+            elements.modalExploreMore.hidden =
+                false;
+
+        } else {
+
+            elements.modalExploreMore.hidden =
+                true;
+        }
+    }
+
+
+    /**
+     * Show modal.
+     */
+    if (elements.toolModal) {
+
+        elements.toolModal.classList.add(
+            "open"
+        );
+
+        elements.toolModal.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        document.body.classList.add(
+            "modal-open"
+        );
+    }
+
+
+    /**
+     * Refresh cards so Recent badge appears.
+     */
+    renderTools();
 }
 
 
 /**
- * Renders official resource links.
- *
- * @param {Object} tool
+ * Close tool modal.
+ */
+function closeToolModal() {
+
+    if (!elements.toolModal) {
+        return;
+    }
+
+
+    elements.toolModal.classList.remove(
+        "open"
+    );
+
+
+    elements.toolModal.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    document.body.classList.remove(
+        "modal-open"
+    );
+
+
+    state.activeToolId = null;
+}
+
+
+/**
+ * Find tool by ID.
+ */
+function findToolById(id) {
+
+    const target =
+        String(id);
+
+
+    return state.tools.find(
+        tool =>
+            getToolId(tool) === target
+    );
+}
+
+
+/* ============================================================
+   23. MODAL META
+   ============================================================ */
+
+/**
+ * Render tool metadata.
+ */
+function renderModalMeta(tool) {
+
+    if (!elements.modalToolMeta) {
+        return;
+    }
+
+
+    const metadata = [];
+
+
+    if (getSubcategory(tool)) {
+
+        metadata.push(
+            ["Subcategory", getSubcategory(tool)]
+        );
+    }
+
+
+    if (getLevel(tool)) {
+
+        metadata.push(
+            ["Level", getLevel(tool)]
+        );
+    }
+
+
+    if (getType(tool)) {
+
+        metadata.push(
+            ["Type", getType(tool)]
+        );
+    }
+
+
+    if (tool?.license) {
+
+        metadata.push(
+            ["License", String(tool.license)]
+        );
+    }
+
+
+    elements.modalToolMeta.innerHTML =
+        metadata
+            .map(
+                ([label, value]) => `
+                    <div class="modal-meta-item">
+
+                        <span class="modal-meta-label">
+                            ${escapeHtml(label)}
+                        </span>
+
+                        <strong>
+                            ${escapeHtml(value)}
+                        </strong>
+
+                    </div>
+                `
+            )
+            .join("");
+}
+
+
+/* ============================================================
+   24. MODAL LINKS
+   ============================================================ */
+
+/**
+ * Render official resources.
  */
 function renderModalLinks(tool) {
+
+    if (!elements.modalToolLinks) {
+        return;
+    }
+
 
     const links = [
 
         {
             label: "Official Website",
-            url: safeUrl(
-                tool.officialWebsite
-            )
+            url: getOfficialWebsite(tool)
         },
 
         {
             label: "Official Documentation",
-            url: safeUrl(
-                tool.documentation
-            )
+            url: getDocumentationUrl(tool)
         },
 
         {
             label: "GitHub",
-            url: safeUrl(
-                tool.github
-            )
+            url: getGithubUrl(tool)
         }
 
-    ].filter(
-        item => item.url
-    );
+    ]
+        .filter(
+            item =>
+                item.url
+        );
 
 
     if (!links.length) {
 
         elements.modalToolLinks.innerHTML = `
-            <span class="meta-item">
-                No external resources available.
+            <span class="modal-no-links">
+                No official resources available.
             </span>
         `;
 
         return;
-
     }
 
 
     elements.modalToolLinks.innerHTML =
         links
-            .map(link => `
-                <a
-                    class="resource-link"
-                    href="${escapeHtml(link.url)}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    ${escapeHtml(link.label)}
-                </a>
-            `)
+            .map(
+                link => `
+                    <a
+                        href="${escapeHtml(link.url)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="modal-resource-link"
+                    >
+                        ${escapeHtml(
+                            link.label
+                        )}
+                        ↗
+                    </a>
+                `
+            )
             .join("");
-
 }
 
 
+/* ============================================================
+   25. MODAL TAGS
+   ============================================================ */
+
 /**
- * Renders tags inside the modal.
- *
- * @param {Object} tool
+ * Render tags in modal.
  */
 function renderModalTags(tool) {
 
+    if (!elements.modalToolTags) {
+        return;
+    }
+
+
     const tags =
-        tool.tags || [];
+        getToolTags(tool);
 
 
     elements.modalToolTags.innerHTML =
         tags
-            .map(tag => `
-                <span class="tool-tag">
-                    #${escapeHtml(tag)}
-                </span>
-            `)
+            .map(
+                tag => `
+                    <span class="tool-tag">
+                        ${escapeHtml(tag)}
+                    </span>
+                `
+            )
             .join("");
-
 }
 
 
+/* ============================================================
+   26. RELATED TECHNOLOGIES
+   ============================================================ */
+
 /**
- * Renders related technologies.
+ * Find related tools.
  *
- * @param {Object} tool
+ * Related tools are selected using:
+ *
+ * 1. Same category
+ * 2. Same provider
+ * 3. Shared tags
  */
 function renderRelatedTools(tool) {
 
+    if (!elements.modalRelatedTools) {
+        return;
+    }
+
+
+    const currentId =
+        getToolId(tool);
+
+    const category =
+        getCategory(tool);
+
+    const provider =
+        getProvider(tool);
+
+    const currentTags =
+        getToolTags(tool)
+            .map(tag =>
+                tag.toLowerCase()
+            );
+
+
     const related =
-        tool.relatedTools || [];
+        state.tools
+            .filter(
+                candidate =>
+                    getToolId(candidate) !==
+                    currentId
+            )
+            .map(candidate => {
+
+                let score = 0;
 
 
-    elements.modalRelatedTools.innerHTML = "";
+                if (
+                    getCategory(candidate) ===
+                    category
+                ) {
+
+                    score += 5;
+                }
+
+
+                if (
+                    getProvider(candidate) ===
+                    provider
+                ) {
+
+                    score += 3;
+                }
+
+
+                const candidateTags =
+                    getToolTags(candidate)
+                        .map(tag =>
+                            tag.toLowerCase()
+                        );
+
+
+                candidateTags.forEach(tag => {
+
+                    if (
+                        currentTags.includes(tag)
+                    ) {
+
+                        score += 1;
+                    }
+                });
+
+
+                return {
+                    tool: candidate,
+                    score
+                };
+            })
+            .filter(item =>
+                item.score > 0
+            )
+            .sort(
+                (a, b) =>
+                    b.score - a.score
+            )
+            .slice(
+                0,
+                CONFIG.maxRelatedTools
+            );
 
 
     if (!related.length) {
 
         elements.modalRelatedTools.innerHTML = `
-            <span class="meta-item">
-                No related technologies listed.
+            <span class="modal-no-related">
+                No related technologies found.
             </span>
         `;
 
         return;
-
     }
 
 
-    related.forEach(relatedId => {
+    elements.modalRelatedTools.innerHTML =
+        related
+            .map(
+                ({ tool: relatedTool }) => `
+                    <button
+                        type="button"
+                        class="related-tool"
+                        data-open-tool="${escapeHtml(
+                            getToolId(relatedTool)
+                        )}"
+                    >
+                        <span class="related-tool-icon">
+                            ${escapeHtml(
+                                getToolIcon(
+                                    relatedTool
+                                )
+                            )}
+                        </span>
 
-        const relatedTool =
-            findTool(relatedId);
+                        <span>
+                            ${escapeHtml(
+                                getToolName(
+                                    relatedTool
+                                )
+                            )}
+                        </span>
+                    </button>
+                `
+            )
+            .join("");
+}
 
 
-        if (!relatedTool) {
+/* ============================================================
+   27. MODAL FAVORITE STATE
+   ============================================================ */
+
+/**
+ * Update modal favorite state if HTML contains a
+ * modal favorite button.
+ */
+function updateModalFavoriteState() {
+
+    if (!state.activeToolId) {
+        return;
+    }
+
+
+    const button =
+        elements.toolModal?.querySelector(
+            "[data-modal-favorite]"
+        );
+
+
+    if (!button) {
+        return;
+    }
+
+
+    const active =
+        isToolFavorite(
+            state.activeToolId
+        );
+
+
+    button.classList.toggle(
+        "active",
+        active
+    );
+
+
+    button.textContent =
+        active ? "★" : "☆";
+}
+
+
+/* ============================================================
+   28. PAGINATION
+   ============================================================ */
+
+/**
+ * Calculate total pages.
+ */
+function getTotalPages() {
+
+    if (
+        state.filteredTools.length === 0
+    ) {
+
+        return 0;
+    }
+
+
+    return Math.ceil(
+        state.filteredTools.length /
+        state.itemsPerPage
+    );
+}
+
+
+/**
+ * Render pagination controls.
+ */
+function renderPagination() {
+
+    if (!elements.pagination) {
+        return;
+    }
+
+
+    const total =
+        state.filteredTools.length;
+
+
+    const totalPages =
+        getTotalPages();
+
+
+    /**
+     * Nothing to paginate.
+     */
+    if (
+        total === 0 ||
+        totalPages <= 1
+    ) {
+
+        elements.pagination.innerHTML = "";
+
+
+        if (elements.paginationInfo) {
+
+            elements.paginationInfo.textContent =
+                total === 0
+                    ? "No results"
+                    : `Page 1 of 1`;
+        }
+
+
+        return;
+    }
+
+
+    /**
+     * Build controls.
+     */
+    const parts = [];
+
+
+    /**
+     * Previous.
+     */
+    parts.push(`
+        <button
+            type="button"
+            class="pagination-button pagination-previous"
+            data-page="${
+                Math.max(
+                    1,
+                    state.currentPage - 1
+                )
+            }"
+            ${
+                state.currentPage === 1
+                    ? "disabled"
+                    : ""
+            }
+        >
+            ← Previous
+        </button>
+    `);
+
+
+    /**
+     * Page numbers.
+     */
+    getPaginationPages(
+        totalPages,
+        state.currentPage
+    ).forEach(item => {
+
+        if (item === "...") {
+
+            parts.push(`
+                <span class="pagination-ellipsis">
+                    …
+                </span>
+            `);
+
             return;
         }
 
 
-        const button =
-            document.createElement("button");
+        parts.push(`
+            <button
+                type="button"
+                class="
+                    pagination-button
+                    pagination-number
+                    ${
+                        item ===
+                        state.currentPage
+                            ? "active"
+                            : ""
+                    }
+                "
+                data-page="${item}"
+                ${
+                    item ===
+                    state.currentPage
+                        ? 'aria-current="page"'
+                        : ""
+                }
+            >
+                ${item}
+            </button>
+        `);
+    });
 
-        button.type = "button";
 
-        button.className =
-            "related-tool";
-
-        button.textContent =
-            relatedTool.name;
-
-
-        button.addEventListener(
-            "click",
-            () => {
-
-                openToolModal(
-                    relatedTool.id
-                );
-
+    /**
+     * Next.
+     */
+    parts.push(`
+        <button
+            type="button"
+            class="pagination-button pagination-next"
+            data-page="${
+                Math.min(
+                    totalPages,
+                    state.currentPage + 1
+                )
+            }"
+            ${
+                state.currentPage ===
+                totalPages
+                    ? "disabled"
+                    : ""
             }
+        >
+            Next →
+        </button>
+    `);
+
+
+    elements.pagination.innerHTML =
+        parts.join("");
+
+
+    /**
+     * Page information.
+     */
+    if (elements.paginationInfo) {
+
+        const start =
+            (
+                state.currentPage - 1
+            ) *
+            state.itemsPerPage +
+            1;
+
+
+        const end =
+            Math.min(
+                state.currentPage *
+                state.itemsPerPage,
+                total
+            );
+
+
+        elements.paginationInfo.textContent =
+            `Showing ${start}–${end} of ${total} · Page ${state.currentPage} of ${totalPages}`;
+    }
+}
+
+
+/**
+ * Generate compact page numbers.
+ */
+function getPaginationPages(
+    totalPages,
+    currentPage
+) {
+
+    /**
+     * Small number of pages:
+     * show everything.
+     */
+    if (totalPages <= 7) {
+
+        return Array.from(
+            {
+                length: totalPages
+            },
+            (_, index) =>
+                index + 1
+        );
+    }
+
+
+    const pages = [];
+
+
+    pages.push(1);
+
+
+    if (currentPage > 4) {
+        pages.push("...");
+    }
+
+
+    const start =
+        Math.max(
+            2,
+            currentPage - 1
         );
 
 
-        elements.modalRelatedTools
-            .appendChild(button);
+    const end =
+        Math.min(
+            totalPages - 1,
+            currentPage + 1
+        );
 
-    });
 
+    for (
+        let page = start;
+        page <= end;
+        page++
+    ) {
+
+        pages.push(page);
+    }
+
+
+    if (
+        currentPage <
+        totalPages - 3
+    ) {
+
+        pages.push("...");
+    }
+
+
+    pages.push(totalPages);
+
+
+    return pages;
 }
 
 
 /**
- * Closes the tool modal.
+ * Go to page.
  */
-function closeToolModal() {
+function goToPage(page) {
 
-    elements.modal.classList.add(
-        "hidden"
+    const totalPages =
+        getTotalPages();
+
+
+    if (
+        totalPages === 0
+    ) {
+
+        state.currentPage = 1;
+
+        return;
+    }
+
+
+    state.currentPage =
+        Math.max(
+            1,
+            Math.min(
+                Number(page),
+                totalPages
+            )
+        );
+
+
+    renderTools();
+
+    renderPagination();
+
+
+    /**
+     * Scroll results into view.
+     */
+    scrollToResults();
+}
+
+
+/* ============================================================
+   29. EXPLORE MORE
+   ============================================================ */
+
+/**
+ * Update Explore More button.
+ *
+ * Explore More loads the next page of results.
+ */
+function updateExploreMore() {
+
+    if (
+        !elements.exploreMoreContainer ||
+        !elements.exploreMoreButton
+    ) {
+
+        return;
+    }
+
+
+    const totalPages =
+        getTotalPages();
+
+
+    const hasMore =
+        state.currentPage <
+        totalPages;
+
+
+    elements.exploreMoreContainer.hidden =
+        !hasMore;
+
+
+    if (hasMore) {
+
+        elements.exploreMoreButton.textContent =
+            `Explore More · Page ${
+                state.currentPage + 1
+            }`;
+    }
+}
+
+
+/**
+ * Load the next page using Explore More.
+ */
+function exploreMore() {
+
+    const totalPages =
+        getTotalPages();
+
+
+    if (
+        state.currentPage >=
+        totalPages
+    ) {
+
+        return;
+    }
+
+
+    state.currentPage += 1;
+
+
+    renderTools();
+
+    renderPagination();
+
+    updateExploreMore();
+
+
+    scrollToResults();
+}
+
+
+/* ============================================================
+   30. ACTIVE FILTERS
+   ============================================================ */
+
+/**
+ * Display active filters as removable badges.
+ */
+function renderActiveFilters() {
+
+    if (!elements.activeFilters) {
+        return;
+    }
+
+
+    const active = [];
+
+
+    /**
+     * Search.
+     */
+    if (state.searchQuery) {
+
+        active.push({
+            key: "search",
+            label: `Search: ${state.searchQuery}`
+        });
+    }
+
+
+    /**
+     * Standard filters.
+     */
+    const filterDefinitions = [
+
+        {
+            key: "provider",
+            label: "Provider"
+        },
+
+        {
+            key: "category",
+            label: "Category"
+        },
+
+        {
+            key: "subcategory",
+            label: "Subcategory"
+        },
+
+        {
+            key: "level",
+            label: "Level"
+        },
+
+        {
+            key: "type",
+            label: "Type"
+        },
+
+        {
+            key: "favorite",
+            label: "View"
+        }
+
+    ];
+
+
+    filterDefinitions.forEach(
+        ({ key, label }) => {
+
+            const value =
+                state.filters[key];
+
+
+            if (
+                value &&
+                value !== "all"
+            ) {
+
+                let displayValue =
+                    value;
+
+
+                if (
+                    key === "favorite"
+                ) {
+
+                    if (
+                        value ===
+                        "favorites"
+                    ) {
+
+                        displayValue =
+                            "Favorites";
+
+                    } else if (
+                        value === "recent"
+                    ) {
+
+                        displayValue =
+                            "Recently Viewed";
+                    }
+                }
+
+
+                active.push({
+                    key,
+                    label:
+                        `${label}: ${displayValue}`
+                });
+            }
+        }
     );
 
-    document.body.style.overflow =
-        "";
 
+    /**
+     * Nothing active.
+     */
+    if (!active.length) {
+
+        elements.activeFilters.innerHTML =
+            "";
+
+        elements.activeFilters.hidden =
+            true;
+
+        return;
+    }
+
+
+    elements.activeFilters.hidden =
+        false;
+
+
+    elements.activeFilters.innerHTML =
+        active
+            .map(
+                item => `
+                    <button
+                        type="button"
+                        class="active-filter"
+                        data-remove-filter="${escapeHtml(
+                            item.key
+                        )}"
+                    >
+                        <span>
+                            ${escapeHtml(
+                                item.label
+                            )}
+                        </span>
+
+                        <span
+                            class="active-filter-remove"
+                            aria-hidden="true"
+                        >
+                            ×
+                        </span>
+                    </button>
+                `
+            )
+            .join("");
+
+
+    /**
+     * Add clear-all button.
+     */
+    elements.activeFilters.insertAdjacentHTML(
+        "beforeend",
+        `
+            <button
+                type="button"
+                class="clear-active-filters"
+                data-clear-filters
+            >
+                Clear all
+            </button>
+        `
+    );
 }
 
 
-/* ================================================================
-   FILTER RESET
-   ================================================================ */
+/**
+ * Remove one active filter.
+ */
+function removeFilter(key) {
+
+    if (key === "search") {
+
+        state.searchQuery = "";
+
+        if (elements.toolSearch) {
+            elements.toolSearch.value = "";
+        }
+
+    } else if (
+        Object.prototype.hasOwnProperty.call(
+            state.filters,
+            key
+        )
+    ) {
+
+        state.filters[key] =
+            "all";
+
+
+        syncFilterControls();
+    }
+
+
+    state.currentPage = 1;
+
+    applyFilters();
+}
+
+
+/* ============================================================
+   31. EMPTY STATE
+   ============================================================ */
 
 /**
- * Resets every filter to its default state.
+ * Show empty results state.
+ */
+function showEmptyState() {
+
+    if (!elements.emptyState) {
+        return;
+    }
+
+
+    elements.emptyState.hidden =
+        false;
+}
+
+
+/**
+ * Hide empty results state.
+ */
+function hideEmptyState() {
+
+    if (!elements.emptyState) {
+        return;
+    }
+
+
+    elements.emptyState.hidden =
+        true;
+}
+
+
+/* ============================================================
+   32. RESET FILTERS
+   ============================================================ */
+
+/**
+ * Reset all filters and search.
  */
 function resetFilters() {
 
-    state.search = "";
-
-    state.provider = "all";
-    state.category = "all";
-    state.subcategory = "all";
-    state.level = "all";
-    state.type = "all";
-    state.personal = "all";
-
-    elements.search.value = "";
-
-    elements.providerFilter.value =
-        "all";
-
-    elements.categoryFilter.value =
-        "all";
-
-    elements.subcategoryFilter.value =
-        "all";
-
-    elements.levelFilter.value =
-        "all";
-
-    elements.typeFilter.value =
-        "all";
-
-    elements.favoriteFilter.value =
-        "all";
-
-    updateCategoryChipState();
-
-    applyFilters();
-
-}
+    state.searchQuery = "";
 
 
-/* ================================================================
-   VIEW MODE
-   ================================================================ */
-
-/**
- * Applies grid or list view.
- *
- * @param {"grid"|"list"} view
- */
-function setView(view) {
-
-    state.view =
-        view;
-
-    elements.toolGrid.classList.toggle(
-        "list-view",
-        view === "list"
-    );
-
-    elements.gridViewButton.classList.toggle(
-        "active",
-        view === "grid"
-    );
-
-    elements.listViewButton.classList.toggle(
-        "active",
-        view === "list"
-    );
+    state.filters = {
+        provider: "all",
+        category: "all",
+        subcategory: "all",
+        level: "all",
+        type: "all",
+        favorite: "all"
+    };
 
 
-    try {
+    state.currentPage = 1;
 
-        localStorage.setItem(
-            CONFIG.viewKey,
-            view
-        );
 
-    } catch (_) {
-        // Ignore storage errors.
+    /**
+     * Reset search field.
+     */
+    if (elements.toolSearch) {
+        elements.toolSearch.value = "";
     }
 
+
+    /**
+     * Reset category search.
+     */
+    state.categorySearch = "";
+
+
+    if (elements.categorySearch) {
+        elements.categorySearch.value = "";
+    }
+
+
+    /**
+     * Reset filter controls.
+     */
+    syncFilterControls();
+
+
+    /**
+     * Clear sidebar search.
+     */
+    filterCategorySidebar();
+
+
+    applyFilters();
 }
 
 
 /**
- * Restores saved view mode.
+ * Synchronize HTML filter controls with state.
  */
-function restoreView() {
+function syncFilterControls() {
+
+    if (elements.providerFilter) {
+
+        elements.providerFilter.value =
+            state.filters.provider;
+    }
+
+
+    if (elements.categoryFilter) {
+
+        elements.categoryFilter.value =
+            state.filters.category;
+    }
+
+
+    if (elements.subcategoryFilter) {
+
+        elements.subcategoryFilter.value =
+            state.filters.subcategory;
+    }
+
+
+    if (elements.levelFilter) {
+
+        elements.levelFilter.value =
+            state.filters.level;
+    }
+
+
+    if (elements.typeFilter) {
+
+        elements.typeFilter.value =
+            state.filters.type;
+    }
+
+
+    if (elements.favoriteFilter) {
+
+        elements.favoriteFilter.value =
+            state.filters.favorite;
+    }
+}
+
+
+/* ============================================================
+   33. VIEW MODE
+   ============================================================ */
+
+/**
+ * Restore saved grid/list view.
+ */
+function restoreViewMode() {
 
     try {
 
         const saved =
             localStorage.getItem(
-                CONFIG.viewKey
+                CONFIG.storageKeys.viewMode
             );
+
 
         if (
             saved === "grid" ||
             saved === "list"
         ) {
 
-            setView(saved);
-
+            state.viewMode =
+                saved;
         }
 
-    } catch (_) {
-        // Default remains grid.
+    } catch (error) {
+
+        console.warn(
+            "Could not restore view mode:",
+            error
+        );
     }
 
+
+    applyViewMode();
 }
 
 
-/* ================================================================
-   EVENT HANDLERS
-   ================================================================ */
+/**
+ * Save view mode.
+ */
+function saveViewMode() {
 
+    try {
+
+        localStorage.setItem(
+            CONFIG.storageKeys.viewMode,
+            state.viewMode
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Could not save view mode:",
+            error
+        );
+    }
+}
+
+
+/**
+ * Apply current view mode.
+ */
+function applyViewMode() {
+
+    if (!elements.toolGrid) {
+        return;
+    }
+
+
+    elements.toolGrid.classList.toggle(
+        "list-view",
+        state.viewMode === "list"
+    );
+
+
+    elements.toolGrid.classList.toggle(
+        "grid-view",
+        state.viewMode === "grid"
+    );
+
+
+    if (elements.gridViewButton) {
+
+        elements.gridViewButton.classList.toggle(
+            "active",
+            state.viewMode === "grid"
+        );
+
+        elements.gridViewButton.setAttribute(
+            "aria-pressed",
+            state.viewMode === "grid"
+                ? "true"
+                : "false"
+        );
+    }
+
+
+    if (elements.listViewButton) {
+
+        elements.listViewButton.classList.toggle(
+            "active",
+            state.viewMode === "list"
+        );
+
+        elements.listViewButton.setAttribute(
+            "aria-pressed",
+            state.viewMode === "list"
+                ? "true"
+                : "false"
+        );
+    }
+}
+
+
+/**
+ * Change view mode.
+ */
+function setViewMode(mode) {
+
+    if (
+        mode !== "grid" &&
+        mode !== "list"
+    ) {
+
+        return;
+    }
+
+
+    state.viewMode =
+        mode;
+
+
+    saveViewMode();
+
+    applyViewMode();
+}
+
+
+/* ============================================================
+   34. SIDEBAR
+   ============================================================ */
+
+/**
+ * Open category sidebar on mobile.
+ */
+function openCategorySidebar() {
+
+    if (!elements.categorySidebar) {
+        return;
+    }
+
+
+    elements.categorySidebar.classList.add(
+        "open"
+    );
+
+
+    if (elements.categorySidebarOverlay) {
+
+        elements.categorySidebarOverlay.classList.add(
+            "open"
+        );
+    }
+
+
+    document.body.classList.add(
+        "sidebar-open"
+    );
+}
+
+
+/**
+ * Close category sidebar.
+ */
+function closeCategorySidebar() {
+
+    if (elements.categorySidebar) {
+
+        elements.categorySidebar.classList.remove(
+            "open"
+        );
+    }
+
+
+    if (elements.categorySidebarOverlay) {
+
+        elements.categorySidebarOverlay.classList.remove(
+            "open"
+        );
+    }
+
+
+    document.body.classList.remove(
+        "sidebar-open"
+    );
+}
+
+
+/* ============================================================
+   35. CATEGORY SELECTION
+   ============================================================ */
+
+/**
+ * Select a category from sidebar or chips.
+ */
+function selectCategory(category) {
+
+    state.filters.category =
+        category || "all";
+
+
+    /**
+     * Sync dropdown.
+     */
+    if (elements.categoryFilter) {
+
+        elements.categoryFilter.value =
+            state.filters.category;
+    }
+
+
+    /**
+     * Reset page.
+     */
+    state.currentPage = 1;
+
+
+    /**
+     * Update UI.
+     */
+    updateCategorySidebarState();
+
+    updateCategoryChipState();
+
+    applyFilters();
+
+
+    /**
+     * Close mobile sidebar.
+     */
+    closeCategorySidebar();
+}
+
+
+/* ============================================================
+   36. EVENT BINDING
+   ============================================================ */
+
+/**
+ * Bind all UI events.
+ */
 function bindEvents() {
 
+    /* --------------------------------------------------------
+       Main search
+       -------------------------------------------------------- */
 
-    /* Search */
+    if (elements.toolSearch) {
 
-    elements.search.addEventListener(
-        "input",
-        event => {
+        elements.toolSearch.addEventListener(
+            "input",
+            debounce(() => {
 
-            state.search =
-                event.target.value;
+                state.searchQuery =
+                    elements.toolSearch.value
+                        .trim();
 
-            applyFilters();
+                state.currentPage = 1;
 
-        }
-    );
+                applyFilters();
 
+            }, CONFIG.searchDelay)
+        );
+    }
 
-    elements.clearSearch.addEventListener(
-        "click",
-        () => {
 
-            state.search = "";
+    /* --------------------------------------------------------
+       Provider filter
+       -------------------------------------------------------- */
 
-            elements.search.value = "";
+    if (elements.providerFilter) {
 
-            applyFilters();
+        elements.providerFilter.addEventListener(
+            "change",
+            () => {
 
-            elements.search.focus();
+                state.filters.provider =
+                    elements.providerFilter.value;
 
-        }
-    );
+                state.currentPage = 1;
 
-
-    /* Provider */
-
-    elements.providerFilter.addEventListener(
-        "change",
-        event => {
-
-            state.provider =
-                event.target.value;
-
-            applyFilters();
-
-        }
-    );
-
-
-    /* Category */
-
-    elements.categoryFilter.addEventListener(
-        "change",
-        event => {
-
-            state.category =
-                event.target.value;
-
-            updateCategoryChipState();
-
-            applyFilters();
-
-        }
-    );
-
-
-    /* Subcategory */
-
-    elements.subcategoryFilter.addEventListener(
-        "change",
-        event => {
-
-            state.subcategory =
-                event.target.value;
-
-            applyFilters();
-
-        }
-    );
-
-
-    /* Learning level */
-
-    elements.levelFilter.addEventListener(
-        "change",
-        event => {
-
-            state.level =
-                event.target.value;
-
-            applyFilters();
-
-        }
-    );
-
-
-    /* Tool type */
-
-    elements.typeFilter.addEventListener(
-        "change",
-        event => {
-
-            state.type =
-                event.target.value;
-
-            applyFilters();
-
-        }
-    );
-
-
-    /* Favorites / recent */
-
-    elements.favoriteFilter.addEventListener(
-        "change",
-        event => {
-
-            state.personal =
-                event.target.value;
-
-            applyFilters();
-
-        }
-    );
-
-
-    /* Sorting */
-
-    elements.sortSelect.addEventListener(
-        "change",
-        event => {
-
-            state.sort =
-                event.target.value;
-
-            applyFilters();
-
-        }
-    );
-
-
-    /* Reset */
-
-    elements.clearFilters.addEventListener(
-        "click",
-        resetFilters
-    );
-
-
-    elements.emptyResetButton.addEventListener(
-        "click",
-        resetFilters
-    );
-
-
-    /* View */
-
-    elements.gridViewButton.addEventListener(
-        "click",
-        () => setView("grid")
-    );
-
-
-    elements.listViewButton.addEventListener(
-        "click",
-        () => setView("list")
-    );
-
-
-    /* Tool cards */
-
-    elements.toolGrid.addEventListener(
-        "click",
-        event => {
-
-            const favoriteButton =
-                event.target.closest(
-                    "[data-favorite-id]"
-                );
-
-
-            if (favoriteButton) {
-
-                toggleFavorite(
-                    favoriteButton
-                        .dataset
-                        .favoriteId
-                );
-
-                return;
-
+                applyFilters();
             }
+        );
+    }
 
 
-            const openButton =
-                event.target.closest(
-                    "[data-open-tool]"
-                );
+    /* --------------------------------------------------------
+       Category filter
+       -------------------------------------------------------- */
 
+    if (elements.categoryFilter) {
 
-            if (openButton) {
+        elements.categoryFilter.addEventListener(
+            "change",
+            () => {
 
-                openToolModal(
-                    openButton
-                        .dataset
-                        .openTool
-                );
+                state.filters.category =
+                    elements.categoryFilter.value;
 
+                state.currentPage = 1;
+
+                updateCategorySidebarState();
+
+                updateCategoryChipState();
+
+                applyFilters();
             }
-
-        }
-    );
-
-
-    /* Modal */
-
-    elements.closeModal.addEventListener(
-        "click",
-        closeToolModal
-    );
+        );
+    }
 
 
-    elements.modal
-        .querySelector(".modal-overlay")
-        .addEventListener(
+    /* --------------------------------------------------------
+       Subcategory
+       -------------------------------------------------------- */
+
+    if (elements.subcategoryFilter) {
+
+        elements.subcategoryFilter.addEventListener(
+            "change",
+            () => {
+
+                state.filters.subcategory =
+                    elements.subcategoryFilter.value;
+
+                state.currentPage = 1;
+
+                applyFilters();
+            }
+        );
+    }
+
+
+    /* --------------------------------------------------------
+       Level
+       -------------------------------------------------------- */
+
+    if (elements.levelFilter) {
+
+        elements.levelFilter.addEventListener(
+            "change",
+            () => {
+
+                state.filters.level =
+                    elements.levelFilter.value;
+
+                state.currentPage = 1;
+
+                applyFilters();
+            }
+        );
+    }
+
+
+    /* --------------------------------------------------------
+       Type
+       -------------------------------------------------------- */
+
+    if (elements.typeFilter) {
+
+        elements.typeFilter.addEventListener(
+            "change",
+            () => {
+
+                state.filters.type =
+                    elements.typeFilter.value;
+
+                state.currentPage = 1;
+
+                applyFilters();
+            }
+        );
+    }
+
+
+    /* --------------------------------------------------------
+       Favorites / recent filter
+       -------------------------------------------------------- */
+
+    if (elements.favoriteFilter) {
+
+        elements.favoriteFilter.addEventListener(
+            "change",
+            () => {
+
+                state.filters.favorite =
+                    elements.favoriteFilter.value;
+
+                state.currentPage = 1;
+
+                applyFilters();
+            }
+        );
+    }
+
+
+    /* --------------------------------------------------------
+       Category sidebar search
+       -------------------------------------------------------- */
+
+    if (elements.categorySearch) {
+
+        elements.categorySearch.addEventListener(
+            "input",
+            debounce(() => {
+
+                state.categorySearch =
+                    elements.categorySearch.value;
+
+                filterCategorySidebar();
+
+            }, CONFIG.searchDelay)
+        );
+    }
+
+
+    /* --------------------------------------------------------
+       Category sidebar buttons
+       -------------------------------------------------------- */
+
+    if (elements.categorySidebarList) {
+
+        elements.categorySidebarList
+            .addEventListener(
+                "click",
+                event => {
+
+                    const button =
+                        event.target.closest(
+                            ".category-sidebar-button"
+                        );
+
+
+                    if (!button) {
+                        return;
+                    }
+
+
+                    selectCategory(
+                        button.dataset.category ||
+                        "all"
+                    );
+                }
+            );
+    }
+
+
+    /* --------------------------------------------------------
+       Category chips
+       -------------------------------------------------------- */
+
+    if (elements.categoryChips) {
+
+        elements.categoryChips
+            .addEventListener(
+                "click",
+                event => {
+
+                    const chip =
+                        event.target.closest(
+                            ".category-chip"
+                        );
+
+
+                    if (!chip) {
+                        return;
+                    }
+
+
+                    selectCategory(
+                        chip.dataset.category ||
+                        "all"
+                    );
+                }
+            );
+    }
+
+
+    /* --------------------------------------------------------
+       Sorting
+       -------------------------------------------------------- */
+
+    if (elements.sortSelect) {
+
+        elements.sortSelect.addEventListener(
+            "change",
+            () => {
+
+                state.sortBy =
+                    elements.sortSelect.value;
+
+                state.currentPage = 1;
+
+                applyFilters();
+            }
+        );
+    }
+
+
+    /* --------------------------------------------------------
+       Items per page
+       -------------------------------------------------------- */
+
+    if (elements.itemsPerPage) {
+
+        elements.itemsPerPage.addEventListener(
+            "change",
+            () => {
+
+                const value =
+                    Number(
+                        elements.itemsPerPage.value
+                    );
+
+
+                if (
+                    Number.isFinite(value) &&
+                    value > 0
+                ) {
+
+                    state.itemsPerPage =
+                        value;
+
+                } else {
+
+                    state.itemsPerPage =
+                        CONFIG.defaultItemsPerPage;
+                }
+
+
+                state.currentPage = 1;
+
+                applyFilters();
+            }
+        );
+    }
+
+
+    /* --------------------------------------------------------
+       Reset filters
+       -------------------------------------------------------- */
+
+    if (elements.resetFiltersButton) {
+
+        elements.resetFiltersButton
+            .addEventListener(
+                "click",
+                resetFilters
+            );
+    }
+
+
+    /* --------------------------------------------------------
+       Grid view
+       -------------------------------------------------------- */
+
+    if (elements.gridViewButton) {
+
+        elements.gridViewButton.addEventListener(
+            "click",
+            () => setViewMode("grid")
+        );
+    }
+
+
+    /* --------------------------------------------------------
+       List view
+       -------------------------------------------------------- */
+
+    if (elements.listViewButton) {
+
+        elements.listViewButton.addEventListener(
+            "click",
+            () => setViewMode("list")
+        );
+    }
+
+
+    /* --------------------------------------------------------
+       Tool grid events
+       -------------------------------------------------------- */
+
+    if (elements.toolGrid) {
+
+        elements.toolGrid.addEventListener(
+            "click",
+            event => {
+
+                /**
+                 * Favorite button.
+                 */
+                const favoriteButton =
+                    event.target.closest(
+                        "[data-favorite-tool]"
+                    );
+
+
+                if (favoriteButton) {
+
+                    event.preventDefault();
+
+                    event.stopPropagation();
+
+
+                    toggleFavorite(
+                        favoriteButton.dataset
+                            .favoriteTool
+                    );
+
+                    return;
+                }
+
+
+                /**
+                 * Copy link button.
+                 */
+                const copyButton =
+                    event.target.closest(
+                        "[data-copy-tool]"
+                    );
+
+
+                if (copyButton) {
+
+                    event.preventDefault();
+
+                    event.stopPropagation();
+
+
+                    copyToolLink(
+                        copyButton.dataset
+                            .copyTool,
+                        copyButton
+                    );
+
+                    return;
+                }
+
+
+                /**
+                 * Open tool.
+                 */
+                const openButton =
+                    event.target.closest(
+                        "[data-open-tool]"
+                    );
+
+
+                if (openButton) {
+
+                    openToolModal(
+                        openButton.dataset
+                            .openTool
+                    );
+
+                    return;
+                }
+
+
+                /**
+                 * Clicking card itself.
+                 */
+                const card =
+                    event.target.closest(
+                        ".tool-card"
+                    );
+
+
+                if (card) {
+
+                    openToolModal(
+                        card.dataset.toolId
+                    );
+                }
+            }
+        );
+    }
+
+
+    /* --------------------------------------------------------
+       Pagination
+       -------------------------------------------------------- */
+
+    if (elements.pagination) {
+
+        elements.pagination.addEventListener(
+            "click",
+            event => {
+
+                const button =
+                    event.target.closest(
+                        "[data-page]"
+                    );
+
+
+                if (!button) {
+                    return;
+                }
+
+
+                if (button.disabled) {
+                    return;
+                }
+
+
+                const page =
+                    Number(
+                        button.dataset.page
+                    );
+
+
+                if (
+                    Number.isFinite(page)
+                ) {
+
+                    goToPage(page);
+                }
+            }
+        );
+    }
+
+
+    /* --------------------------------------------------------
+       Explore More
+       -------------------------------------------------------- */
+
+    if (elements.exploreMoreButton) {
+
+        elements.exploreMoreButton
+            .addEventListener(
+                "click",
+                exploreMore
+            );
+    }
+
+
+    /* --------------------------------------------------------
+       Active filters
+       -------------------------------------------------------- */
+
+    if (elements.activeFilters) {
+
+        elements.activeFilters
+            .addEventListener(
+                "click",
+                event => {
+
+                    const removeButton =
+                        event.target.closest(
+                            "[data-remove-filter]"
+                        );
+
+
+                    if (removeButton) {
+
+                        removeFilter(
+                            removeButton.dataset
+                                .removeFilter
+                        );
+
+                        return;
+                    }
+
+
+                    const clearButton =
+                        event.target.closest(
+                            "[data-clear-filters]"
+                        );
+
+
+                    if (clearButton) {
+
+                        resetFilters();
+                    }
+                }
+            );
+    }
+
+
+    /* --------------------------------------------------------
+       Sidebar open
+       -------------------------------------------------------- */
+
+    if (elements.categorySidebarToggle) {
+
+        elements.categorySidebarToggle
+            .addEventListener(
+                "click",
+                openCategorySidebar
+            );
+    }
+
+
+    /* --------------------------------------------------------
+       Sidebar close
+       -------------------------------------------------------- */
+
+    if (elements.categorySidebarClose) {
+
+        elements.categorySidebarClose
+            .addEventListener(
+                "click",
+                closeCategorySidebar
+            );
+    }
+
+
+    /* --------------------------------------------------------
+       Sidebar overlay
+       -------------------------------------------------------- */
+
+    if (elements.categorySidebarOverlay) {
+
+        elements.categorySidebarOverlay
+            .addEventListener(
+                "click",
+                closeCategorySidebar
+            );
+    }
+
+
+    /* --------------------------------------------------------
+       Modal close
+       -------------------------------------------------------- */
+
+    if (elements.closeModal) {
+
+        elements.closeModal.addEventListener(
             "click",
             closeToolModal
         );
+    }
 
+
+    /* --------------------------------------------------------
+       Modal background
+       -------------------------------------------------------- */
+
+    if (elements.toolModal) {
+
+        elements.toolModal.addEventListener(
+            "click",
+            event => {
+
+                /**
+                 * Only close when the outer modal backdrop
+                 * itself is clicked.
+                 */
+                if (
+                    event.target ===
+                    elements.toolModal
+                ) {
+
+                    closeToolModal();
+                }
+            }
+        );
+
+
+        /**
+         * Related tools inside modal.
+         */
+        elements.toolModal.addEventListener(
+            "click",
+            event => {
+
+                const related =
+                    event.target.closest(
+                        "[data-open-tool]"
+                    );
+
+
+                if (!related) {
+                    return;
+                }
+
+
+                openToolModal(
+                    related.dataset.openTool
+                );
+            }
+        );
+    }
+
+
+    /* --------------------------------------------------------
+       Global keyboard shortcuts
+       -------------------------------------------------------- */
 
     document.addEventListener(
         "keydown",
         event => {
 
+            /**
+             * Escape closes modal/sidebar.
+             */
             if (
-                event.key === "Escape" &&
-                !elements.modal.classList.contains(
-                    "hidden"
-                )
+                event.key === "Escape"
             ) {
 
                 closeToolModal();
 
+                closeCategorySidebar();
             }
 
+
+            /**
+             * "/" focuses search unless the user is
+             * already typing in an input.
+             */
+            if (
+                event.key === "/" &&
+                !isTypingTarget(event.target)
+            ) {
+
+                event.preventDefault();
+
+                elements.toolSearch?.focus();
+            }
         }
     );
 
+
+    /* --------------------------------------------------------
+       Window resize
+       -------------------------------------------------------- */
+
+    window.addEventListener(
+        "resize",
+        debounce(() => {
+
+            /**
+             * On desktop, remove mobile drawer state.
+             */
+            if (
+                window.innerWidth > 900
+            ) {
+
+                closeCategorySidebar();
+            }
+
+        }, 150)
+    );
 }
 
 
-/* ================================================================
-   INITIALIZATION
-   ================================================================ */
+/* ============================================================
+   37. COPY TOOL LINK
+   ============================================================ */
 
 /**
- * Starts the documentation application.
+ * Copy a direct URL to the current tool.
+ *
+ * The link uses a query parameter:
+ *
+ * ?tool=tool-id
  */
-async function initializeDocumentation() {
-
-    restoreView();
-
-    bindEvents();
-
-    await loadDatabase();
-
-}
-
-
-/*
- * Start application after the document is ready.
- */
-if (
-    document.readyState === "loading"
+async function copyToolLink(
+    id,
+    button
 ) {
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        initializeDocumentation
+    const url =
+        new URL(
+            window.location.href
+        );
+
+
+    url.searchParams.set(
+        "tool",
+        String(id)
     );
 
-} else {
 
-    initializeDocumentation();
+    try {
 
+        await navigator.clipboard.writeText(
+            url.toString()
+        );
+
+
+        if (button) {
+
+            const original =
+                button.textContent;
+
+
+            button.textContent =
+                "Copied!";
+
+
+            button.classList.add(
+                "copied"
+            );
+
+
+            setTimeout(() => {
+
+                button.textContent =
+                    original;
+
+                button.classList.remove(
+                    "copied"
+                );
+
+            }, 1400);
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Clipboard API unavailable:",
+            error
+        );
+
+
+        /**
+         * Fallback for older browsers.
+         */
+        fallbackCopyText(
+            url.toString()
+        );
+    }
 }
+
+
+/**
+ * Clipboard fallback.
+ */
+function fallbackCopyText(text) {
+
+    const textarea =
+        document.createElement("textarea");
+
+
+    textarea.value =
+        text;
+
+
+    textarea.style.position =
+        "fixed";
+
+    textarea.style.left =
+        "-9999px";
+
+
+    document.body.appendChild(
+        textarea
+    );
+
+
+    textarea.select();
+
+
+    try {
+
+        document.execCommand("copy");
+
+    } catch (error) {
+
+        console.warn(
+            "Fallback copy failed:",
+            error
+        );
+    }
+
+
+    textarea.remove();
+}
+
+
+/* ============================================================
+   38. OPEN TOOL FROM URL
+   ============================================================ */
+
+/**
+ * Automatically open a tool when URL contains:
+ *
+ * ?tool=aws-cloudformation
+ *
+ * This allows shareable direct tool links.
+ */
+function openToolFromUrl() {
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    const toolId =
+        params.get("tool");
+
+
+    if (!toolId) {
+        return;
+    }
+
+
+    const tool =
+        findToolById(toolId);
+
+
+    if (!tool) {
+        return;
+    }
+
+
+    openToolModal(
+        getToolId(tool)
+    );
+}
+
+
+/* ============================================================
+   39. SCROLL TO RESULTS
+   ============================================================ */
+
+/**
+ * Scroll back to the tool result area.
+ */
+function scrollToResults() {
+
+    if (!elements.toolGrid) {
+        return;
+    }
+
+
+    const top =
+        elements.toolGrid.getBoundingClientRect()
+            .top +
+        window.scrollY -
+        120;
+
+
+    window.scrollTo({
+        top,
+        behavior: "smooth"
+    });
+}
+
+
+/* ============================================================
+   40. SAFE URL
+   ============================================================ */
+
+/**
+ * Validate external URLs.
+ *
+ * Only HTTP and HTTPS URLs are allowed.
+ */
+function safeUrl(value) {
+
+    if (!value) {
+        return "";
+    }
+
+
+    try {
+
+        const url =
+            new URL(
+                String(value),
+                window.location.href
+            );
+
+
+        if (
+            url.protocol !== "http:" &&
+            url.protocol !== "https:"
+        ) {
+
+            return "";
+        }
+
+
+        return url.href;
+
+    } catch (error) {
+
+        return "";
+    }
+}
+
+
+/* ============================================================
+   41. HTML ESCAPING
+   ============================================================ */
+
+/**
+ * Escape user/database-controlled text before inserting
+ * into HTML.
+ */
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+}
+
+
+/* ============================================================
+   42. NUMBER FORMAT
+   ============================================================ */
+
+/**
+ * Format numbers nicely.
+ */
+function formatNumber(value) {
+
+    return Number(
+        value || 0
+    ).toLocaleString();
+}
+
+
+/* ============================================================
+   43. DEBOUNCE
+   ============================================================ */
+
+/**
+ * Small debounce helper.
+ */
+function debounce(
+    callback,
+    delay
+) {
+
+    let timeout;
+
+
+    return (...args) => {
+
+        clearTimeout(timeout);
+
+
+        timeout =
+            setTimeout(
+                () =>
+                    callback(...args),
+                delay
+            );
+    };
+}
+
+
+/* ============================================================
+   44. KEYBOARD TARGET HELPER
+   ============================================================ */
+
+/**
+ * Determine whether the user is currently typing.
+ */
+function isTypingTarget(element) {
+
+    if (!element) {
+        return false;
+    }
+
+
+    const tag =
+        element.tagName?.toLowerCase();
+
+
+    return (
+        tag === "input" ||
+        tag === "textarea" ||
+        tag === "select" ||
+        element.isContentEditable
+    );
+}
+
+
+/* ============================================================
+   45. INITIAL URL HANDLING
+   ============================================================ */
+
+/**
+ * Wait until database has loaded before trying to open
+ * ?tool=...
+ *
+ * This is called after database initialization.
+ */
+const originalInitDatabaseAware =
+    loadDatabase;
+
+
+/**
+ * We use a small post-load hook by observing the current
+ * database state after initialization.
+ *
+ * Since loadDatabase() is async and called from init(),
+ * this function is also safe to call manually.
+ */
+async function initializeDeepLink() {
+
+    if (!state.tools.length) {
+        return;
+    }
+
+
+    openToolFromUrl();
+}
+
+
+/* ============================================================
+   46. FINAL INITIALIZATION HOOK
+   ============================================================ */
+
+/**
+ * Re-run the deep-link check after the page has loaded.
+ *
+ * A small timeout allows the JSON rendering pipeline to finish.
+ */
+window.addEventListener(
+    "load",
+    () => {
+
+        setTimeout(
+            initializeDeepLink,
+            0
+        );
+    }
+);
+
+
+/* ============================================================
+   47. GLOBAL OPTIONAL API
+   ============================================================ */
+
+/**
+ * Expose a small API for future buttons or other scripts.
+ *
+ * Example:
+ *
+ * window.CharlieMJDevOps.openTool("docker");
+ *
+ * This does NOT expose internal state.
+ */
+window.CharlieMJDevOps = {
+
+    /**
+     * Open a documentation modal.
+     */
+    openTool(id) {
+
+        openToolModal(id);
+    },
+
+
+    /**
+     * Search programmatically.
+     */
+    search(query) {
+
+        state.searchQuery =
+            String(query || "").trim();
+
+        state.currentPage = 1;
+
+
+        if (elements.toolSearch) {
+
+            elements.toolSearch.value =
+                state.searchQuery;
+        }
+
+
+        applyFilters();
+    },
+
+
+    /**
+     * Select category programmatically.
+     */
+    selectCategory(category) {
+
+        selectCategory(
+            category || "all"
+        );
+    },
+
+
+    /**
+     * Reset the documentation library.
+     */
+    reset() {
+
+        resetFilters();
+    },
+
+
+    /**
+     * Return currently loaded tool count.
+     */
+    getToolCount() {
+
+        return state.tools.length;
+    }
+};
+
+
+/* ============================================================
+   END OF CHARLIE MJ DEVOPS EXPLORER DOCUMENTATION JS
+   ============================================================ */

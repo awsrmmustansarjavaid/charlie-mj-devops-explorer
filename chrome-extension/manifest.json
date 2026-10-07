@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Charlie MJ DevOps Explorer",
-  "version": "3.1.2",
+  "version": "3.2.1",
   "description": "A local-first DevOps command center for discovery, search, learning, practice, projects, roadmaps, collections and activity.",
   "action": {
     "default_title": "DevOps Explorer",
@@ -22,7 +22,9 @@
   "host_permissions": [
     "https://raw.githubusercontent.com/*",
     "https://github.com/*",
-    "https://api.github.com/*"
+    "https://api.github.com/*",
+    "https://*/*",
+    "http://*/*"
   ],
   "commands": {
     "open-devops-explorer": {

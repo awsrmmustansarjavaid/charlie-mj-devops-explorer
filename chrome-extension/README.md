@@ -1,7 +1,5 @@
 # Charlie MJ DevOps Explorer v3.0.0
 
-![DevOps Explorer Chrome Extension](assets/images/charlie-mj-devops-explorer-thumbnail.png)
-
 **Discover → Search → Learn → Practice → Build → Track → Review**
 
 A local-first Manifest V3 Chrome extension that turns the existing DevOps Explorer GitHub repository into a personal DevOps command center.

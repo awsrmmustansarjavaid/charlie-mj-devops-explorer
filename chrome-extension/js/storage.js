@@ -2,21 +2,22 @@ import { DEFAULT_CONFIG, CONFIG_KEY, BOOKMARKS_KEY, HISTORY_KEY, NOTES_KEY, LEAR
 
 export const CUSTOM_CATEGORIES_KEY = 'devopsExplorerCustomCategories';
 export const CUSTOM_TECHNOLOGIES_KEY = 'devopsExplorerCustomTechnologies';
+export const OFFICIAL_DOCS_KEY = 'devopsExplorerOfficialDocumentation';
 export const APP_DATA_KEY = 'devopsExplorerAppData';
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 const DEFAULT_APP_DATA = {
   schemaVersion: SCHEMA_VERSION,
   collections: [], favorites: [], learning: {}, labs: [], projects: [], roadmaps: [],
   activity: [], goals: [], savedSearches: [], stack: [], notes: {}, settings: {},
-  continueItems: [], achievements: [], backupMeta: { lastBackupAt: null }
+  continueItems: [], achievements: [], learningCards: [], backupMeta: { lastBackupAt: null }
 };
 
 function clone(v){ return JSON.parse(JSON.stringify(v)); }
 export async function getConfig(){
   const data=await chrome.storage.local.get(CONFIG_KEY); const stored=data[CONFIG_KEY]||{}; const merged={...DEFAULT_CONFIG,...stored};
-  const legacy=!!(stored.resourceDbPath||stored.resourceDbUrl||String(stored.categoriesPath||'')==='bookmark-db/categories.json'||String(stored.bookmarkPath||'')==='bookmark-db/bookmarks.json'||String(stored.tagsPath||'')==='bookmark-db/tags.json'||String(stored.metadataPath||'')==='bookmark-db/metadata.json'||!stored.technologiesPath||!stored.technologiesUrl);
-  if(legacy){ Object.assign(merged,{categoriesPath:DEFAULT_CONFIG.categoriesPath,categoriesUrl:DEFAULT_CONFIG.categoriesUrl,technologiesPath:DEFAULT_CONFIG.technologiesPath,technologiesUrl:DEFAULT_CONFIG.technologiesUrl,bookmarkPath:DEFAULT_CONFIG.bookmarkPath,tagsPath:DEFAULT_CONFIG.tagsPath,metadataPath:DEFAULT_CONFIG.metadataPath}); delete merged.resourceDbPath; delete merged.resourceDbUrl; await chrome.storage.local.set({[CONFIG_KEY]:merged}); }
+  const legacy=!!(stored.resourceDbPath||stored.resourceDbUrl||String(stored.categoriesPath||'')==='bookmark-db/categories.json'||String(stored.bookmarkPath||'')==='bookmark-db/bookmarks.json'||String(stored.tagsPath||'')==='bookmark-db/tags.json'||String(stored.metadataPath||'')==='bookmark-db/metadata.json'||!stored.technologiesPath||!stored.technologiesUrl||!stored.officialDocumentationPath||!stored.officialDocumentationUrl);
+  if(legacy){ Object.assign(merged,{categoriesPath:DEFAULT_CONFIG.categoriesPath,categoriesUrl:DEFAULT_CONFIG.categoriesUrl,technologiesPath:DEFAULT_CONFIG.technologiesPath,technologiesUrl:DEFAULT_CONFIG.technologiesUrl,bookmarkPath:DEFAULT_CONFIG.bookmarkPath,tagsPath:DEFAULT_CONFIG.tagsPath,metadataPath:DEFAULT_CONFIG.metadataPath,officialDocumentationPath:DEFAULT_CONFIG.officialDocumentationPath,officialDocumentationUrl:DEFAULT_CONFIG.officialDocumentationUrl}); delete merged.resourceDbPath; delete merged.resourceDbUrl; await chrome.storage.local.set({[CONFIG_KEY]:merged}); }
   return merged;
 }
 export async function saveConfig(config){const merged={...DEFAULT_CONFIG,...config}; await chrome.storage.local.set({[CONFIG_KEY]:merged}); return merged;}
@@ -34,12 +35,15 @@ export async function getCustomCategories(){const d=await chrome.storage.local.g
 export async function saveCustomCategories(v){const n=Array.isArray(v)?v:[];await chrome.storage.local.set({[CUSTOM_CATEGORIES_KEY]:n});return n;}
 export async function getCustomTechnologies(){const d=await chrome.storage.local.get(CUSTOM_TECHNOLOGIES_KEY);return Array.isArray(d[CUSTOM_TECHNOLOGIES_KEY])?d[CUSTOM_TECHNOLOGIES_KEY]:[];}
 export async function saveCustomTechnologies(v){const n=Array.isArray(v)?v:[];await chrome.storage.local.set({[CUSTOM_TECHNOLOGIES_KEY]:n});return n;}
+export async function getOfficialDocs(){const d=await chrome.storage.local.get(OFFICIAL_DOCS_KEY);return Array.isArray(d[OFFICIAL_DOCS_KEY])?d[OFFICIAL_DOCS_KEY]:[];}
+export async function saveOfficialDocs(v){const n=Array.isArray(v)?v:[];await chrome.storage.local.set({[OFFICIAL_DOCS_KEY]:n});return n;}
 
 export async function migrateAppData(){
   const d=await chrome.storage.local.get(APP_DATA_KEY); let data={...DEFAULT_APP_DATA,...(d[APP_DATA_KEY]||{})};
   let v=Number(data.schemaVersion||1);
   if(v<2){data.savedSearches=data.savedSearches||[];data.goals=data.goals||[];v=2;}
   if(v<3){data.achievements=data.achievements||[];data.backupMeta=data.backupMeta||{lastBackupAt:null};v=3;}
+  if(v<4){data.learningCards=data.learningCards||[];v=4;}
   data.schemaVersion=SCHEMA_VERSION; await chrome.storage.local.set({[APP_DATA_KEY]:data}); return data;
 }
 export async function getAppData(){const d=await migrateAppData();return {...clone(DEFAULT_APP_DATA),...d};}
@@ -54,5 +58,6 @@ export const StorageService={
   bookmarks:{get:getBookmarks,save:saveBookmarks},
   history:{get:getHistory,add:addHistory},
   app:{get:getAppData,save:saveAppData,patch:patchAppData},
+  documentation:{get:getOfficialDocs,save:saveOfficialDocs},
   schemaVersion:SCHEMA_VERSION
 };

@@ -10,6 +10,8 @@ export const DEFAULT_CONFIG = {
   bookmarkPath: "chrome-extension/bookmark-db/bookmarks.json",
   tagsPath: "chrome-extension/bookmark-db/tags.json",
   metadataPath: "chrome-extension/bookmark-db/metadata.json",
+  officialDocumentationPath: "data/official-documentation.json",
+  officialDocumentationUrl: "https://raw.githubusercontent.com/awsrmmustansarjavaid/charlie-mj-devops-explorer/main/data/official-documentation.json",
   versionPath: "chrome-extension/version.json",
   token: "",
   theme: "dark",
@@ -18,7 +20,7 @@ export const DEFAULT_CONFIG = {
   githubSyncEnabled: false
 };
 
-export const APP_VERSION = "3.1.2";
+export const APP_VERSION = "3.2.1";
 export const CONFIG_KEY = "devopsExplorerConfig";
 export const BOOKMARKS_KEY = "devopsExplorerBookmarks";
 export const HISTORY_KEY = "devopsExplorerHistory";

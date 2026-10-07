@@ -72,7 +72,7 @@ It lives inside the same repository under `chrome-extension/` and **does not dup
 ## Download
 
 <p align="center">
-  <a href="/downloads/charlie-mj-devops-explorer-v3.1.2.zip">
+  <a href="/downloads/charlie-mj-devops-explorer-v3.2.1.zip">
     <img src="https://img.shields.io/badge/⬇%20Download%20Chrome%20Extension-2ea44f?style=for-the-badge" alt="Download Chrome Extension">
   </a>
 </p>
