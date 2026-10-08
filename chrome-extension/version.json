@@ -1,16 +1,12 @@
 {
-  "version": "3.3.1",
+  "version": "3.3.4",
   "name": "Charlie MJ DevOps Explorer",
-  "releaseDate": "2026-10-07",
+  "releaseDate": "2026-10-08",
   "notes": [
-    "Bug-fix release: corrected dashboard module syntax caused by await inside deleteDocumentation and malformed Learning resource newline literals",
-    "Added Category and Subcategory to Official Documentation records and upgraded the registry to JSON schema v2",
-    "Official Documentation JSON now includes category taxonomy, tags, and the GitHub Actions example",
-    "Learning cards can link existing Labs, Projects, Goals and Roadmaps through Add Additional Details",
-    "Linked Learning cards are visible from existing Lab, Project, Goal and Roadmap records through Additional Details",
-    "Labs and Projects now support JSON Import and Export",
-    "Official Documentation selection in Learning now has search and multi-select instead of a full unfiltered list",
-    "Learning cards now have an Open detail view",
-    "Workspace schema migrated to v5 while preserving existing data and features"
+    "Documentation release: replaced the root README with a complete feature, architecture, usage, and documentation index",
+    "Added complete User Manual covering installation, GitHub search, Learning, Labs, Projects, Goals, Roadmaps, technologies and official documentation",
+    "Added Technology Stack, Feature Workflows, Learning Workspace, Import/Export, Extension Design and Documentation Index guides",
+    "Expanded workspace-specific README documentation for Explore, Taxonomy, Learning, Labs, Projects, Roadmaps, Goals, Collections, Favorites, Activity, AI Advisor, Admin and Settings",
+    "Linked all shipped Markdown documentation from the main README"
   ]
 }

@@ -20,7 +20,7 @@ export const DEFAULT_CONFIG = {
   githubSyncEnabled: false
 };
 
-export const APP_VERSION = "3.3.1";
+export const APP_VERSION = "3.3.4";
 export const CONFIG_KEY = "devopsExplorerConfig";
 export const BOOKMARKS_KEY = "devopsExplorerBookmarks";
 export const HISTORY_KEY = "devopsExplorerHistory";
