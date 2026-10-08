@@ -85,6 +85,34 @@ It lives inside the same repository under `chrome-extension/` and **does not dup
   </a>
 </p>
 
+# 🧑‍💻 User Manual
+
+For new users, the recommended starting point is the complete user manual.
+
+It explains:
+
+- how to install the extension
+- how to configure it
+- how to search DevOps resources
+- how to search GitHub
+- how to bookmark resources
+- how to create Learning cards
+- how to attach official documentation
+- how to create Labs
+- how to create Projects
+- how to create Goals
+- how to create Roadmaps
+- how to connect Learning cards to Labs/Projects/Goals/Roadmaps
+- how to add technologies
+- how to add official documentation
+- how to use import/export
+- how to use Markdown downloads
+- how to use health checks
+- how to use backups
+
+[📖 **Click here to read the complete User Manual →**](/chrome-extension/docs/USER-MANUAL.md)
+
+---
 
 ---
 
